@@ -1,0 +1,256 @@
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Attendance;
+use App\Models\Visit;
+use App\Models\Project;
+use App\Models\User;
+
+use Inertia\Inertia;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
+use App\Services\EmployeePerformanceService;
+class AttendanceController extends Controller
+{
+    
+    public function attList($user=null)
+    {
+        if($user == null){
+            $atts = Attendance::all()->load('user', 'project');
+            $visits = Visit::all()->load('user', 'customer'); 
+        }else{
+
+            $atts = Attendance::where('user_id', $user)->get()->load('user', 'project');
+            $visits = Visit::where('user_id', $user)->get()->load('user', 'customer');
+        }
+        $users = User::all();
+        $projects = Project::all();
+        return Inertia::render('User/AttList', [
+            'atts' => $atts,
+            'visits' => $visits,
+            'users' => $users,
+            'projects' => $projects,
+        ]);
+    }
+    public function attFilter(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'from' => 'required|date',
+            'to' => 'required|date|after_or_equal:from',
+        ]);
+        $user = User::findOrFail($request->user_id);
+        $from = Carbon::parse($request->from)->startOfDay();
+        $to = Carbon::parse($request->to)->endOfDay();
+
+        $report = collect();
+
+        $period = CarbonPeriod::create($from, $to);
+        
+        foreach ($period as $current) {
+            $attendances = Attendance::whereDate('check_in_time', $current)
+                ->where('user_id', $user->id)
+                ->with('project')
+                ->get();
+        
+            foreach ($attendances as $att) {
+                $report->push([
+                    'date' => $current->toDateString(),
+                    'type' => 'project',
+                    'name' => $att->project->name ?? 'مشروع',
+                    'check_in' => $att->check_in_time,
+                    'check_out' => $att->check_out_time,
+                ]);
+            }
+        
+            $visits = Visit::whereDate('check_in', $current)
+                ->where('user_id', $user->id)
+                ->with('customer')
+                ->get();
+        
+            foreach ($visits as $visit) {
+                $report->push([
+                    'date' => $current->toDateString(),
+                    'type' => 'visit',
+                    'name' => $visit->customer->name ?? 'زيارة',
+                    'check_in' => $visit->check_in,
+                    'check_out' => $visit->check_out,
+                ]);
+            }
+        
+            // لو مفيش حضور نهائي
+            if ($attendances->isEmpty() && $visits->isEmpty()) {
+                $report->push([
+                    'date' => $current->toDateString(),
+                    'type' => 'absent',
+                    'name' => 'غياب',
+                    'check_in' => null,
+                    'check_out' => null,
+                ]);
+            }
+        }
+
+    return Inertia::render('User/ReportView', [
+        'report' => $report,
+        'user' => $user,
+        'from' => $request->from,
+        'to' => $request->to,
+    ]);
+
+    }
+    public function attFilterss(Request $request)
+    {
+        $from = Carbon::parse($request->from)->startOfDay(); // 00:00:00
+        $to = Carbon::parse($request->to)->endOfDay();    
+        $userId = $request->input('user_id');
+        $users = User::all();
+
+        //atts
+        $atts = Attendance::query()
+        ->when($userId, fn($q) => $q->where('user_id', $userId))
+        ->when($from && $to, fn($q) => $q->whereBetween('check_in_time', [$from, $to]))
+        ->with(['user', 'project'])
+        ->get();
+          // dd($atts);
+        //visits
+        $visits = Visit::query()
+        ->when($userId, fn($q) => $q->where('user_id', $userId))
+        ->when($from && $to, fn($q) => $q->whereBetween('check_in', [$from, $to]))
+        ->with(['user', 'customer'])
+        ->get();
+        return Inertia::render('User/AttList', [
+            'atts' => $atts,
+            'visits' => $visits,
+            'users' => $users,
+            'filters' => [
+                'user_id' => $userId,
+                'from' => $from,
+                'to' => $to,
+            ],
+        ]);
+    }
+    public function checkIn(Request $request, Project $project)
+    {
+        //dd($request->all());
+        $user = auth()->user();
+    
+        // Check if already checked in today
+        $existing = Attendance::whereDate('check_in_time', now()->toDateString())
+                    ->where('user_id', $user->id)
+                    ->where('project_id', $project->id)
+                    ->first();
+    
+        if ($existing) {
+            return back()->with('message', 'تم تسجيل حضورك مسبقًا اليوم.');
+        }
+    
+        Attendance::create([
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'check_in_time' => now(),
+            'in_location' => $request->input('location', 'غير محدد'),
+            'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
+        ]);
+    
+        return back()->with('message', 'تم تسجيل الحضور بنجاح.');
+    }
+    public function manualCheckIn(Request $request )
+    {
+       // dd($request->all());
+         $user = $request->user_id;
+         $project = $request->project;
+         $inOut = $request->inOut;
+        // Check if already checked in today
+        if($inOut === 'in'){
+
+            $existing = Attendance::whereDate('check_in_time', now()->toDateString())
+                        ->where('user_id', $user)
+                        ->where('project_id', $project)
+                        ->first();
+        
+            if ($existing) {
+                return back()->with('message', 'تم تسجيل حضورك مسبقًا اليوم.');
+            }
+        
+            Attendance::create([
+                'user_id' => $user,
+                'project_id' => $project,
+                'check_in_time' => now(),
+                'in_location' => $request->input('location', 'غير محدد'),
+                'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
+            ]);
+            return back()->with('message', 'تم تسجيل الحضور بنجاح.');
+        }elseif($inOut === 'out'){
+                $attendance = Attendance::where('user_id', $user)
+            ->where('project_id', $project)
+            ->whereDate('check_in_time', today())
+            ->whereNull('check_out_time')
+            ->first();
+
+        if (!$attendance) {
+            return back()->withErrors(['message' => 'لم يتم تسجيل الحضور أولاً.']);
+        }
+
+        $attendance->update([
+            'check_out_time' => now(),        
+            'out_location' => $request->input('location', 'غير محدد'),
+        ]);
+        return back()->with('message', 'تم تسجيل الانصراف بنجاح.');
+        }
+    
+       
+    }
+    public function checkOut(Request $request,Project $project)
+{
+    $user = auth()->user();
+
+    $attendance = Attendance::where('user_id', $user->id)
+        ->where('project_id', $project->id)
+        ->whereDate('check_in_time', today())
+        ->whereNull('check_out_time')
+        ->first();
+
+    if (!$attendance) {
+        return back()->withErrors(['message' => 'لم يتم تسجيل الحضور أولاً.']);
+    }
+
+    $attendance->update([
+        'check_out_time' => now(),        
+        'out_location' => $request->input('location', 'غير محدد'),
+    ]);
+
+    return back()->with('message', 'تم تسجيل الانصراف بنجاح.');
+}
+
+public function calculateAttendancePercentageUntillToday($userId, $month=null)
+{
+    
+
+    $service = new EmployeePerformanceService();
+    $data = $service->calculate($userId, $month);
+//dd($data);
+    return response()->json($data);
+ 
+    //return round($attendancePercentage, 2); // نقربها لرقمين عشريين
+}
+public function countLateAttendances($userId, $month)
+{
+    $month = Carbon::create(null, Carbon::now()->month, 1);
+    $startOfMonth = Carbon::parse($month)->startOfMonth();
+    $endOfMonth = Carbon::parse($month)->endOfMonth();
+
+    $lateAttendances = Attendance::where('user_id', $userId)
+        ->whereBetween('check_in_time', [$startOfMonth, $endOfMonth])
+        ->where('is_late', true)
+        ->count();
+
+    return $lateAttendances;
+}
+
+
+}
+

@@ -1,0 +1,177 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
+use App\Models\Project;
+use App\Models\User;
+use App\Models\Task;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
+
+class AdminUserController extends Controller
+{
+    public function index()
+    {
+        $users = User::with('salary')->get();
+
+        return Inertia::render('Admin/Users/List', [
+            'users' => $users
+        ]);
+    }
+    public function create()
+    {
+        return Inertia::render('Admin/Users/Create');
+    }
+
+    public function edit($id)
+    {
+        // جلب جميع الموظفين
+        $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects');
+        $acceptedAdvances = $user->advances()->where('status' , 'accepted')->get()->load('project');
+        $pendingAdvances = $user->advances()->where('status' , 'pending')->get()->load('project');
+        $expenses = $user->expenses()->select('amount', 'description', 'spent_at')->get();
+        $deductions= $user->deductions()->select('amount', 'type', 'deducted_at' , 'note')->get();
+        $totalAdvance = $acceptedAdvances->sum('amount');
+        $totalExpense = $expenses->sum('amount');
+        $remaining = $totalAdvance - $totalExpense;
+       // $project = Project::with('tasks' , 'tasks.users', 'users')->find($id);
+       
+       // $userIds = $project->users->pluck('id');
+       return Inertia::render('Admin/Users/Edit', [
+        'acceptedAdvances' => $acceptedAdvances,
+        'pendingAdvances' => $pendingAdvances,
+        'expenses' => $expenses,
+        'totalAdvance' => $totalAdvance,
+        'totalExpense' => $totalExpense,
+        'remaining' => $remaining,
+        'user' => $user,
+        'deductions' => $deductions,
+    ]);
+       
+    }
+    public function show($id)
+    {
+        $project = Project::find($id);
+        $tasks = $project->tasks()->with('users')->get();
+        $users = $project->users;
+    
+        return Inertia::render('Projects/ProjectDetails', [
+            'project' => $project,
+            'tasks' => $tasks,
+            'users' => $users,
+        ]);
+    }
+    public function store(Request $request )
+    {
+        //dd($request->all());
+       $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'base_salary' => 'required|numeric',
+            'final_salary' => 'required|numeric',
+            'password' => 'required|min:8',
+        ]);
+        $currentuserRole = auth()->user()->role ;
+
+       
+       $user =  User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $currentuserRole === "admin" ? $request->role : 'employee',
+            'password' => Hash::make($request->password),
+        ]);
+
+        if($user){
+
+            $user->salary()->create([
+                'base_salary' => $request->base_salary,
+                'final_salary' => $request->final_salary,
+            ]);
+        }
+      
+    
+        return back()->with('message', 'تم انشاء الموظف بنجاح!'); // "Task updated successfully"
+    }
+    public function update(Request $request , $id)
+    {
+        //dd($request->all());
+       $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'base_salary' => 'required|numeric',
+            'final_salary' => 'required|numeric',
+        ]);
+       // dd($request->all());
+       $currentuserRole = auth()->user()->role ;
+      // 
+        $user = User::with('salary')->find($id);
+        if ($user->salary) {
+        $user->salary()->update([
+            'base_salary' => $request->base_salary,
+            'final_salary' => $request->final_salary,
+        ]);
+    }else {
+        $user->salary()->create([
+            'base_salary' => $request->base_salary,
+            'final_salary' => $request->final_salary,
+        ]);
+    }
+    if ($request->filled('password')) {
+        $pass = Hash::make($request->password);
+        $user->update([
+            'password' => $pass,
+        ]);
+    }
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        if($currentuserRole === "admin" && auth()->user()->id !== $user->id ){
+            $user->update([
+                'role' => $request->role,
+            ]);
+        }
+
+      //  $user->update($validated);
+     
+      
+      
+    
+        return back()->with('message', 'تم تحديث الموظف بنجاح!'); // "Task updated successfully"
+    }
+
+    public function assignTasks($projectId)
+    {
+        $project = Project::with('tasks', 'users')->findOrFail($projectId);
+        $tasks = Task::with('users')->get(); // جلب جميع المهام المتاحة
+        $users = User::all(); // جلب جميع الموظفين
+    
+        // إرسال البيانات إلى React عبر Inertia
+        return Inertia::render('Projects/AssignTasks', [
+            'project' => $project,
+            'tasks' => $tasks,
+            'users' => $users,
+        ]);
+    }
+    
+    public function saveTasks(Request $request, $projectId)
+    {
+        $project = Project::findOrFail($projectId);
+    
+        // تخصيص المهام للموظفين
+      
+        if ($request->has('employee_tasks')) {
+            foreach ($request->employee_tasks as $taskId => $userId) {
+                $task = Task::findOrFail($taskId);
+                $user = User::findOrFail($userId);
+                
+                // Sync the selected user (replaces any existing assignments)
+                $task->users()->sync([$userId => ['project_id' => $projectId]]);
+            }
+        }
+    
+        return redirect()->route('admin.dashboard')->with('message', 'Tasks assigned successfully');
+    }
+}
