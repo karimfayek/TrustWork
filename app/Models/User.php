@@ -51,10 +51,15 @@ class User extends Authenticatable
      return $this->belongsToMany(Project::class);
     }
     public function activeProjects()
-{
-    return $this->belongsToMany(Project::class)
-                ->whereDate('end_date', '>=', now()->toDateString());
-}
+    {
+        return $this->belongsToMany(Project::class)
+                    ->whereDate('end_date', '>=', now()->toDateString());
+    }
+    public function endedProjects()
+    {
+        return $this->belongsToMany(Project::class)
+                    ->whereDate('end_date', '<', now()->toDateString());
+    }
     public function tasks()
     {
         return $this->belongsToMany(Task::class)->withTimestamps()->withPivot('project_id' , 'quantity');

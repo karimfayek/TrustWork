@@ -5,6 +5,7 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
 import TaskList from '../Admin/Tasks/TaskList';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function EditProject({ users, project, userIds }) {
   
@@ -94,7 +95,7 @@ export default function EditProject({ users, project, userIds }) {
     };
 
     return (
-        <>
+       <AuthenticatedLayout>
             <Head title="تعديل مشروع " />
 
             <div className="max-w-4xl mx-auto px-6 py-8 bg-white rounded shadow">
@@ -317,6 +318,6 @@ required
                     </div>
                 </form>
             </div>
-        </>
+            </AuthenticatedLayout>
     );
 }

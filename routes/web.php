@@ -49,6 +49,7 @@ Route::middleware(['auth' ,  'role:admin'])->group(function () {
    //reports
    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/employees', [ReportController::class, 'employeeReport'])->name('reports.employees');
+    Route::get('/reports/projects', [ReportController::class, 'projectsReport'])->name('projects.employees');
 });
 
 //employee,admin,acc
