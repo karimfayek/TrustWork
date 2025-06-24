@@ -26,7 +26,8 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
 
     return (
         <div className="p-6">
-            <div className="bg-gray-100 mb-12 p-5 shadow-sm">
+            <h2 className='text-2xl text-center underline'>{user.name}</h2>
+            <div className="bg-gray-100 mb-12 p-5 shadow-sm ">
                 <MonthSelector month={month} setMonth={setMonth} />
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -45,7 +46,7 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
 const MonthSelector = ({ month, setMonth }) => (
     <div>
         <select
-            className="mb-4 w-48"
+            className="mb-4 w-48 print:hidden"
             name="month"
             id="month"
             value={month}

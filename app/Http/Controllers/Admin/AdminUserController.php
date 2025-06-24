@@ -13,7 +13,7 @@ class AdminUserController extends Controller
 {
     public function index()
     {
-        $users = User::with('salary')->get();
+        $users = User::where('status' , 1)->with('salary')->get();
 
         return Inertia::render('Admin/Users/List', [
             'users' => $users
@@ -65,9 +65,17 @@ class AdminUserController extends Controller
     public function store(Request $request )
     {
         //dd($request->all());
+        $existAndDeleted = User::withTrashed()->where('email' , $request->email)->where('status' , 0)->first();
+        if($existAndDeleted){
+            $existAndDeleted->update([
+                'status' => 1 
+            ]);
+            $existAndDeleted->restore();
+            return back()->with('message', '   المستخدم كان موجودا فى سله المهملات وتمت استعادتة - اذهب لقائمه الموظفين وقم بتعديله !'); 
+        }
        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'base_salary' => 'required|numeric',
             'final_salary' => 'required|numeric',
             'password' => 'required|min:8',
@@ -173,5 +181,24 @@ class AdminUserController extends Controller
         }
     
         return redirect()->route('admin.dashboard')->with('message', 'Tasks assigned successfully');
+    }
+
+    
+    public function deleteUser(Request $request)
+    {
+       // dd($request->all());
+        $user = User::find($request->id);
+        if($user->id === auth()->user()->id){
+            return back()->with('message', ' لا يمكن مسح المستخدم الحالى(لا تمسح نفسك)!'); 
+        }
+        if($user){
+            $user->update([
+                'status' => 0 
+            ]);
+            $user->delete();
+            return back()->with('message', 'تم   الحذف!'); 
+        }else{
+            return back()->with('message', '   حدثت مشكله اثناء الحذف!'); 
+        }
     }
 }

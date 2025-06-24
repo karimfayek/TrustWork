@@ -10,6 +10,7 @@ export default function VisitStartPage({ customers, activeVisit  }) {
         error: LocationError,
         getLocation,
       } = useGeolocation();
+      
       const [geoError, setGeoError] = useState(null);
       useEffect(() => {
         getLocation();

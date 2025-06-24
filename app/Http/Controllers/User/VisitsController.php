@@ -54,6 +54,7 @@ class VisitsController extends Controller
 
     public function store(Request $request)
     {
+        //dd($request->all());
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
         ]);
@@ -82,7 +83,7 @@ class VisitsController extends Controller
 
         $request->validate([
             'notes' => 'nullable|string',
-            'report' => 'required|image|max:2048',
+            'report' => 'required|image',
         ]);
 
         if ($request->hasFile('report')) {
@@ -100,6 +101,34 @@ class VisitsController extends Controller
             'redirect' => route('visits.show', $visit->id),
             'message' => 'تم إنهاء الزيارة',
         ]);
+    }
+    public function edit(Request $request, $id)
+    {
+        //dd($request->input('location'));
+        $visit = Visit::findOrFail($id);
+
+        $request->validate([
+            'notes' => 'nullable|string',
+            'report' => 'nullable|image',
+        ]);
+
+        if ($request->hasFile('report')) {
+            $path = $request->file('report')->store('reports', 'public');
+            $file = public_path('\\storage\\' . $visit->report_path);
+
+            if (file_exists($file)) {
+                @unlink($file);
+            }
+           
+            $visit->report_path = $path;
+        }
+
+        $visit->notes = $request->notes;
+        $visit->check_out = now();
+        //$visit->out_location =  $request->input('location', 'غير محدد');
+        $visit->save();
+
+        return back()->with('message', 'تم  التعديل بنجاح!');
     }
 
 }

@@ -1,15 +1,29 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Dashboard({ projects }) {
+    const user = usePage().props.auth.user;
+    const role = user?.role;
+    const handleDeleteProject = (e, id) => {
+        e.preventDefault();
+    
+        const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذا المشروع؟");
+    
+        if (!confirmed) return; // المستخدم رفض
+    
+        router.post(
+            route("admin.project.delete"),
+            { id }
+        );
+    };
     return (
         <AuthenticatedLayout>
             <Head title="Admin Dashboard" />
 
             <div className="max-w-7xl mx-auto p-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold text-gray-800">لوحة تحكم الأدمن</h1>
+                    <h1 className="text-3xl font-bold text-gray-800">المشاريع  </h1>
                     <Link
                         href={route('admin.projects.create')}
                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow"
@@ -33,28 +47,74 @@ export default function Dashboard({ projects }) {
                             {projects.map((project) => (
                                 <tr key={project.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{project.name}</td>
-                                    <td className="px-6 py-4 text-gray-600">{project.description}</td>
+                                    <td className="px-6 py-4 text-gray-600 max-w-[200px] truncate whitespace-nowrap overflow-hidden">
+                                        {project.description}
+                                    </td>
                                     <td className="px-6 py-4">{project.start_date}</td>
-                                    <td className="px-6 py-4">{project.end_date}</td>
+                                    <td className={`px-6 py-4 ${new Date(project.end_date) < new Date() ? 'text-red-500' : ''}`}>
+  {project.end_date}
+</td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
-                                        <Link
-                                            href={route('projects.assignTasks', project.id)}
-                                            className="mb-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                        {(role === 'admin' || role === 'proj') &&
+
+                                            <>
+                                                <Link
+                                                    href={route('projects.assignTasks', project.id)}
+                                                    className="mb-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                                >
+                                                    إسناد المهام
+                                                </Link><Link
+                                                    href={route('project.show', project.id)}
+                                                    className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                                >
+                                                    عرض
+                                                </Link>
+
+
+                                            </>
+                                        }
+                                        {(role === 'admin' || role === 'proj' || role === 'tech') &&
+
+                                            <Link
+                                                href={route('admin.projects.edit', project.id)}
+                                                className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                            >
+                                                تعديل
+                                            </Link>
+                                        }
+                                        {(role === 'admin') &&
+
+                                            <>
+                                            <Link
+                                                href={route('project.extractions.list', project.id)}
+                                                className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                            >
+                                                مستخلص
+                                            </Link>
+                                            <button
+                                        onClick={(e) => handleDeleteProject (e, project.id)}
+                                          
+                                            className="inline-block bg-red-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                         >
-                                            إسناد المهام
-                                        </Link>
-                                        <Link
-                                            href={route('project.show', project.id)}
-                                            className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                        >
-                                            عرض
-                                        </Link>
-                                        <Link
-                                            href={route('admin.projects.edit', project.id)}
-                                            className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                        >
-                                            تعديل
-                                        </Link>
+                                            مسح
+                                        </button>
+                                            </>
+                                        }
+                                       
+
+                                        {(role == 'acc') &&
+                                         <><Link
+                                                href={route('project.extractions', project.id)}
+                                                className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                            >
+                                                مستخلص
+                                            </Link><Link
+                                                href={route('acc.pricing', project.id)}
+                                                className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                            >
+                                                    تسعير
+                                                </Link></>
+                                        }
                                     </td>
                                 </tr>
                             ))}

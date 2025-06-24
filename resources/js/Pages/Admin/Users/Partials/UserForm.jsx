@@ -5,6 +5,7 @@ import InputError from "@/Components/InputError";
 import { useForm } from '@inertiajs/react';
 
 export default function UserForm({ user }) {
+    const basicSalary = user?.salary?.final_salary *.65 || ''
     const { data, setData, post, processing, errors } = useForm({
         name: user?.name || "",
         role: user?.role || "",
@@ -12,8 +13,21 @@ export default function UserForm({ user }) {
         base_salary: user?.salary?.base_salary || "",
         email: user?.email || "",
         password: "",
+        must_change_password: user.must_change_password ,
     });
-
+    const handleSalaryChange = (final) => {
+        if (!isNaN(final)) {
+            setData((prevData) => ({
+                ...prevData,
+                final_salary: final,
+                base_salary: final * 0.65,
+            }));
+        } else {
+            // لو أدخل نص غير صالح (مثلاً حروف)، ثبت القيمة فقط بدون حساب
+            setData("final_salary", final);
+        }
+    };
+console.log(basicSalary , 'basic')
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route("admin.user.update", user.id));
@@ -55,6 +69,7 @@ export default function UserForm({ user }) {
                     <option value="">اختر</option>
                     <option value="employee">موظف</option>
                     <option value="acc">حسابات</option>
+                    <option value="tech">مكتب فنى </option>
                     <option value="proj">مدير مشروعات</option>
                     <option value="admin">ادمن</option>
                 </select>
@@ -72,37 +87,61 @@ export default function UserForm({ user }) {
                 />
                 <InputError message={errors.password} className="mt-2" />
             </div>
-
-            <div>
-                <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
-                <TextInput
-                    id="base_salary"
-                    type="text"
-                    value={data.base_salary}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData("base_salary", e.target.value)}
-                />
-                <InputError message={errors.base_salary} className="mt-2" />
-            </div>
-            
             <div>
                 <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
                 <TextInput
                     id="final_salary"
-                    type="text"
+                    type="number"
+                    onWheel={(e) => e.target.blur()}
                     value={data.final_salary}
                     className="mt-1 block w-full"
-                    onChange={(e) => setData("final_salary", e.target.value)}
+                    onChange={(e) => handleSalaryChange(e.target.value)}
                 />
                 <InputError message={errors.final_salary} className="mt-2" />
             </div>
+            <div>
+                <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
+                <TextInput
+                    id="base_salary"
+                    type="number"
+                    onWheel={(e) => e.target.blur()}
+                    value={data.base_salary}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData("base_salary", e.target.value)}
+                    readOnly
+                />
+                <InputError message={errors.base_salary} className="mt-2" />
+            </div>
+            <div>
+                <InputLabel htmlFor="base_salary" value=" المتغير" />
+                <TextInput
+                    id="base_salary"
+                    type="number"
+                    onWheel={(e) => e.target.blur()}
+                    value={Number(data.final_salary) - Number(data.base_salary)}
+                    className="mt-1 block w-full"
+                    readOnly
+                />
+                <InputError message={errors.base_salary} className="mt-2" />
+            </div>
+            
+            <div className="mt-4">
+    <label className="flex items-center">
+        <input
+            type="checkbox"
+            checked={data.must_change_password}
+            onChange={(e) => setData("must_change_password", e.target.checked)}
+        />
+        <span className="ml-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
+    </label>
+</div>
 
             <div>
                 <PrimaryButton
-                    className="w-full justify-center"
+                    className="w-full justify-center bg-green-600 hover:bg-green-500"
                     disabled={processing}
                 >
-                    تعديل الموظف
+                    حفظ 
                 </PrimaryButton>
             </div>
         </form>

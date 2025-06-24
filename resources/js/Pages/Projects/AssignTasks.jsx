@@ -7,16 +7,22 @@ export default function AssignTasks({ project, tasks, users }) {
     const { data, setData, post } = useForm({
         // Initialize with existing assignments (if editing)
         employee_tasks: tasks.reduce((acc, task) => {
-            // If task has assigned users, take the first one (since radio allows only one)
-            acc[task.id] = task.users.length > 0 ? task.users[0].id : null;
+            acc[task.id] = task.users.map(user => user.id); // أكثر من موظف لكل مهمة
             return acc;
         }, {}),
     });
 
     const handleTaskAssign = (taskId, userId) => {
+        const currentAssignments = data.employee_tasks[taskId] || [];
+
+        const isAlreadyAssigned = currentAssignments.includes(userId);
+        const updatedAssignments = isAlreadyAssigned
+            ? currentAssignments.filter(id => id !== userId) // إزالة
+            : [...currentAssignments, userId]; // إضافة
+
         setData('employee_tasks', {
             ...data.employee_tasks,
-            [taskId]: userId, // Only store the selected user for this task
+            [taskId]: updatedAssignments,
         });
     };
 
@@ -29,7 +35,7 @@ export default function AssignTasks({ project, tasks, users }) {
 
         <AuthenticatedLayout>
             <div className='container p-6'>
-                <h1 className='text-2xl font-bold mb-4'>Assign Tasks to Employees for Project: {project.name}</h1>
+                <h1 className='text-2xl font-bold mb-4'>اسناد المهام للموظفين للمشروع: {project.name}</h1>
 
                 <form onSubmit={handleSubmit} className=" bg-white form-control p-6">
                     <div >
@@ -40,12 +46,12 @@ export default function AssignTasks({ project, tasks, users }) {
                                     <li className='border p-2 text-2xl'>{task.title}</li>
                                     <div>
                                         {users.map((user) => (
-                                            <div key={user.id} className=' mt-2'>
+                                            <div key={user.id} className='mt-2'>
                                                 <label>
                                                     <input
-                                                        type="radio"
-                                                        name={`task_${task.id}`} // Group radio buttons by task ID
-                                                        checked={data.employee_tasks[task.id] === user.id}
+                                                        type="checkbox"
+                                                        name={`task_${task.id}[]`}
+                                                        checked={data.employee_tasks[task.id]?.includes(user.id)}
                                                         onChange={() => handleTaskAssign(task.id, user.id)}
                                                         className="mr-2 ml-2"
                                                     />
@@ -58,7 +64,7 @@ export default function AssignTasks({ project, tasks, users }) {
                             ))}
                         </div>
                     </div>
-                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4">Save Assignments</button>
+                    <button type="submit" className="btn btn-green btn-fixed-bottom"> حفظ</button>
                 </form>
             </div>
 

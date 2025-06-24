@@ -16,7 +16,7 @@ class ToolAssignmentController extends Controller
     {
 
         $tools = Tool::all();
-        $users = User::all();
+        $users = User::where('role', 'employee')->where('status' , 1)->get();
         $assignments = ToolAssignment::with(['tool', 'user'])->get();
 
         return Inertia::render('Admin/ToolAssignments/Index', [

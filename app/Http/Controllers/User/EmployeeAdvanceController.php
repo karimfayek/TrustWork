@@ -17,7 +17,7 @@ class EmployeeAdvanceController extends Controller
         $user = $request->user();
         $finalSalary = $user->salary->final_salary;
         $advances = $user->advances()->get()->load('project');
-        $expenses = $user->expenses()->select('amount', 'description', 'spent_at')->get();
+        $expenses = $user->expenses()->get()->load('by', 'advance' , 'advance.project');
 
         $totalAdvance = $user->advances()->accepted()->sum('amount');
       // dd($totalAdvance);
@@ -61,7 +61,7 @@ class EmployeeAdvanceController extends Controller
         ]);
         $project= Project::find($request->project_id);
         //Mail::to('kariem.pro@gmail.com')->send( new SendEmail($user->name,$user->email,$request->amount,$request->note));
-        Mail::to('kariem.pro@gmail.com')->send(new AdvanceRequestNotification(
+        Mail::to('accounting@trustits.net')->cc(['kariem.pro@gmail.com', 'msalah@trustits.net'])->send(new AdvanceRequestNotification(
             $user->name,
             $project->name,
             $request->amount,
@@ -79,6 +79,7 @@ class EmployeeAdvanceController extends Controller
             'method' => 'required',
         ]);
         //dd($request->all());
+
         $user = $request->user_id
             ? User::findOrFail($request->user_id) // الإدمن يضيف لشخص معين
             : $request->user(); // الموظف يضيف لنفسه
@@ -89,6 +90,7 @@ class EmployeeAdvanceController extends Controller
             'project_id' => $request->project_id,
             'given_at' => now(),
             'status' =>  'accepted',
+            'given_by' =>  auth()->user()->id,
             'method' => $request->method,
         ]);
 
@@ -136,6 +138,7 @@ class EmployeeAdvanceController extends Controller
         'amount' => $request->amount,
         'description' => 'تسوية',
         'spent_at' => now(),
+        'stored_by'=> auth()->user()->id ,
         'asa'=> 'settle'
     ]);
         return redirect()->back()->with('success', 'تم تحديث العهدة.');
@@ -156,17 +159,26 @@ public function deleteAdvance(Request $request)
 
 public function storeExpense(Request $request)
 {
+   
     $request->validate([
         'amount' => 'required|numeric|min:1',
         'description' => 'required|string|max:255',
+        'advance_id' => 'required|exists:advances,id',
+        'file' => 'required|image|max:2048',
     ]);
+   // dd($request->all());
+    
     $user = $request->user_id
     ? User::findOrFail($request->user_id) // الإدمن يضيف لشخص معين
     : $request->user(); // الموظف يضيف لنفسه
-
-$user->expenses()->create([
+    $path = $request->file('file')->store('expenses', 'public');
+    //$visit->file_path = $path;
+    $user->expenses()->create([
         'amount' => $request->amount,
         'description' => $request->description,
+        'file_path' =>  $path,
+        'stored_by' =>  auth()->user()->id,
+        'advance_id' =>  $request->advance_id,
         'spent_at' => now(),
     ]);
 

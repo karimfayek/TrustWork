@@ -27,11 +27,11 @@ export default function EmployeeReport({ employees }) {
                         {emp.name}
                         </h2>                         
                     
-                            <Projects tasks={emp.tasks} key={index} projects={emp.active} title={'المشاريع المفتوحة'} className={'text-green-700'} />
-                            <Tasks tasks={emp.tasks} key={index} projects={emp.active} title={'  المكلف بة'} className={'text-green-700'} />
-                            <Projects name={emp.name} key={index} projects={emp.ended} title={'المشاريع المنتهية'} className={'text-red-700'}/>
-                            <Tasks tasks={emp.tasks} key={index} projects={emp.ended} title={'  المكلف بة'} className={'text-green-700'} />
-                        <hr className="my-4 border-black"/>
+                            <Projects tasks={emp.tasks}  key={`active-projects-${index}`} projects={emp.active} title={'المشاريع المفتوحة'} className={'text-green-700'} />
+                            <Tasks tasks={emp.tasks} key={`active-tasks-${index}`} projects={emp.active} title={'  المكلف بة'} className={'text-green-700'} />
+                            <Projects name={emp.name}  key={`ended-projects-${index}`} projects={emp.ended} title={'المشاريع المنتهية'} className={'text-red-700'}/>
+                            <Tasks tasks={emp.tasks}  key={`ended-tasks-${index}`} projects={emp.ended} title={'  المكلف بة'} className={'text-green-700'} />
+                        <hr className="my-4 border-black"/>  
                         </>
                     ))}
             </div>

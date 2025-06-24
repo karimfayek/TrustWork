@@ -1,8 +1,10 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link } from '@inertiajs/react';
 import React from 'react';
 
 const ProjectDetails = ({ project, tasks, users }) => {
     return (
+        <AuthenticatedLayout>
         <div className="container mx-auto p-6">
             <div className="mb-6">
                 <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
@@ -28,7 +30,7 @@ const ProjectDetails = ({ project, tasks, users }) => {
                             <li key={task.id} className={task.is_completed ? 'bg-[#dede] p-3 flex justify-between items-center':' p-3 flex justify-between items-center bg-[#FF2D20]/10' }>
                                 <div>
                                     <h3 className="font-medium">{task.title}</h3>
-                                    <p className="text-sm text-gray-500">{task.users[0].name}</p>
+                                    <p className="text-sm text-gray-500">{task.users && task.users.map((emp)=> <i className='mx-2'>{ emp.name}</i>)}</p>
                                     <p className="text-sm text-gray-500">{task.is_completed ? 'done' : 'not completed'}</p>
                                 </div>
                                 <Link
@@ -74,6 +76,7 @@ const ProjectDetails = ({ project, tasks, users }) => {
                     </table>
                 </div>
         </div>
+        </AuthenticatedLayout>
     );
 };
 

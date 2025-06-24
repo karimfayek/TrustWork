@@ -1,9 +1,20 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Dashboard({ users }) {
+    const handleDeleteUser = (e,id) => {
+        e.preventDefault();
     
+        const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذا الموظف");
+    
+        if (!confirmed) return; // المستخدم رفض
+    
+        router.post(
+            route("admin.user.delete"),
+            { id }
+        );
+    };
     return (
         <AuthenticatedLayout>
             <Head title="Admin Dashboard" />
@@ -45,6 +56,14 @@ export default function Dashboard({ users }) {
                                         >
                                             عرض
                                         </Link>
+                                        <button
+                                        onClick={(e) => handleDeleteUser (e, user.id)}
+                                          
+                                            className="inline-block bg-red-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                        >
+                                            مسح
+                                        </button>
+                                        
                                     </td>
                                 </tr>
                             ))}

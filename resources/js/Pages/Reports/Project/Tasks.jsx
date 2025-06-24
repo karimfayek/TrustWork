@@ -43,7 +43,7 @@ export default function Tasks ({tasks ,className , projects, title}){
                     {projects?.length > 0 ? (
                         projects?.map(
                             (proj , index) => (
-                                proj.user_tasks?.map(
+                                Array.isArray(proj.user_tasks) && proj.user_tasks.length > 0  && proj.user_tasks?.map(
                                    
                                     (tsk , indx)=> (
                                      

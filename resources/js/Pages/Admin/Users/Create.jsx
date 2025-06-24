@@ -4,11 +4,12 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function CrreateUser() {
 
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing,reset:resetUserForm, errors } = useForm({
         name: '',
         final_salary: '',
         base_salary: '',
@@ -19,12 +20,29 @@ export default function CrreateUser() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('admin.user.store'));
+        post(
+            route("admin.user.store"),
+            {
+               
+                onSuccess: () => resetUserForm(),
+            }
+        );
     };
 
-
+    const handleSalaryChange = (final) => {
+        if (!isNaN(final)) {
+            setData((prevData) => ({
+                ...prevData,
+                final_salary: final,
+                base_salary: final * 0.65,
+            }));
+        } else {
+            // لو أدخل نص غير صالح (مثلاً حروف)، ثبت القيمة فقط بدون حساب
+            setData("final_salary", final);
+        }
+    };
     return (
-        <>
+       <AuthenticatedLayout>
             <Head title="انشاء موظف " />
 
             <div className=" px-6 py-8 bg-white rounded shadow">
@@ -69,6 +87,8 @@ export default function CrreateUser() {
                                     <option  value='acc'>
                                        حسابات
                                     </option>
+                                    
+                    <option value="tech">مكتب فنى </option>
                                     <option  value='proj'>
                                        مدير مشروعات
                                     </option>
@@ -91,27 +111,42 @@ export default function CrreateUser() {
                         <InputError message={errors.password} className="mt-2" />
                     </div>
                     <div>
-                        <InputLabel htmlFor="base_salary" value=" الراتب الاساسى" />
-                        <TextInput
-                            id="base_salary"
-                            type="text"
-                            value={data.base_salary}
-                            className="mt-1 block w-full"
-                            onChange={(e) => setData('base_salary', e.target.value)}
-                        />
-                        <InputError message={errors.base_salary} className="mt-2" />
-                    </div>
-                    <div>
-                        <InputLabel htmlFor="final_salary" value=" الراتب النهائى" />
-                        <TextInput
-                            id="final_salary"
-                            type="text"
-                            value={data.final_salary}
-                            className="mt-1 block w-full"
-                            onChange={(e) => setData('final_salary', e.target.value)}
-                        />
-                        <InputError message={errors.final_salary} className="mt-2" />
-                    </div>
+                <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
+                <TextInput
+                    id="final_salary"
+                    type="number"
+                    onWheel={(e) => e.target.blur()}
+                    value={data.final_salary}
+                    className="mt-1 block w-full"
+                    onChange={(e) => handleSalaryChange(e.target.value)}
+                />
+                <InputError message={errors.final_salary} className="mt-2" />
+            </div>
+            <div>
+                <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
+                <TextInput
+                    id="base_salary"
+                    type="number"
+                    onWheel={(e) => e.target.blur()}
+                    value={data.base_salary}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData("base_salary", e.target.value)}
+                    readOnly
+                />
+                <InputError message={errors.base_salary} className="mt-2" />
+            </div>
+            <div>
+                <InputLabel htmlFor="base_salary" value=" المتغير" />
+                <TextInput
+                    id="base_salary"
+                    type="number"
+                    onWheel={(e) => e.target.blur()}
+                    value={Number(data.final_salary) - Number(data.base_salary)}
+                    className="mt-1 block w-full"
+                    readOnly
+                />
+                <InputError message={errors.base_salary} className="mt-2" />
+            </div>
                     <div>
                         <PrimaryButton className="w-full justify-center" disabled={processing}>
                             انشاء الموظف
@@ -120,6 +155,6 @@ export default function CrreateUser() {
                 </form>
 
             </div>
-        </>
+        </AuthenticatedLayout>
     );
 }

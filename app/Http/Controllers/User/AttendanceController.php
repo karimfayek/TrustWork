@@ -20,20 +20,22 @@ class AttendanceController extends Controller
     public function attList($user=null)
     {
         if($user == null){
-            $atts = Attendance::all()->load('user', 'project');
+            $atts = Attendance::with('user' , 'project')->get()->load('user', 'project');
             $visits = Visit::all()->load('user', 'customer'); 
         }else{
 
             $atts = Attendance::where('user_id', $user)->get()->load('user', 'project');
             $visits = Visit::where('user_id', $user)->get()->load('user', 'customer');
         }
-        $users = User::all();
+        $users = User::where('role', 'employee')->where('status' , 1)->get();
+        $customers = \App\Models\Customer::all(); 
         $projects = Project::all();
         return Inertia::render('User/AttList', [
             'atts' => $atts,
             'visits' => $visits,
             'users' => $users,
             'projects' => $projects,
+            'customers' => $customers,
         ]);
     }
     public function attFilter(Request $request)
@@ -160,16 +162,20 @@ class AttendanceController extends Controller
     }
     public function manualCheckIn(Request $request )
     {
-       // dd($request->all());
+      
          $user = $request->user_id;
          $project = $request->project;
+         $customer_id = $request->customer_id;
          $inOut = $request->inOut;
+         $type = $request->input("type");
+         $customer = $request->input('customer') ?? null;
+        //dd($type);
         // Check if already checked in today
         if($inOut === 'in'){
 
             $existing = Attendance::whereDate('check_in_time', now()->toDateString())
                         ->where('user_id', $user)
-                        ->where('project_id', $project)
+                        ->where('type', $type)
                         ->first();
         
             if ($existing) {
@@ -179,6 +185,9 @@ class AttendanceController extends Controller
             Attendance::create([
                 'user_id' => $user,
                 'project_id' => $project,
+                'customer_id' => $customer_id,
+                'customer' => $customer,
+                'type' => $type,
                 'check_in_time' => now(),
                 'in_location' => $request->input('location', 'غير محدد'),
                 'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
@@ -186,6 +195,7 @@ class AttendanceController extends Controller
             return back()->with('message', 'تم تسجيل الحضور بنجاح.');
         }elseif($inOut === 'out'){
                 $attendance = Attendance::where('user_id', $user)
+                ->where('type', $type)
             ->where('project_id', $project)
             ->whereDate('check_in_time', today())
             ->whereNull('check_out_time')
@@ -251,6 +261,11 @@ public function countLateAttendances($userId, $month)
     return $lateAttendances;
 }
 
-
+public function delete(Request $request)
+{
+   // dd($request->all());
+    $att = Attendance::find($request->id);
+  $att->delete();
+}
 }
 

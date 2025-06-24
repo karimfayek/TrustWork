@@ -1,9 +1,24 @@
 import React from 'react';
-import { usePage, useForm, Link } from '@inertiajs/react';
+import { usePage, useForm, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function AdminVisits({visits}) {
     console.log('vists' , visits)
+    const handleDeleteVisit = (e,id) => {
+        e.preventDefault();
+    
+        const confirmed = window.confirm("هل أنت متأكد أنك تريد الحذف  ");
+    
+        if (!confirmed) return; // المستخدم رفض
+    
+        router.post(
+            route("admin.visit.delete"),
+            { id },
+            {
+                preserveScroll: true,
+            }
+        );
+    };
 return (
       <AuthenticatedLayout>
 
@@ -41,6 +56,14 @@ return (
                                         >
                                             عرض
                                         </Link>
+
+                                        <button
+                                        onClick={(e) => handleDeleteVisit (e, visit.id)}
+                                          
+                                            className="inline-block bg-red-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                        >
+                                            مسح
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

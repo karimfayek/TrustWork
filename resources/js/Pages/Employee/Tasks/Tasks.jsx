@@ -27,9 +27,9 @@ export default function Tasks({ tasks }) {
                                 <tr key={task.id} className="hover:bg-gray-50">
                                     <td className="p-3 border-b">{task.project?.name || '—'}</td>
                                     <td className="p-3 border-b font-medium">{task.title}</td>
-                                    <td className="p-3 border-b text-gray-600">{task.description}</td>
+                                    <td className="p-3 border-b text-gray-600 max-w-[200px] truncate whitespace-nowrap overflow-hidden">{task.description}</td>
                                     <td className="p-3 border-b">{task.users?.map((user) => (
-                                        <b className='border p-1.5 ml-1'>{user.name}</b>
+                                        <b className=''>{user.name} ,</b>
                                     ))}
                                     </td>
                                     <td className="p-3 border-b">

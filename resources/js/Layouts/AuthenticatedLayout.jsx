@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const allNavLinks = [
-        { label: 'المشاريع', routeName: 'admin.dashboard', roles: ['admin', 'proj'] },
+        { label: 'المشاريع', routeName: 'admin.dashboard', roles: ['admin', 'proj' ,'tech' ,'acc'] },
         { label: 'المهام', routeName: 'tasks.index', roles: ['admin', 'proj'] },
         { label: 'الزيارات', routeName: 'admin.visits.index', roles: ['admin'] },
         { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc'] },
@@ -23,10 +23,10 @@ export default function AuthenticatedLayout({ header, children }) {
     const roleLinks = allNavLinks.filter(link =>
         link.roles.includes(role)
     );
-    console.log('user', user)
     const { props } = usePage();
     const successMessage = props.flash.message;
-    console.log('prpos', props)
+    const errorMessages = props.errors;
+    console.log(errorMessages)
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
@@ -212,6 +212,28 @@ export default function AuthenticatedLayout({ header, children }) {
                     {successMessage && (
                         <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
                             {successMessage}
+                        </div>
+                    )}
+                     {errorMessages.length > 0 && (
+                        <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
+                            <ul>
+                                {errorMessages.map(
+                                    (err) =>(
+                                        <li>{err}</li>
+                                    )
+                            
+                                )}
+                            </ul>
+                        </div>
+                    )}
+                     {Object.entries(errorMessages).length > 0 && (
+                        <div className="bg-red-100 text-red-800 border border-red-300 p-2 rounded mt-4">
+                           
+                           {Object.entries(errorMessages).map(([field, message]) => (
+                            <div key={field}>
+                                    {field}: {message}
+                                </div>
+                                ))}
                         </div>
                     )}
                     {props.errors.message && (

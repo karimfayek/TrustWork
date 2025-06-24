@@ -35,5 +35,11 @@ class AdminVisitsController extends Controller
             'visit' => $visit,
         ]);
     }
+    public function delete(Request $request)
+    {
+       // dd($request->all());
+        $visit = Visit::find($request->id);
+      $visit->delete();
+    }
 
 }

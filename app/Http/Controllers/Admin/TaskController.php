@@ -35,11 +35,11 @@ class TaskController extends Controller
     $task->load('progress.user');
     $task['project'] = $task->project;
     $users = User::all();
-    $assignedUser = $task->users()->first(); // if only one user per task
+    $assignedUsers = $task->users()->get(); // if only one user per task
 
     return Inertia::render('Admin/Tasks/TaskShow', [
         'task' => $task,
-        'assignedUser' => $assignedUser,
+        'assignedUsers' => $assignedUsers,
         'users' => $users
     ]);
 }

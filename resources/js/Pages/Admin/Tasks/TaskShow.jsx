@@ -7,8 +7,10 @@ import ProjectProgress from '@/Pages/User/Projects/ProjectProgress';
 
 import { Head, Link, useForm } from '@inertiajs/react';
 import TaskList from './TaskList';
-const TaskShow = ({ task, assignedUser, users }) => {
-  
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import React from 'react';
+const TaskShow = ({ task, assignedUsers, users }) => {
+  console.log(assignedUsers , 'assignde')
     const { data, setData, post, processing, errors } = useForm({
         id: task.id,
         title: task?.title || '',
@@ -31,6 +33,7 @@ const TaskShow = ({ task, assignedUser, users }) => {
     };
 
     return (
+        <AuthenticatedLayout>
         <div className="container mx-auto p-6">
             <h1 className="text-3xl font-bold mb-4"> المشروع :
             <Link  href={route('project.show', task.project.id)}>
@@ -45,10 +48,19 @@ const TaskShow = ({ task, assignedUser, users }) => {
             <p>{task.due_date}</p>
 
             <h2 className="text-lg font-semibold">الموظف المسؤول:</h2>
-            {assignedUser ? (
-                <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded mt-2">
-                    {assignedUser.name} ({assignedUser.email})
-                </div>
+            {assignedUsers ? (
+                <React.Fragment>
+                     {assignedUsers.map(
+                        (usr) => (
+                            <div key={usr.id} className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded mt-2">
+                            {usr.name} ({usr.email})
+                        </div>
+                        )
+                     )}
+                   
+                </React.Fragment>
+               
+                
             ) : (
                 <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded mt-2">
                     لا يوجد موظف معين حاليًا
@@ -81,6 +93,7 @@ const TaskShow = ({ task, assignedUser, users }) => {
         </>
              }
         </div>
+        </AuthenticatedLayout>
     );
 };
 

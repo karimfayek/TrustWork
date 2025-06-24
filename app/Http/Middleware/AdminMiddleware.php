@@ -29,6 +29,7 @@ class AdminMiddleware
             'admin' => 'admin.dashboard',
             'acc' => 'users.index',
             'proj' => 'admin.dashboard',
+            'tech' => 'admin.dashboard',
             default => 'dashboard',
         }; 
         //dd($redirectTo);

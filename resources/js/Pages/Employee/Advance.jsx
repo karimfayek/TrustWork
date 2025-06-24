@@ -2,10 +2,11 @@ import React from 'react';
 import { usePage, useForm } from '@inertiajs/react';
 import UserLayout from '@/Layouts/UserLayout';
 import LoanRequestForm from '../Admin/Users/Partials/LoanRequestForm';
+import InputLabel from '@/Components/InputLabel';
 
 export default function AdvancePage() {
     const { advances, expenses, totalAdvance, totalExpense, remaining , activeProjects , finalSalary} = usePage().props;
-    console.log(advances , 'advances')
+    console.log(expenses , 'expenses')
     const {
         data: advanceData,
         setData: setAdvanceData,
@@ -27,6 +28,8 @@ export default function AdvancePage() {
     } = useForm({
         amount: '',
         description: '',
+        advance_id: '',
+        file: null,
     });
 
     return (
@@ -66,6 +69,8 @@ export default function AdvancePage() {
                                 <div>📅 {e.spent_at}</div>
                                 <div>💸 {e.amount} ج</div>
                                 <div>📝 {e.description}</div>
+                                <div>📝 المشروع : {e.advance?.project?.name}</div>
+                                <div>اضيفت بواسطة :  {e.by?.name}</div>
                             </li>
                         ))}
                     </ul>
@@ -134,20 +139,40 @@ export default function AdvancePage() {
                             });
                         }}>
                             <input
+                            required
                                 type="number"
                                 placeholder="المبلغ"
                                 value={expenseData.amount}
                                 onChange={e => setExpenseData('amount', e.target.value)}
                                 className="w-full border p-2 mb-2"
                             />
+                              {expenseErrors.amount && <div className="text-red-600">{expenseErrors.amount}</div>}
                             <input
+                            required
                                 type="text"
                                 placeholder="الوصف"
                                 value={expenseData.description}
                                 onChange={e => setExpenseData('description', e.target.value)}
                                 className="w-full border p-2 mb-2"
                             />
-                            {expenseErrors.amount && <div className="text-red-600">{expenseErrors.amount}</div>}
+                             {expenseErrors.description && <div className="text-red-600">{expenseErrors.description}</div>}
+                            <select required value={expenseData.advance_id}  onChange={e => setExpenseData('advance_id', e.target.value)} className="w-full border p-2 mb-2">
+                                <option value="">من العهدة</option>
+                                {advances.map(
+                                    (adv)=>(
+                                        <option value={adv.id} key={adv.id} >{adv.project.name} - {adv.amount} جم</option>
+                                    )
+                                )}
+                            </select>
+                            {expenseErrors.advance_id && <div className="text-red-600">{expenseErrors.advance_id}</div>}
+                            <InputLabel>ارفق الايصال</InputLabel>
+                            <input
+                                type="file"
+                                onChange={e => setExpenseData('file', e.target.files[0])}
+                                className={'bg-[#FF2D20]/10 border border-black mb-2 w-full'}
+                                required
+                            />
+                             {expenseErrors.file && <div className="text-red-600">{expenseErrors.file}</div>}
                             <button type="submit" disabled={processingExpense} className="bg-green-500 text-white px-4 py-2 rounded">
                                 حفظ المصروف
                             </button>

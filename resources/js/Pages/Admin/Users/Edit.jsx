@@ -299,6 +299,7 @@ export default function EditUser({ user }) {
                                 <input
                                 required
                                     type="number"
+                                    onWheel={(e) => e.target.blur()}
                                     placeholder="المبلغ"
                                     value={advanceData.amount}
                                     onChange={(e) =>
@@ -373,6 +374,7 @@ export default function EditUser({ user }) {
                             >
                                 <input
                                     type="number"
+                                    onWheel={(e) => e.target.blur()}
                                     placeholder="المبلغ"
                                     value={expenseData.amount}
                                     onChange={(e) =>
@@ -429,6 +431,7 @@ export default function EditUser({ user }) {
                             >
                                 <input
                                     type="number"
+                                    onWheel={(e) => e.target.blur()}
                                     placeholder="المبلغ"
                                     value={deductionData.amount}
                                     onChange={(e) =>

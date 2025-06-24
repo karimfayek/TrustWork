@@ -34,86 +34,8 @@ export default function Edit({ mustVerifyEmail, status }) {
 
             <div className="md:grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-10">
 
-                <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
 
-                    <h2 className='text-lg font-medium text-gray-900'>
-                        استحقاقات
-                    </h2>
-                    <hr />
-                    <div>
-                        <b>
-                            الاساسي
-                        </b>
-                        <p className='text-green-800'>{(Number(user.salary?.base_salary))}</p>
-                    </div>
-                    <div>
-                        <b>
-                            مستحق لانجاز المهام
-                        </b>
-                        <p className='text-green-800'> {Number(attData?.taskScore).toFixed(2)}</p>
-                    </div>
-
-                    <div>
-
-                        <b>
-                            الانتقالات
-                        </b>
-                        <p className='text-green-800'> {Number(attData?.transportaionFees).toFixed(2)}</p>
-                    </div>
-                    <div>
-
-                        <b>
-                            المكافئات
-                        </b>
-                        <p className='text-green-800'> {Number(attData?.rewards).toFixed(2)}</p>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                    <h2 className='text-lg font-medium text-gray-900'>
-                        استقطاعات
-                    </h2>
-                    <hr />
-                    <div>
-                        <b>
-                            استقطاعات اساسيه من الراتب
-                        </b>
-                        <p className='text-red-800'>  {Number(attData?.deductions).toFixed(2)}</p>
-                    </div>
-                    <b>
-                        التاخيرات
-                    </b>
-                    <p className='text-red-800'>  <span>{Number(attData.lateScore).toFixed(2)} </span></p>
-                    <div>
-                        <b>
-                            غياب
-                        </b>
-                        <p className='text-red-800'> <span> {absenceScore}</span></p>
-                    </div>
-                    <div>
-                        <b>
-                            مفقودات
-                        </b>
-                        <p className='text-red-800'> <span> {attData.lostCostThisMonth}</span></p>
-                    </div>
-
-                    <div>
-                        <b>
-                            عهد - مصروفات
-                        </b>
-                        <p className='text-red-800'> {attData?.remaining}</p>
-                    </div>
-
-                </div>
-                <div className='bg-white  shadow sm:rounded-lg sm:p-8 border mt-4 p-2.5 text-center'>
-                    <b className='border p-1.5'>
-                        المرتب المستحق
-                    </b>
-                    <p dir="ltr" className={`font-bold mt-3 text-2xl ${deserved < 1 ? 'text-red-500' : 'text-green-500'}`}>
-
-                        <br />
-                        {deserved}</p>
-                </div>
+                
                 <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
                     <h2 className='text-lg font-medium text-gray-900'>
                         الحضور
