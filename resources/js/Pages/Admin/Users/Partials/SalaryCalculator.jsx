@@ -1,3 +1,4 @@
+import InputLabel from '@/Components/InputLabel';
 import { useState, useEffect } from 'react';
 
 export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance, totalExpense, remaining }) {
@@ -45,6 +46,7 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
 
 const MonthSelector = ({ month, setMonth }) => (
     <div>
+        <InputLabel value ="عرض نتائج" className='print:hidden'/>
         <select
             className="mb-4 w-48 print:hidden"
             name="month"

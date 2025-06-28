@@ -24,12 +24,15 @@ export default function Dashboard({ projects }) {
             <div className="max-w-7xl mx-auto p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-3xl font-bold text-gray-800">المشاريع  </h1>
+                    {role !== 'acc' &&
+                    
                     <Link
                         href={route('admin.projects.create')}
                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow"
                     >
                         + إنشاء مشروع جديد
                     </Link>
+                    }
                 </div>
 
                 <div className="overflow-x-auto bg-white rounded-lg shadow">
@@ -104,7 +107,7 @@ export default function Dashboard({ projects }) {
 
                                         {(role == 'acc') &&
                                          <><Link
-                                                href={route('project.extractions', project.id)}
+                                                href={route('project.extractions.list', project.id)}
                                                 className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                             >
                                                 مستخلص

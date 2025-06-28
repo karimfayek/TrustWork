@@ -147,9 +147,12 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::get('/admin/user/create', [AdminUserController::class, 'create'])->name('admin.user.create');
     Route::post('/admin/user/create', [AdminUserController::class, 'store'])->name('admin.user.store');
     Route::get('/admin/user/edit/{id}', [AdminUserController::class, 'edit'])->name('admin.user.edit');
+    Route::get('/admin/user/salary/{id}', [AdminUserController::class, 'salary'])->name('admin.user.salary');
     Route::post('/admin/user/update/{id}', [AdminUserController::class, 'update'])->name('admin.user.update');
     //deductions
     Route::post('/admin/employee/deduction', [DeductionController::class, 'store'])->name('admin.deduction.store');
+    
+    Route::post('/admin/deduction/delete', [DeductionController::class, 'delete'])->name('admin.deduction.delete');
     //customers
     Route::get('/admin/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/admin/customer/{id}', [CustomerController::class, 'show'])->name('admin.customer.show');

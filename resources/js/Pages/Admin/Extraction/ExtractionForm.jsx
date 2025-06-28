@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import ExtractionPreview from './ExtractionPreview';
 import Items from './Items';
 
-export default function ExtractionForm({ project, deductionsList, extractionsCount }) {
+export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay }) {
     console.log('project',project.tasks )
     const [items, setItems] = useState([]);
 
@@ -40,7 +40,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
         "taxes": "5",
         "advance_payment": "0",
         "social_insurance": "3.6",
-        "previous_payments": "0",
+        "previous_payments": prevPay,
         "progress_percentage" : "100",
         "other_tax" :"0"
     },

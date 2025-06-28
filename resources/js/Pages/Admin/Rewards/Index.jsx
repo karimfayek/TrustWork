@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DeleteButton from '@/Components/DeleteButton';
 
 export default function RewardIndex({ rewards, users }) {
     const [showForm, setShowForm] = useState(false);
@@ -14,21 +15,7 @@ export default function RewardIndex({ rewards, users }) {
         amount: '',
     });
 
-    const handleDelete = (e, id)=> {
-       
-        router.post(
-            route("employee.reward.delete"),
-            {
-                id: id,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                   setShowForm(false)
-                }
-            }
-        );
-   }
+   
     return (
         <AuthenticatedLayout>
             <Head title="نظام المكافآت" />
@@ -56,16 +43,14 @@ export default function RewardIndex({ rewards, users }) {
                             rewards.map((user, index) => (
                                 <div key={index} className="mb-8 border-b pb-4">
                                     <h2 className="text-xl font-semibold text-indigo-600">
-                                        {user.user} - إجمالي النقاط: {user.total_points}
+                                        {user.user}
                                     </h2>
 
                                     <table className="w-full mt-3 text-sm border border-gray-300 rounded">
                                         <thead className="bg-gray-100 text-gray-700">
                                             <tr>
                                                 <th className="p-2 border">التاريخ</th>
-                                                <th className="p-2 border">النوع</th>
                                                 <th className="p-2 border">السبب</th>
-                                                <th className="p-2 border">النقاط</th>
                                                 <th className="p-2 border">القيمة</th>
                                                 <th className="p-2 border">-</th>
                                             </tr>
@@ -74,11 +59,11 @@ export default function RewardIndex({ rewards, users }) {
                                             {user.records.map((r, i) => (
                                                 <tr key={i} className="text-center hover:bg-gray-50">
                                                     <td className="p-2 border">{r.date}</td>
-                                                    <td className="p-2 border">{r.type}</td>
                                                     <td className="p-2 border">{r.reason}</td>
-                                                    <td className="p-2 border">{r.points}</td>
                                                     <td className="p-2 border">{r.amount}</td>
-                                                    <td className="p-2 border"><button onClick={(e)=> handleDelete(e, r.id)}>حذف</button></td>
+                                                    <td className="p-2 border">
+                                                        <DeleteButton id={r.id} routeName='employee.reward.delete' />
+                                                        </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -109,7 +94,7 @@ export default function RewardIndex({ rewards, users }) {
                 >
                     <h3 className="text-lg font-bold mb-4 text-gray-700">إضافة مكافأة جديدة</h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block mb-1">الموظف</label>
                             <select
@@ -140,28 +125,6 @@ export default function RewardIndex({ rewards, users }) {
                             {errors.reward_date && <p className="text-red-500 text-sm">{errors.reward_date}</p>}
                         </div>
 
-                        <div>
-                            <label className="block mb-1">النوع</label>
-                            <input
-                                type="text"
-                                value={data.type}
-                                onChange={e => setData('type', e.target.value)}
-                                className="w-full border rounded px-3 py-2"
-                                required
-                            />
-                            {errors.type && <p className="text-red-500 text-sm">{errors.type}</p>}
-                        </div>
-
-                        <div>
-                            <label className="block mb-1">النقاط</label>
-                            <input
-                                type="number"
-                                value={1}
-                                className="w-full border rounded px-3 py-2"
-                                required
-                            />
-                            {errors.points && <p className="text-red-500 text-sm">{errors.points}</p>}
-                        </div>
                         <div>
                             <label className="block mb-1">القيمة</label>
                             <input

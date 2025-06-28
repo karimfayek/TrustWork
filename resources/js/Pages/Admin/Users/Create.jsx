@@ -9,13 +9,14 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 export default function CrreateUser() {
 
 
-    const { data, setData, post, processing,reset:resetUserForm, errors } = useForm({
+    const { data, setData, post, processing, reset: resetUserForm, errors } = useForm({
         name: '',
         final_salary: '',
         base_salary: '',
         email: '',
         password: '',
         role: '',
+        must_change_password: false
     });
 
     const handleSubmit = (e) => {
@@ -23,7 +24,7 @@ export default function CrreateUser() {
         post(
             route("admin.user.store"),
             {
-               
+
                 onSuccess: () => resetUserForm(),
             }
         );
@@ -42,7 +43,7 @@ export default function CrreateUser() {
         }
     };
     return (
-       <AuthenticatedLayout>
+        <AuthenticatedLayout>
             <Head title="انشاء موظف " />
 
             <div className=" px-6 py-8 bg-white rounded shadow">
@@ -75,28 +76,29 @@ export default function CrreateUser() {
                     <div>
                         <InputLabel htmlFor="role" value=" role" />
                         <select
-                                className="border rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full"
-                                value={data.role}
-                                onChange={(e) => setData('role', e.target.value)}
-                            >
-                             
-                             <option value="">اختر </option>
-                                    <option  value='employee'>
-                                       موظف
-                                    </option>
-                                    <option  value='acc'>
-                                       حسابات
-                                    </option>
-                                    
-                    <option value="tech">مكتب فنى </option>
-                                    <option  value='proj'>
-                                       مدير مشروعات
-                                    </option>
-                                    <option  value='admin'>
-                                      ادمن
-                                    </option>
-                                
-                            </select>
+                            className="border rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full"
+                            value={data.role}
+                            onChange={(e) => setData('role', e.target.value)}
+                        >
+
+                            <option value="">اختر </option>
+                            
+                            <option value='employee'>
+                                موظف
+                            </option>
+                            <option value='acc'>
+                                حسابات
+                            </option>
+
+                            <option value="tech">مكتب فنى </option>
+                            <option value='proj'>
+                                مدير مشروعات
+                            </option>
+                            <option value='admin'>
+                                ادمن
+                            </option>
+
+                        </select>
                         <InputError message={errors.role} className="mt-2" />
                     </div>
                     <div>
@@ -111,42 +113,52 @@ export default function CrreateUser() {
                         <InputError message={errors.password} className="mt-2" />
                     </div>
                     <div>
-                <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
-                <TextInput
-                    id="final_salary"
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    value={data.final_salary}
-                    className="mt-1 block w-full"
-                    onChange={(e) => handleSalaryChange(e.target.value)}
-                />
-                <InputError message={errors.final_salary} className="mt-2" />
-            </div>
-            <div>
-                <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
-                <TextInput
-                    id="base_salary"
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    value={data.base_salary}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData("base_salary", e.target.value)}
-                    readOnly
-                />
-                <InputError message={errors.base_salary} className="mt-2" />
-            </div>
-            <div>
-                <InputLabel htmlFor="base_salary" value=" المتغير" />
-                <TextInput
-                    id="base_salary"
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    value={Number(data.final_salary) - Number(data.base_salary)}
-                    className="mt-1 block w-full"
-                    readOnly
-                />
-                <InputError message={errors.base_salary} className="mt-2" />
-            </div>
+                        <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
+                        <TextInput
+                            id="final_salary"
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={data.final_salary}
+                            className="mt-1 block w-full"
+                            onChange={(e) => handleSalaryChange(e.target.value)}
+                        />
+                        <InputError message={errors.final_salary} className="mt-2" />
+                    </div>
+                    <div>
+                        <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
+                        <TextInput
+                            id="base_salary"
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={data.base_salary}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setData("base_salary", e.target.value)}
+                            readOnly
+                        />
+                        <InputError message={errors.base_salary} className="mt-2" />
+                    </div>
+                    <div>
+                        <InputLabel htmlFor="base_salary" value=" المتغير" />
+                        <TextInput
+                            id="base_salary"
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={Number(data.final_salary) - Number(data.base_salary)}
+                            className="mt-1 block w-full"
+                            readOnly
+                        />
+                        <InputError message={errors.base_salary} className="mt-2" />
+                    </div>
+                    <div className="mt-4">
+                        <label className="flex items-center">
+                            <input
+                                type="checkbox"
+                                checked={data.must_change_password}
+                                onChange={(e) => setData("must_change_password", e.target.checked)}
+                            />
+                            <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
+                        </label>
+                    </div>
                     <div>
                         <PrimaryButton className="w-full justify-center" disabled={processing}>
                             انشاء الموظف

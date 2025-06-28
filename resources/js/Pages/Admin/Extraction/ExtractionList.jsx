@@ -10,7 +10,12 @@ export default function ExtractionList({ project }) {
 
             <div className="max-w-7xl mx-auto p-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold text-gray-800">  المستخلصات</h1>
+                    <h1 className="text-3xl font-bold text-gray-800">
+                     المستخلصات
+                     <br />
+                     <p className="text-2xl text-gray-400">{project.name}</p>
+                     </h1>
+                   
                     <Link
                         href={route('project.extractions.new', project.id) }
                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow"

@@ -1,6 +1,9 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DropdownMenu from '@/Components/DropdownMenu';
+import { handleDelete } from '@/Functions/HandelDelete';
+import DeleteButton from '@/Components/DeleteButton';
 
 export default function Dashboard({ users }) {
     const handleDeleteUser = (e,id) => {
@@ -50,19 +53,13 @@ export default function Dashboard({ users }) {
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.final_salary}</td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                        
-                                        <Link
-                                            href={route('admin.user.edit', user.id)}
-                                            className="inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                        >
-                                            عرض
-                                        </Link>
-                                        <button
-                                        onClick={(e) => handleDeleteUser (e, user.id)}
-                                          
-                                            className="inline-block bg-red-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                        >
-                                            مسح
-                                        </button>
+                                        
+                                        
+                                        <DropdownMenu options={[
+                                            { label: ' عرض' , type:'link' , href:route('admin.user.edit', user.id) },
+                                            { label: 'طباعة راتب', type:'link', href:route('admin.user.salary', user.id)},
+                                            { label: ' مسح', onClick: (e) => handleDelete(e, user.id ,'admin.user.delete'), type:'button' },
+                                        ]} />
                                         
                                     </td>
                                 </tr>

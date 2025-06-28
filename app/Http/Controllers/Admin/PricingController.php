@@ -21,18 +21,19 @@ class PricingController extends Controller
     
     public function pricingSet(Request $request)
     {
+       // dd()
         $request->validate([
             'tasks' => 'required|array',
-            'tasks.*.up' => 'required|integer',
+            'tasks.*.up' => 'nullable|numeric',
         ]);
         foreach ($request->tasks as $taskData) {
             $task = Task::find($taskData['id']);
         //dd( (int)$taskData['up'] );
             $task->update([              
-                'unit_price' => (int)$taskData['up'],
-                'tp' => (int) $taskData['up'] *  $taskData['quantity'],
+                'unit_price' => (float)$taskData['up'],
+                'tp' => bcmul((string)$taskData['up'], (string) $taskData['quantity'], 2),
             ]);
         }
-        
+        return back()->with('message' , 'تم الحفظ');
     }
 }

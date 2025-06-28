@@ -30,8 +30,8 @@ class AdminUserController extends Controller
         $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects');
         $acceptedAdvances = $user->advances()->where('status' , 'accepted')->get()->load('project');
         $pendingAdvances = $user->advances()->where('status' , 'pending')->get()->load('project');
-        $expenses = $user->expenses()->select('amount', 'description', 'spent_at')->get();
-        $deductions= $user->deductions()->select('amount', 'type', 'deducted_at' , 'note')->get();
+        $expenses = $user->expenses()->select('amount', 'description', 'spent_at', 'id')->get();
+        $deductions= $user->deductions()->select('amount', 'type', 'deducted_at' , 'note' ,'id')->get();
         $totalAdvance = $acceptedAdvances->sum('amount');
         $totalExpense = $expenses->sum('amount');
         $remaining = $totalAdvance - $totalExpense;
@@ -62,6 +62,27 @@ class AdminUserController extends Controller
             'users' => $users,
         ]);
     }
+    public function salary($id)
+    {
+        $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects');
+        $acceptedAdvances = $user->advances()->where('status' , 'accepted')->get()->load('project');
+        $pendingAdvances = $user->advances()->where('status' , 'pending')->get()->load('project');
+        $expenses = $user->expenses()->select('amount', 'description', 'spent_at', 'id')->get();
+        $deductions= $user->deductions()->select('amount', 'type', 'deducted_at' , 'note' ,'id')->get();
+        $totalAdvance = $acceptedAdvances->sum('amount');
+        $totalExpense = $expenses->sum('amount');
+        $remaining = $totalAdvance - $totalExpense;
+       // $project = Project::with('tasks' , 'tasks.users', 'users')->find($id);
+       
+       // $userIds = $project->users->pluck('id');
+       return Inertia::render('Admin/Users/Salary', [
+        'acceptedAdvances' => $acceptedAdvances,
+        'totalAdvance' => $totalAdvance,
+        'totalExpense' => $totalExpense,
+        'remaining' => $remaining,
+        'user' => $user,
+    ]);
+}
     public function store(Request $request )
     {
         //dd($request->all());
@@ -88,6 +109,7 @@ class AdminUserController extends Controller
             'email' => $request->email,
             'role' => $currentuserRole === "admin" ? $request->role : 'employee',
             'password' => Hash::make($request->password),
+            'must_change_password' => $request->must_change_password,
         ]);
 
         if($user){
@@ -134,6 +156,7 @@ class AdminUserController extends Controller
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
+            'must_change_password' => $request->must_change_password,
         ]);
 
         if($currentuserRole === "admin" && auth()->user()->id !== $user->id ){

@@ -27,7 +27,7 @@ class AttendanceController extends Controller
             $atts = Attendance::where('user_id', $user)->get()->load('user', 'project');
             $visits = Visit::where('user_id', $user)->get()->load('user', 'customer');
         }
-        $users = User::where('role', 'employee')->where('status' , 1)->get();
+        $users = User::all();
         $customers = \App\Models\Customer::all(); 
         $projects = Project::all();
         return Inertia::render('User/AttList', [

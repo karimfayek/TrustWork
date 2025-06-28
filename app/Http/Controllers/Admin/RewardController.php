@@ -45,9 +45,9 @@ public function store(Request $request)
     $validated = $request->validate([
         'user_id' => 'required|exists:users,id',
         'reward_date' => 'required|date',
-        'type' => 'required|string',
+        'type' => 'nullable|string',
         'reason' => 'nullable|string',
-        'points' => 'required|integer|min:1',
+        'points' => 'nullable|integer|min:1',
         'amount' => 'required|integer|min:1',
     ]);
 

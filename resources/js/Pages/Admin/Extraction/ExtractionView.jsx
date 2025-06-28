@@ -5,7 +5,7 @@ import Items from './Items';
 export default function ExtractionPreview({  project, extraction}) {
 
 const type = extraction.type
-const num =  extraction.num
+const num =  extraction.partial_number
 const date =  extraction.date
 const customer =  project.customer_name
 const projectCode =  project.project_code

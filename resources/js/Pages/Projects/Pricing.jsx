@@ -115,7 +115,7 @@ export default function Pricing({ project }) {
 
                     </div>
                     <div>
-                        <PrimaryButton className="w-full justify-center" disabled={processing}>
+                        <PrimaryButton className="btn btn-green btn-fixed-bottom" disabled={processing}>
                             حفظ
                         </PrimaryButton>
                     </div>

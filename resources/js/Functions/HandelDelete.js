@@ -9,7 +9,11 @@ export  const handleDelete = (e ,id , routeName) => {
 
     router.post(
         route(routeName),
-        { id }
+        { id }, {
+            preserveScroll: true,
+           
+
+        }
     );
   
 };

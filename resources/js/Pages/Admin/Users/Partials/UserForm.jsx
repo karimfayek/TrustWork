@@ -5,7 +5,7 @@ import InputError from "@/Components/InputError";
 import { useForm } from '@inertiajs/react';
 
 export default function UserForm({ user }) {
-    const basicSalary = user?.salary?.final_salary *.65 || ''
+    const basicSalary = user?.salary?.final_salary * .65 || ''
     const { data, setData, post, processing, errors } = useForm({
         name: user?.name || "",
         role: user?.role || "",
@@ -13,7 +13,7 @@ export default function UserForm({ user }) {
         base_salary: user?.salary?.base_salary || "",
         email: user?.email || "",
         password: "",
-        must_change_password: user.must_change_password ,
+        must_change_password: user.must_change_password,
     });
     const handleSalaryChange = (final) => {
         if (!isNaN(final)) {
@@ -27,7 +27,7 @@ export default function UserForm({ user }) {
             setData("final_salary", final);
         }
     };
-console.log(basicSalary , 'basic')
+    console.log(basicSalary, 'basic')
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route("admin.user.update", user.id));
@@ -46,7 +46,7 @@ console.log(basicSalary , 'basic')
                 />
                 <InputError message={errors.name} className="mt-2" />
             </div>
-            
+
             <div>
                 <InputLabel htmlFor="email" value="الايميل" />
                 <TextInput
@@ -58,7 +58,7 @@ console.log(basicSalary , 'basic')
                 />
                 <InputError message={errors.email} className="mt-2" />
             </div>
-            
+
             <div>
                 <InputLabel htmlFor="role" value="الدور" />
                 <select
@@ -75,7 +75,7 @@ console.log(basicSalary , 'basic')
                 </select>
                 <InputError message={errors.role} className="mt-2" />
             </div>
-            
+
             <div>
                 <InputLabel htmlFor="password" value="الباسورد" />
                 <TextInput
@@ -124,24 +124,24 @@ console.log(basicSalary , 'basic')
                 />
                 <InputError message={errors.base_salary} className="mt-2" />
             </div>
-            
+
             <div className="mt-4">
-    <label className="flex items-center">
-        <input
-            type="checkbox"
-            checked={data.must_change_password}
-            onChange={(e) => setData("must_change_password", e.target.checked)}
-        />
-        <span className="ml-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
-    </label>
-</div>
+                <label className="flex items-center">
+                    <input
+                        type="checkbox"
+                        checked={data.must_change_password}
+                        onChange={(e) => setData("must_change_password", e.target.checked)}
+                    />
+                    <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
+                </label>
+            </div>
 
             <div>
                 <PrimaryButton
                     className="w-full justify-center bg-green-600 hover:bg-green-500"
                     disabled={processing}
                 >
-                    حفظ 
+                    حفظ
                 </PrimaryButton>
             </div>
         </form>

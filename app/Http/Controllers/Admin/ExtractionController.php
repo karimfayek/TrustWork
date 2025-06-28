@@ -32,6 +32,7 @@ class ExtractionController extends Controller
             'project' => $project->load('tasks'),
             'deductionsList' => $deductionsList,
             'extractionsCount' => $numExtractions,
+            'prevPay' =>  $project->extractions()->sum('net_total'),
         ]);
     }
     public function show(Project $project)

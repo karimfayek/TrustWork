@@ -2,21 +2,22 @@ import React, { useState, useEffect } from "react";
 import { Head, router, useForm, usePage } from "@inertiajs/react";
 import UserForm from "./Partials/UserForm";
 import SalaryCalculator from "./Partials/SalaryCalculator";
-import FinancialCustodySection  from "./Partials/FinancialCustodySection";
+import FinancialCustodySection from "./Partials/FinancialCustodySection";
 import AdvancesList from "./Partials/AdvancesList";
 import FinancialSettlement from "./Partials/FinancialSettlement";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import DeleteButton from "@/Components/DeleteButton";
 
 export default function EditUser({ user }) {
     useEffect(() => {
         const hash = window.location.hash;
         if (hash) {
-          const element = document.querySelector(hash);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
+            const element = document.querySelector(hash);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
         }
-      }, []);
+    }, []);
     console.log(user, "user");
     const {
         acceptedAdvances,
@@ -46,8 +47,8 @@ export default function EditUser({ user }) {
     ).toFixed(2);
 
     console.log("user", user);
-  
-  
+
+
     const [pendingAdvancesData, setPendingAdvances] = useState(pendingAdvances);
     const handleDeleteAdvance = (id) => {
         //e.preventDefault();
@@ -71,15 +72,15 @@ export default function EditUser({ user }) {
     const [showModal, setShowModal] = useState(false);
     const [selectedAdvanceId, setSelectedAdvanceId] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState('');
-    
+
     const handleApproveClick = (id) => {
         setSelectedAdvanceId(id);
         setShowModal(true);
     };
-    
+
     const confirmApproval = () => {
         const selectedAdvance = pendingAdvancesData.find(a => a.id === selectedAdvanceId);
-    
+
         router.post(
             route("admin.advance.status"),
             {
@@ -100,7 +101,7 @@ export default function EditUser({ user }) {
             }
         );
     };
-    const  updatePendingAdvance= (index, field, value) => {
+    const updatePendingAdvance = (index, field, value) => {
         setPendingAdvances(prev =>
             prev.map((item, i) =>
                 i === index ? { ...item, [field]: value } : item
@@ -129,7 +130,7 @@ export default function EditUser({ user }) {
             }
         );
     };
-  
+
 
     const {
         data: advanceData,
@@ -142,8 +143,8 @@ export default function EditUser({ user }) {
         amount: "",
         note: "",
         user_id: user?.id,
-        project_id:'',
-        method:'',
+        project_id: '',
+        method: '',
     });
     const {
         data: expenseData,
@@ -181,14 +182,14 @@ export default function EditUser({ user }) {
                 </h1>
 
                 <UserForm user={user} />
-                <SalaryCalculator 
-                    user={user} 
+                <SalaryCalculator
+                    user={user}
                     acceptedAdvances={acceptedAdvances}
                     totalAdvance={totalAdvance}
                     totalExpense={totalExpense}
                     remaining={remaining}
                 />
-                
+
                 <div className="p-6">
                     <h1 className="text-2xl font-bold mb-4">العهدة المالية</h1>
 
@@ -202,21 +203,21 @@ export default function EditUser({ user }) {
                         <p>
                             <strong>المتبقي:</strong> {remaining} ج
                             {remaining > 0 &&
-                            
-                           <FinancialSettlement  user_id={user.id} amountOrig={remaining} />
+
+                                <FinancialSettlement user_id={user.id} amountOrig={remaining} />
                             }
                         </p>
                     </div>
 
                     <div className="md:grid grid-cols-3 gap-6" id="advances">
-                    <AdvancesList 
-                    advances={pendingAdvances}
-                    type="pending"
-                    onDelete={handleDeleteAdvance}
-                    onApprove={handleApproveClick}
-                    onReject={handleStatusAdvance}
-                    onUpdate={updatePendingAdvance}
-                />
+                        <AdvancesList
+                            advances={pendingAdvances}
+                            type="pending"
+                            onDelete={handleDeleteAdvance}
+                            onApprove={handleApproveClick}
+                            onReject={handleStatusAdvance}
+                            onUpdate={updatePendingAdvance}
+                        />
                         <div>
                             <h2 className="text-lg font-semibold mb-2">
                                 العهد المُستلمة
@@ -225,23 +226,24 @@ export default function EditUser({ user }) {
                             <ul className="bg-white p-4 rounded shadow">
                                 {acceptedAdvances.map((a, index) => (
                                     <li key={index} className="border-b py-2">
-                                        <div>
-                                            📅{" "}
-                                            {a.given_at || "بانتظار الموافقة"}
+
+                                        <div className="flex items-center justify-between">
+
+                                            <div>
+                                                <div>
+                                                    📅{" "}
+                                                    {a.given_at || "بانتظار الموافقة"}
+                                                </div>
+                                                <div>💵 {a.amount} ج.م</div>
+                                                <div>💸 {a.method} </div>
+                                                <div>📝 {a.note}</div>
+                                                <div>📝 {a.project?.name}</div>
+                                            </div>
+
+                                            <div>
+                                                <DeleteButton id={a.id} routeName='admin.advance.delete' />
+                                            </div>
                                         </div>
-                                        <div>💵 {a.amount} ج.م</div>
-                                        <div>💸 {a.method} </div>
-                                        <div>📝 {a.note}</div>
-                                        <div>📝 {a.project?.name}</div>
-                                        <button
-                                            onClick={() =>
-                                                handleDeleteAdvance(a.id)
-                                            }
-                                            className="bg-red-100 p-1.5 my-3"
-                                        >
-                                            {" "}
-                                            مسح
-                                        </button>
                                     </li>
                                 ))}
                             </ul>
@@ -254,9 +256,18 @@ export default function EditUser({ user }) {
                             <ul className="bg-white p-4 rounded shadow">
                                 {expenses.map((e, index) => (
                                     <li key={index} className="border-b py-2">
-                                        <div>📅 {e.spent_at}</div>
-                                        <div>💸 {e.amount} ج</div>
-                                        <div>📝 {e.description}</div>
+                                        <div className="flex items-center justify-between">
+
+                                            <div>
+                                                <div>📅 {e.spent_at}</div>
+                                                <div>💸 {e.amount} ج</div>
+                                                <div>📝 {e.description}</div>
+                                            </div>
+
+                                            <div>
+                                                <DeleteButton id={e.id} routeName='' />
+                                            </div>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
@@ -266,12 +277,22 @@ export default function EditUser({ user }) {
                                 الاستقطاعات
                             </h2>
                             <ul className="bg-white p-4 rounded shadow">
-                                {deductions.map((e, index) => (
+                                {deductions.map((d, index) => (
                                     <li key={index} className="border-b py-2">
-                                        <div>📅 {e.deducted_at}</div>
-                                        <div>💸 {e.amount} ج</div>
-                                        <div>📝 {e.note}</div>
-                                        <div>📝 {e.type}</div>
+
+                                        <div className="flex items-center justify-between">
+
+                                            <div>
+                                                <div>📅 {d.deducted_at}</div>
+                                                <div>💸 {d.amount} ج</div>
+                                                <div>📝 {d.note}</div>
+                                                <div>📝 {d.type}</div>
+                                            </div>
+
+                                            <div>
+                                                <DeleteButton id={d.id} routeName='admin.deduction.delete' />
+                                            </div>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
@@ -297,7 +318,7 @@ export default function EditUser({ user }) {
                                 }}
                             >
                                 <input
-                                required
+                                    required
                                     type="number"
                                     onWheel={(e) => e.target.blur()}
                                     placeholder="المبلغ"
@@ -313,7 +334,7 @@ export default function EditUser({ user }) {
                                     </div>
                                 )}
                                 <input
-                                required
+                                    required
                                     type="text"
                                     placeholder="الغرض من العهدة"
                                     value={advanceData.note}
@@ -327,26 +348,26 @@ export default function EditUser({ user }) {
                                         {advanceErrors.note}
                                     </div>
                                 )}
-                                <select required value={advanceData.project_id}  onChange={e => setAdvanceData('project_id', e.target.value)} className="w-full border p-2 mb-2">
-                                <option value="">للمشروع</option>
-                                {user.active_projects.map(
-                                    (project)=>(
-                                        <option value={project.id} key={project.id} >{project.name}</option>
-                                    )
-                                )}
-                            </select>
-                            <select
-                            required
-                                className="w-full p-2 border rounded mb-4"
-                                value={advanceData.method}
-                                onChange={(e) => setAdvanceData( 'method',  e.target.value)}
-                            >
-                                <option value="">-- اختر طريقة --</option>
-                                <option value="cash">كاش</option>
-                                <option value="wallet">محفظة</option>
-                                <option value="insta">انستا باي</option>
-                                <option value="bank">تحويل بنكي</option>
-                            </select>
+                                <select required value={advanceData.project_id} onChange={e => setAdvanceData('project_id', e.target.value)} className="w-full border p-2 mb-2">
+                                    <option value="">للمشروع</option>
+                                    {user.active_projects.map(
+                                        (project) => (
+                                            <option value={project.id} key={project.id} >{project.name}</option>
+                                        )
+                                    )}
+                                </select>
+                                <select
+                                    required
+                                    className="w-full p-2 border rounded mb-4"
+                                    value={advanceData.method}
+                                    onChange={(e) => setAdvanceData('method', e.target.value)}
+                                >
+                                    <option value="">-- اختر طريقة --</option>
+                                    <option value="cash">كاش</option>
+                                    <option value="wallet">محفظة</option>
+                                    <option value="insta">انستا باي</option>
+                                    <option value="bank">تحويل بنكي</option>
+                                </select>
                                 <button
                                     type="submit"
                                     disabled={processingAdvance}
@@ -489,33 +510,33 @@ export default function EditUser({ user }) {
                 </div>
             </div>
             {showModal && (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">اختر طريقة تسليم العهدة</h2>
-            <select
-                className="w-full p-2 border rounded mb-4"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-            >
-                <option value="">-- اختر طريقة --</option>
-                <option value="cash">كاش</option>
-                <option value="wallet">محفظة</option>
-                <option value="insta">انستا باي</option>
-                <option value="bank">تحويل بنكي</option>
-            </select>
-            <div className="flex justify-end gap-2">
-                <button onClick={() => setShowModal(false)} className="bg-gray-200 px-4 py-2 rounded">إلغاء</button>
-                <button 
-                    onClick={confirmApproval} 
-                    disabled={!paymentMethod}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                >
-                    تأكيد الموافقة
-                </button>
-            </div>
-        </div>
-    </div>
-)}
-      </AuthenticatedLayout>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                        <h2 className="text-xl font-bold mb-4">اختر طريقة تسليم العهدة</h2>
+                        <select
+                            className="w-full p-2 border rounded mb-4"
+                            value={paymentMethod}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                        >
+                            <option value="">-- اختر طريقة --</option>
+                            <option value="cash">كاش</option>
+                            <option value="wallet">محفظة</option>
+                            <option value="insta">انستا باي</option>
+                            <option value="bank">تحويل بنكي</option>
+                        </select>
+                        <div className="flex justify-end gap-2">
+                            <button onClick={() => setShowModal(false)} className="bg-gray-200 px-4 py-2 rounded">إلغاء</button>
+                            <button
+                                onClick={confirmApproval}
+                                disabled={!paymentMethod}
+                                className="bg-green-500 text-white px-4 py-2 rounded"
+                            >
+                                تأكيد الموافقة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </AuthenticatedLayout>
     );
 }

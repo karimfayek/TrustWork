@@ -27,7 +27,7 @@ class AdminMiddleware
         }
         $redirectTo = match ($user->role) {
             'admin' => 'admin.dashboard',
-            'acc' => 'users.index',
+            'acc' => 'admin.dashboard',
             'proj' => 'admin.dashboard',
             'tech' => 'admin.dashboard',
             default => 'dashboard',
