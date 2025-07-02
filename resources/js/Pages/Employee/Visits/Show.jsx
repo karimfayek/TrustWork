@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { usePage, router, Link } from '@inertiajs/react';
 import dayjs from 'dayjs';
 import useGeolocation from '@/hooks/useGeolocation';
+import UserLayout from '@/Layouts/UserLayout';
 export default function ShowVisit() {
     const { visit } = usePage().props;
     const [showModal, setShowModal] = useState(false);
@@ -71,6 +72,7 @@ export default function ShowVisit() {
         window.location.reload()
     };
     return (
+        <UserLayout>
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow p-6 mt-8 space-y-6">
             <h1 className="text-2xl font-bold text-gray-800 border-b pb-2">تفاصيل الزيارة</h1>
 
@@ -83,15 +85,29 @@ export default function ShowVisit() {
                 <div>
                     <span className="font-semibold text-gray-600">وقت الحضور:</span>
                     <span className="ml-2 text-blue-600">
-                        {visit.check_in ? dayjs(visit.check_in).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
+                        {visit.attendance?.check_in_time ? dayjs(visit.attendance?.check_in_time).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
+                    </span>
+                    <span className="font-semibold text-gray-600">موقع الحضور:</span>
+                    <span className="ml-2 text-blue-600">
+                    <a href={'https://www.google.com/maps?q='+  visit.attendance?.in_location } target="_blank" className="text-blue-600 underline">عرض
+                    </a>
                     </span>
                 </div>
 
                 <div>
                     <span className="font-semibold text-gray-600">وقت الانصراف:</span>
                     <span className="ml-2 text-green-600">
-                        {visit.check_out ? dayjs(visit.check_out).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
+                        {visit.attendance?.check_out_time ? dayjs(visit.attendance?.check_out_time).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
                     </span>
+                    
+                    {visit.attendance?.check_out_time && 
+                     <>
+                        <span className="font-semibold text-gray-600">موقع الانصراف:</span><span className="ml-2 text-blue-600">
+                            <a href={'https://www.google.com/maps?q=' + visit.attendance?.out_location} target="_blank" className="text-blue-600 underline">عرض
+                            </a>
+                        </span>
+                     </>
+                     }
                 </div>
 
                 {visit.notes && (
@@ -101,7 +117,7 @@ export default function ShowVisit() {
                     </div>
                 )}
 
-                {visit.check_out && visit.report_path && (
+                {visit.attendance?.check_out_time && visit.report_path && (
                     <div>
                         <span className="font-semibold text-gray-600">تقرير الزيارة:</span>
                         <div className="mt-2">
@@ -114,7 +130,7 @@ export default function ShowVisit() {
                     </div>
                 )}
 
-                {!visit.check_out && (
+                {!visit.attendance?.check_out_time && (
                     <div>
                         <button
                             onClick={() => setShowModal(true)}
@@ -125,7 +141,7 @@ export default function ShowVisit() {
                     </div>
                 )}
 
-                {visit.check_out && (
+                {visit.attendance?.check_out_time && (
                     <div className="bg-green-100 text-green-700 px-4 py-2 rounded">
                         تم إنهاء الزيارة بنجاح
                     </div>
@@ -139,12 +155,14 @@ export default function ShowVisit() {
                 >
                     ← العودة إلى قائمة الزيارات
                 </Link>
+                {visit.attendance?.check_out_time && (
                 <button
                             onClick={() => setShowEditModal(true)}
                             className="hover:bg-red-700 py-2 text-blue-800 transition"
                         >
                              تعديل الزيارة
                         </button>
+                         )}
             </div>
 
             {/* Modal */}
@@ -253,5 +271,6 @@ export default function ShowVisit() {
                 </div>
             )}
         </div>
+        </UserLayout>
     );
 }

@@ -24,6 +24,7 @@ export default function EditProject({ users, project, userIds }) {
             users: task.users?.map(user => user.id) ?? [],
         }))
     );
+    
     const { data, setData, post, processing, errors } = useForm({
         name: project?.name || '',
         description: project?.description || '',
@@ -36,6 +37,19 @@ export default function EditProject({ users, project, userIds }) {
         tasksnew: [],
         projectId: project.id,
     });
+    const applyUserToAllTasks= (e) => {
+        e.preventDefault()
+        const tasksArray = Object.values(initialTasks);
+       const updatedTasks=  tasksArray.map(
+            (task) => ({
+                ...task,
+                users: [...data.user_ids]
+            })
+        )
+        setTasks(updatedTasks)
+
+        setData({...data , tasks:updatedTasks})
+    }
     const today = new Date().toISOString().split('T')[0]; // "2025-06-01"
 
     useEffect(() => {
@@ -74,11 +88,9 @@ export default function EditProject({ users, project, userIds }) {
         if (currentUsers.includes(userId)) {
             // إزالة المستخدم
             updatedTasks[taskIndex].users = currentUsers.filter(id => id !== userId);
-            console.log(updatedTasks[taskIndex].users, 'updatedtasksS user found')
         } else {
             // إضافة المستخدم
             updatedTasks[taskIndex].users = [...currentUsers, userId];
-            console.log(updatedTasks[taskIndex].users, 'updatedtasksS user not found')
         }
 
         setData('tasks', updatedTasks);
@@ -92,11 +104,9 @@ export default function EditProject({ users, project, userIds }) {
         if (currentUsers.includes(userId)) {
             // إزالة المستخدم
             updatedTasks[taskIndex].users = currentUsers.filter(id => id !== userId);
-            console.log(updatedTasks[taskIndex].users, 'updatedtasksS user found')
         } else {
             // إضافة المستخدم
             updatedTasks[taskIndex].users = [...currentUsers, userId];
-            console.log(updatedTasks[taskIndex].users, 'updatedtasksS user not found')
         }
 
         setData('tasksnew', updatedTasks);
@@ -149,6 +159,7 @@ export default function EditProject({ users, project, userIds }) {
                             value={data.name}
                             className="mt-1 block w-full"
                             onChange={(e) => setData('name', e.target.value)}
+                            required
                         />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
@@ -160,7 +171,7 @@ export default function EditProject({ users, project, userIds }) {
                                 value={data.customer_name}
                                 className="mt-1 block w-full"
                                 onChange={(e) => setData('customer_name', e.target.value)}
-                                required
+                                
                             />
                             <InputError message={errors.customer_name} className="mt-2" />
                         </div>
@@ -172,7 +183,7 @@ export default function EditProject({ users, project, userIds }) {
                                 value={data.project_code}
                                 className="mt-1 block w-full"
                                 onChange={(e) => setData('project_code', e.target.value)}
-                                required
+                                
                             />
                             <InputError message={errors.project_code} className="mt-2" />
                         </div>
@@ -214,7 +225,13 @@ export default function EditProject({ users, project, userIds }) {
                             </div>
                         </div>
                         <div className='border p-2'>
-                                    <InputLabel className='mb-2' htmlFor="user_ids" value="فريق العمل " />
+                                    <InputLabel className='mb-2' htmlFor="user_ids"  >
+                                        <p className='inline'>فريق العمل</p>
+                                    <button className='inline mr-2 text-blue-500 text-sm underline' onClick={(e)=>applyUserToAllTasks(e)}>
+                                        تطبيق على كل المهام
+                                        </button>
+                                    </InputLabel>
+                                    
                                     {users?.map(user => (
                                            
                                            <label key={user.id} className="flex items-center">
@@ -255,6 +272,7 @@ export default function EditProject({ users, project, userIds }) {
                             handleTaskChange={handleTaskChange}
                             handleCheckboxChange={handleCheckboxChange}
                             users={users}
+                            userIds = {data.user_ids}
                             role={role}
                         />
                         {data.tasksnew.map((task, index) => (
@@ -353,7 +371,7 @@ export default function EditProject({ users, project, userIds }) {
                                     <div>
                                         <InputLabel value="تاريخ البداية" />
                                         <TextInput
-                                            required
+                                            
                                             type="date"
                                             value={task.start_date}
                                             min={data.start_date}
@@ -364,7 +382,7 @@ export default function EditProject({ users, project, userIds }) {
                                     </div><div>
                                             <InputLabel value="تاريخ النهاية" />
                                             <TextInput
-                                                required
+                                                
                                                 type="date"
                                                 value={task.end_date}
                                                 min={data.start_date}

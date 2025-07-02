@@ -17,14 +17,27 @@ use App\Services\EmployeePerformanceService;
 class AttendanceController extends Controller
 {
     
+    public function employeeAtt()
+    {
+        $customers = \App\Models\Customer::all(); 
+        $projects = Project::all();
+        $userId = auth()->user()->id ;
+        $atts = Attendance::where('user_id', $userId)->get()->load('project', 'visit','visit.customer');
+        return Inertia::render('Employee/Att/Index',[
+            'customers' => $customers ,
+            'projects' => $projects ,
+            'userId' => $userId ,
+            'atts' => $atts ,
+        ]);
+    }
     public function attList($user=null)
     {
         if($user == null){
-            $atts = Attendance::with('user' , 'project')->get()->load('user', 'project');
+            $atts = Attendance::with('user' , 'project')->get()->load('user', 'project', 'visit' ,'visit.customer');
             $visits = Visit::all()->load('user', 'customer'); 
         }else{
 
-            $atts = Attendance::where('user_id', $user)->get()->load('user', 'project');
+            $atts = Attendance::where('user_id', $user)->get()->load('user', 'project', 'visit','visit.customer');
             $visits = Visit::where('user_id', $user)->get()->load('user', 'customer');
         }
         $users = User::all();
@@ -60,32 +73,28 @@ class AttendanceController extends Controller
                 ->get();
         
             foreach ($attendances as $att) {
+                if($att->project_id !== null){
+                    $name = $att->project->name;
+                }elseif($att->visit_id !== null){
+                    $name = $att->visit->customer->name;
+                }elseif($att->visit_id === null && $att->project_id === null && $att->type === 'internal'){
+                    $name = 'Trust';
+                }elseif($att->visit_id === null && $att->project_id === null && $att->type === 'external'){
+                    $name = $att->customer;
+                }
                 $report->push([
                     'date' => $current->toDateString(),
-                    'type' => 'project',
-                    'name' => $att->project->name ?? 'مشروع',
+                    'type' => $att->type,
+                    'name' => $name,
                     'check_in' => $att->check_in_time,
                     'check_out' => $att->check_out_time,
                 ]);
             }
         
-            $visits = Visit::whereDate('check_in', $current)
-                ->where('user_id', $user->id)
-                ->with('customer')
-                ->get();
-        
-            foreach ($visits as $visit) {
-                $report->push([
-                    'date' => $current->toDateString(),
-                    'type' => 'visit',
-                    'name' => $visit->customer->name ?? 'زيارة',
-                    'check_in' => $visit->check_in,
-                    'check_out' => $visit->check_out,
-                ]);
-            }
+         
         
             // لو مفيش حضور نهائي
-            if ($attendances->isEmpty() && $visits->isEmpty()) {
+            if ($attendances->isEmpty()) {
                 $report->push([
                     'date' => $current->toDateString(),
                     'type' => 'absent',
@@ -162,42 +171,56 @@ class AttendanceController extends Controller
     }
     public function manualCheckIn(Request $request )
     {
-      
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'check_in_time' => 'nullable|date',
+        ]);
          $user = $request->user_id;
          $project = $request->project;
          $customer_id = $request->customer_id;
          $inOut = $request->inOut;
          $type = $request->input("type");
          $customer = $request->input('customer') ?? null;
-        //dd($type);
+       // dd($request->all());
         // Check if already checked in today
         if($inOut === 'in'){
-
-            $existing = Attendance::whereDate('check_in_time', now()->toDateString())
+            $date = Carbon::parse($request->check_in_time)->toDateString();
+            $existing = Attendance::whereDate('check_in_time', $date)
                         ->where('user_id', $user)
                         ->where('type', $type)
                         ->first();
         
             if ($existing) {
+                //dd($existing);
                 return back()->with('message', 'تم تسجيل حضورك مسبقًا اليوم.');
             }
-        
+            if($type === 'visit'){
+                $visit = Visit::create([
+                    'user_id' => $user,
+                    'customer_id' => $request->customer_id,
+                    'is_late' =>  now()->hour >= 9,
+                ]);
+                $visit_id = $visit->id ; 
+                $project = null ;
+            }else{
+               $visit_id = null ;
+            }
             Attendance::create([
                 'user_id' => $user,
                 'project_id' => $project,
-                'customer_id' => $customer_id,
+                'visit_id' => $visit_id,
                 'customer' => $customer,
                 'type' => $type,
-                'check_in_time' => now(),
+                'check_in_time' =>  $request->check_in_time,
                 'in_location' => $request->input('location', 'غير محدد'),
                 'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
             ]);
             return back()->with('message', 'تم تسجيل الحضور بنجاح.');
         }elseif($inOut === 'out'){
-                $attendance = Attendance::where('user_id', $user)
-                ->where('type', $type)
-            ->where('project_id', $project)
-            ->whereDate('check_in_time', today())
+            $date = Carbon::parse($request->check_out_time)->toDateString();
+            $attendance = Attendance::where('user_id', $user)
+            ->where('type', $type)
+            ->whereDate('check_in_time', $date)
             ->whereNull('check_out_time')
             ->first();
 
@@ -206,7 +229,7 @@ class AttendanceController extends Controller
         }
 
         $attendance->update([
-            'check_out_time' => now(),        
+            'check_out_time' => $request->check_out_time,        
             'out_location' => $request->input('location', 'غير محدد'),
         ]);
         return back()->with('message', 'تم تسجيل الانصراف بنجاح.');

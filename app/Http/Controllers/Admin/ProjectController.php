@@ -193,6 +193,7 @@ class ProjectController extends Controller
             }
          }
          foreach ($request->tasks as $taskData) {
+           // dd($taskData);
             $task = Task::find($taskData['id']);
        // dd( bcmul((string) $taskData['up'], (string) $taskData['quantity'], 2) );
             $task->update([
@@ -238,8 +239,9 @@ class ProjectController extends Controller
                    ];
                }
            
-               $task->users()->sync($usersData);
+              
            }
+           $task->users()->sync($usersData);
         }
         
         

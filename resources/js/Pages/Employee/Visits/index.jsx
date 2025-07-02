@@ -1,9 +1,8 @@
 import React from 'react';
-import { usePage, useForm, Link } from '@inertiajs/react';
+import {Link } from '@inertiajs/react';
 import UserLayout from '@/Layouts/UserLayout';
 
 export default function Visits({visits}) {
-    console.log('vists' , visits)
 return (
       <UserLayout>
 
@@ -33,9 +32,9 @@ return (
                             {visits.map((visit) => (
                                 <tr key={visit.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{visit.customer?.name}</td>
-                                    <td className="px-6 py-4">{visit.check_in}</td>
-                                    <td className="px-6 py-4">{visit.check_out}</td>
-                                    <td className="px-6 py-4">{visit.notes}</td>
+                                    <td className="px-6 py-4">{visit.attendance?.check_in_time}</td>
+                                    <td className="px-6 py-4">{visit.attendance?.check_out_time}</td>
+                                    <td className="px-6 py-4  max-w-[200px] truncate whitespace-nowrap overflow-hidden">{visit.notes}</td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                        
                                         <Link

@@ -7,7 +7,10 @@ import { useState } from 'react';
 
 export default function UserLayout({ header, children }) {
     const user = usePage().props.auth.user;
-
+    const { props } = usePage();
+    const successMessage = props.flash.message;
+    const errorMessages = props.errors;
+    const role = props.auth.user.role
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
@@ -42,6 +45,12 @@ export default function UserLayout({ header, children }) {
                                     active={route().current('employee.tasks.index')}
                                 >
                                     مهامى
+                                </NavLink>
+                                <NavLink
+                                    href={route('employee.att.index')}
+                                    active={route().current('employee.att.index')}
+                                >
+                                    الحضور
                                 </NavLink>
                                 <NavLink
                                     href={route('employee.advance')}
@@ -81,17 +90,25 @@ export default function UserLayout({ header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
+                                        {role === 'admin' &&
+                                          <Dropdown.Link
+                                          href={route('admin.dashboard')}
+                                      >
+                                        أدمن داشبورد
+                                      </Dropdown.Link>
+                                        }
                                         <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
-                                            Profile
+                                            الملف الشخصى
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
                                             as="button"
+                                            className='text-red-600'
                                         >
-                                            Log Out
+                                            تسجيل الخروج
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -199,8 +216,9 @@ export default function UserLayout({ header, children }) {
                                 method="post"
                                 href={route('logout')}
                                 as="button"
+                                className='text-red-600'
                             >
-                                Log Out
+                                تسجيل الخروج
                             </ResponsiveNavLink>
                         </div>
                     </div>
@@ -215,7 +233,43 @@ export default function UserLayout({ header, children }) {
                 </header>
             )}
 
-            <main>{children}</main>
+            <main>
+            <>
+                    {successMessage && (
+                        <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
+                            {successMessage}
+                        </div>
+                    )}
+                     {errorMessages.length > 0 && (
+                        <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
+                            <ul>
+                                {errorMessages.map(
+                                    (err) =>(
+                                        <li>{err}</li>
+                                    )
+                            
+                                )}
+                            </ul>
+                        </div>
+                    )}
+                     {Object.entries(errorMessages).length > 0 && (
+                        <div className="bg-red-100 text-red-800 border border-red-300 p-2 rounded mt-4">
+                           
+                           {Object.entries(errorMessages).map(([field, message]) => (
+                            <div key={field}>
+                                    {field}: {message}
+                                </div>
+                                ))}
+                        </div>
+                    )}
+                    {props.errors.message && (
+                        <div className="bg-red-100 text-green-800 border text-center p-2 rounded mt-4">
+                            {props.errors?.message}
+                        </div>
+                    )}
+                </>
+                {children}
+                </main>
         </div>
     );
 }

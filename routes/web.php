@@ -116,8 +116,11 @@ Route::middleware(['auth' ,  'role:employee,admin'])->group(function () {
     Route::post('/visits', [VisitsController::class, 'store'])->name('visits.store');
     Route::post('/visits/{id}', [VisitsController::class, 'update'])->name('visits.update');
     Route::post('/visits/edit/{id}', [VisitsController::class, 'edit'])->name('visits.edit');
+    Route::get('/employee/att', [AttendanceController::class, 'employeeAtt'])->name('employee.att.index');
 
 });
+
+//admin,proj,tech,acc
 Route::middleware(['auth', 'role:admin,proj,tech,acc'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 });

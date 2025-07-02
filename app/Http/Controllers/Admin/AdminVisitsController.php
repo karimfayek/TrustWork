@@ -15,7 +15,7 @@ class AdminVisitsController extends Controller
     public function index(Request $request)
     {
         $customers = Customer::all();
-        $visits = Visit::all()->load('customer')->load('user');
+        $visits = Visit::all()->load('customer')->load('user','attendance');
 
         return Inertia::render('Admin/Visits/Index', [
             'customers' => $customers,
@@ -28,7 +28,7 @@ class AdminVisitsController extends Controller
         $visit = Visit::where('id',$id)->first();
         if($visit){
             $visit->load('customer');
-            $visit->load('user');
+            $visit->load('user' ,'attendance');
         }
 
         return Inertia::render('Admin/Visits/Show', [

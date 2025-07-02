@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Models\Customer;
+use App\Models\Attendance;
 use App\Models\Visit;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -15,7 +16,7 @@ class VisitsController extends Controller
     public function index(Request $request)
     {
         $customers = Customer::all();
-        $visits = Visit::where('user_id' , $request->user()->id )->with('customer')->get();
+        $visits = Visit::where('user_id' , $request->user()->id )->with('customer','attendance')->get();
 
         return Inertia::render('Employee/Visits/index', [
             'customers' => $customers,
@@ -28,6 +29,7 @@ class VisitsController extends Controller
         $visit = Visit::where('id',$id)->where('user_id' , $request->user()->id )->first();
         if($visit){
             $visit->load('customer');
+            $visit->load('attendance');
         }
 
         return Inertia::render('Employee/Visits/Show', [
@@ -39,10 +41,12 @@ class VisitsController extends Controller
     {
         $customers = Customer::all();
         $visits = Visit::where('user_id' , $request->user()->id )->with('customer')->get();
-        $activeVisit = Visit::where('user_id', $request->user()->id )
-        ->whereNull('check_out')
-        ->latest()
-        ->first();
+        $activeVisit = Visit::where('user_id', $request->user()->id)
+            ->whereHas('attendance', function ($query) {
+                $query->whereNull('check_out_time');
+            })
+            ->latest()
+            ->first();
 
         $customers = Customer::all();
         return Inertia::render('Employee/Visits/VisitStart', [
@@ -58,7 +62,7 @@ class VisitsController extends Controller
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
         ]);
-        $esistingVisit = Visit::where('customer_id' , $request->customer_id )->where('user_id' , $request->user()->id)->whereDate('check_in', Carbon::today())
+        $esistingVisit = Visit::where('customer_id' , $request->customer_id )->where('user_id' , $request->user()->id)->whereDate('created_at', Carbon::today())
         ->first();
         if($esistingVisit){
             return  response()->json(['error' => 'تم تسجيل الحضور بالفعل اليوم.']);
@@ -68,9 +72,15 @@ class VisitsController extends Controller
         $visit = Visit::create([
             'user_id' => $request->user()->id,
             'customer_id' => $request->customer_id,
-            'check_in' => now(),
-            'in_location' => $request->input('location', 'غير محدد'),
             'is_late' =>  now()->hour >= 9,
+        ]);
+        Attendance::create([
+            'user_id' =>$request->user()->id,
+            'visit_id' => $visit->id,
+            'type' => 'visit',
+            'check_in_time' => now(),
+            'in_location' => $request->input('location', 'غير محدد'),
+            'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
         ]);
        // return redirect()->back()->with(['visit' => $visit]);
         return response()->json(['visit' => $visit]);
@@ -92,9 +102,11 @@ class VisitsController extends Controller
         }
 
         $visit->notes = $request->notes;
-        $visit->check_out = now();
-        $visit->out_location =  $request->input('location', 'غير محدد');
         $visit->save();
+        $att = Attendance::where('visit_id' , $visit->id)->first();
+        $att->check_out_time = now();
+        $att->out_location =  $request->input('location', 'غير محدد');
+        $att->save();
 
         return  response()->json([
             'success' => true,
@@ -124,7 +136,7 @@ class VisitsController extends Controller
         }
 
         $visit->notes = $request->notes;
-        $visit->check_out = now();
+        //$visit->check_out = now();
         //$visit->out_location =  $request->input('location', 'غير محدد');
         $visit->save();
 

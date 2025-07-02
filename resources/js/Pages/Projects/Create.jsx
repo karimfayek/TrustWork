@@ -62,7 +62,6 @@ export default function CreateProject({ users }) {
                 unit: ''
             }));
             
-            console.log(...newTasks , '...newTasks')
             currentTasks = [...currentTasks, ...newTasks];
         } else if (currentTasks.length > count) {
             currentTasks = currentTasks.slice(0, count);

@@ -26,7 +26,6 @@ export default function AuthenticatedLayout({ header, children }) {
     const { props } = usePage();
     const successMessage = props.flash.message;
     const errorMessages = props.errors;
-    console.log(errorMessages)
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { usePage, router, Link } from '@inertiajs/react';
 import dayjs from 'dayjs';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function ShowVisit() {
     const { visit } = usePage().props;
-   
+   console.log(visit , 'visit')
 
   
 
     return (
+        <AuthenticatedLayout>
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow p-6 mt-8 space-y-6">
             <h1 className="text-2xl font-bold text-gray-800 border-b pb-2">تفاصيل الزيارة</h1>
 
@@ -21,25 +23,28 @@ export default function ShowVisit() {
                 <div>
                     <span className="font-semibold text-gray-600">وقت الحضور:</span>
                     <span className="ml-2 text-blue-600">
-                        {visit.check_in ? dayjs(visit.check_in).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
+                        {visit.attendance?.check_in_time ? dayjs(visit.attendance?.check_in_time).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
                     </span>
                     <span className="font-semibold text-gray-600">موقع الحضور:</span>
                     <span className="ml-2 text-blue-600">
-                    <a href={'https://www.google.com/maps?q='+  visit.in_location } target="_blank" class="text-blue-600 underline">عرض
+                    <a href={'https://www.google.com/maps?q='+  visit.attendance?.in_location } target="_blank" className="text-blue-600 underline">عرض
                     </a>
                     </span>
                 </div>
 
                 <div>
-                    <span className="font-semibold text-gray-600">وقت الانصراف:</span>
-                    <span className="ml-2 text-green-600">
-                        {visit.check_out ? dayjs(visit.check_out).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
-                    </span>
-                    <span className="font-semibold text-gray-600">موقع الانصراف:</span>
-                    <span className="ml-2 text-blue-600">
-                    <a href={'https://www.google.com/maps?q='+  visit.out_location } target="_blank" class="text-blue-600 underline">عرض
-                    </a>
-                    </span>
+                    <span className="font-semibold text-gray-600">وقت الانصراف:</span><span className="ml-2 text-green-600">
+                        {visit.attendance?.check_out_time ? dayjs(visit.attendance?.check_out_time).format('YYYY-MM-DD HH:mm') : 'لم يتم بعد'}
+                     </span>
+                     {visit.attendance?.check_out_time && 
+                     <>
+                        <span className="font-semibold text-gray-600">موقع الانصراف:</span><span className="ml-2 text-blue-600">
+                            <a href={'https://www.google.com/maps?q=' + visit.attendance?.out_location} target="_blank" className="text-blue-600 underline">عرض
+                            </a>
+                        </span>
+                     </>
+                     }
+                   
                 </div>
 
 
@@ -50,7 +55,7 @@ export default function ShowVisit() {
                     </div>
                 )}
 
-                {visit.check_out && visit.report_path && (
+                {visit.attendance?.check_out_time && visit.report_path && (
                     <div>
                         <span className="font-semibold text-gray-600">تقرير الزيارة:</span>
                         <div className="mt-2">
@@ -79,5 +84,6 @@ export default function ShowVisit() {
             </div>
 
         </div>
+        </AuthenticatedLayout>
     );
 }

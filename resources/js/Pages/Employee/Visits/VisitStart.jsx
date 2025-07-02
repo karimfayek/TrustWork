@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useForm , router } from '@inertiajs/react';
 import axios from 'axios';
 import useGeolocation from '@/hooks/useGeolocation';
+import UserLayout from '@/Layouts/UserLayout';
 
 export default function VisitStartPage({ customers, activeVisit  }) {
     const {
@@ -96,7 +97,8 @@ export default function VisitStartPage({ customers, activeVisit  }) {
     };
 
     return (
-        <div className="p-4 max-w-xl mx-auto bg-white rounded shadow">
+        <UserLayout>
+        <div className="mt-10 p-4 max-w-xl mx-auto bg-white rounded shadow">
                {error &&
             
             <div className="bg-[#FF2D20]/10 p-4 rounded shadow text-yellow-900 mb-6">
@@ -167,5 +169,6 @@ export default function VisitStartPage({ customers, activeVisit  }) {
         </Link>
     </div>}
         </div>
+        </UserLayout>
     );
 }

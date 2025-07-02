@@ -1,5 +1,15 @@
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+
 export default function ReportView({ report, user, from, to }) {
+  console.log(report , 'report')
+  const TrClassName = (checkIn) => {
+    if(checkIn){
+      return 'bg-green-100'
+    } 
+    return 'bg-[#FF2D20]/10'
+  }
     return (
+      <AuthenticatedLayout>
       <div className="max-w-4xl mx-auto mt-6 p-4 bg-white rounded shadow">
         <h2 className="text-2xl font-bold mb-4">
           تقرير حضور: {user.name} من {from} إلى {to}
@@ -17,13 +27,17 @@ export default function ReportView({ report, user, from, to }) {
   </thead>
   <tbody>
     {report.map((row, index) => (
-      <tr key={index} className="text-center">
+      <tr key={index} className={"text-center "+ TrClassName(row.check_in)}>
         <td className="border px-4 py-2">{row.date}</td>
         <td className="border px-4 py-2">
           {row.type === 'project'
             ? 'مشروع'
             : row.type === 'visit'
             ? 'زيارة'
+            : row.type === 'internal'
+            ? 'الشركة'
+            : row.type === 'external'
+            ? 'خارج الشركة'
             : 'غياب'}
         </td>
         <td className="border px-4 py-2">{row.name}</td>
@@ -38,6 +52,7 @@ export default function ReportView({ report, user, from, to }) {
   </tbody>
 </table>
       </div>
+      </AuthenticatedLayout>
     );
   }
   

@@ -3,7 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 
-const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheckboxChange, role }) => {
+const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheckboxChange, role , userIds }) => {
 
     const taskList = Array.isArray(tasks) ? tasks : [tasks];
 
@@ -34,7 +34,12 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
             alert('Something went wrong.');
         }
     };
-  
+  const copyTeamWork = (e, index) => {
+    e.preventDefault()
+    const updatedList = [...taskList ]
+    updatedList[index].users = userIds
+    setData('tasks', updatedList);
+  }
     return (
         <>
         
@@ -128,7 +133,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                             <div>
                                 <InputLabel value="تاريخ البداية" />
                                 <TextInput
-                                    required
+                                    
                                     type="date"
                                     value={task.start_date}
                                     onChange={(e) => handleTaskChange(index, 'start_date', e.target.value)}
@@ -137,7 +142,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                             </div><div>
                                 <InputLabel value="تاريخ النهاية" />
                                 <TextInput
-                                    required
+                                    
                                     type="date"
                                     value={task.end_date}
                                     onChange={(e) => handleTaskChange(index, 'end_date', e.target.value)}
@@ -145,7 +150,12 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                                 <InputError message={errors.tasks?.[index]?.end_date} className="mt-1" />
                             </div>
                             <div >
-                                <InputLabel value=" اسناد المهام" />
+                                <InputLabel className='mb-2'  >
+                                        <p className='inline'>اسناد المهام</p>
+                                    <button className='inline mr-2 text-blue-500 text-sm underline' onClick={(e)=>copyTeamWork(e, index)}>
+                                       نسخ فريق عمل المشروع
+                                        </button>
+                                    </InputLabel>
                                 <div className="bg-white border gap-2 grid grid-cols-2 mt-1 p-1.5">
 
                                     {users?.map(user => (

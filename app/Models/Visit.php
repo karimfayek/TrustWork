@@ -17,4 +17,7 @@ class Visit extends Model
     public function customer() {
         return $this->belongsTo(Customer::class);
     }
+    public function attendance() {
+        return $this->hasOne(Attendance::class);
+    }
 }
