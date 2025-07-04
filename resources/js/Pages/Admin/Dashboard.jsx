@@ -23,7 +23,8 @@ export default function Dashboard({ projects }) {
 
             <div className="max-w-7xl mx-auto p-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold text-gray-800">المشاريع  </h1>
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        المشاريع  </h1>
                     {role !== 'acc' &&
                     
                     <Link
@@ -55,8 +56,8 @@ export default function Dashboard({ projects }) {
                                     </td>
                                     <td className="px-6 py-4">{project.start_date}</td>
                                     <td className={`px-6 py-4 ${new Date(project.end_date) < new Date() ? 'text-red-500' : ''}`}>
-  {project.end_date}
-</td>
+                                        {project.end_date}
+                                        </td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                         {(role === 'admin' || role === 'proj') &&
 

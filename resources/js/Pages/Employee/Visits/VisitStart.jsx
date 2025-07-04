@@ -34,9 +34,12 @@ export default function VisitStartPage({ customers, activeVisit  }) {
     });
     console.log('LocationError:', LocationError);
     
+    const [IsLoading , setIsLoading] = useState(false)
     const startVisit = async (e) => {
         e.preventDefault()
+        setIsLoading(true)
         if (!navigator.geolocation) {
+            setIsLoading(false)
             alert('المتصفح لا يدعم تحديد الموقع');
            
            return
@@ -50,6 +53,7 @@ export default function VisitStartPage({ customers, activeVisit  }) {
             .then(response => {
                 if (response.data.error) {
                     setError(response.data.error);
+                    
                 } else if (response.data.visit) {
                     setVisitId(response.data.visit.id);
                     setError(null);
@@ -57,14 +61,17 @@ export default function VisitStartPage({ customers, activeVisit  }) {
             })
             .catch(error => {
                 console.error(error);
+                setIsLoading(false)
                 setError('حدث خطأ أثناء إرسال البيانات');
             });
            
             // التحديث بعد نجاح الطلب
         } catch (error) {
+            setIsLoading(false)
             console.error('Visit start error:', error);
             alert(error)
         }
+        setIsLoading(false)
     };
 
     const endVisit = async () => {
@@ -126,8 +133,8 @@ export default function VisitStartPage({ customers, activeVisit  }) {
                     </select>
                     <button
                         onClick={(e)=>startVisit(e)}
-                        disabled={!data.customer_id}
-                        className="bg-blue-600 text-white px-4 py-2 rounded"
+                        disabled={!data.customer_id || IsLoading}
+                        className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-25"
                     >
                         بدء الزيارة
                     </button>
@@ -150,7 +157,7 @@ export default function VisitStartPage({ customers, activeVisit  }) {
                     />
                     <button
                         onClick={endVisit}
-                        className="bg-green-600 text-white px-4 py-2 rounded"
+                        className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-25"
                         disabled={processing || visitEnded}
                     >
                         إنهاء الزيارة

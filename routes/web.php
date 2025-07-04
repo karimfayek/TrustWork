@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\RecycleController
+;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\DeductionController;
@@ -49,10 +51,20 @@ Route::middleware(['auth' ,  'role:admin'])->group(function () {
         $exitCode = Artisan::call('route:clear');
         return '<h1>Reoptimized class loader</h1>';
     });
+//recycle
+Route::get('/admin/recycle-bin', [RecycleController::class, 'index'])->name('admin.recyclebin');
 
-//projects
+Route::post('/admin/recycle-bin/restore/project/{id}', [RecycleController::class, 'restoreProject'])->name('admin.recyclebin.restore.project');
 
-Route::post('/admin/project/delete', [ProjectController::class, 'deleteProject'])->name('admin.project.delete');
+Route::post('/admin/recycle-bin/delete/project/{id}', [RecycleController::class, 'forceDeleteProject'])->name('admin.recyclebin.forceDelete.project');
+
+Route::post('/admin/recycle-bin/restore/user/{id}', [RecycleController::class, 'restoreUser'])->name('admin.recyclebin.restore.user');
+
+Route::post('/admin/recycle-bin/delete/user/{id}', [RecycleController::class, 'forceDeleteUser'])->name('admin.recyclebin.forceDelete.user');
+
+    //projects
+
+    Route::post('/admin/project/delete', [ProjectController::class, 'deleteProject'])->name('admin.project.delete');
 
     Route::get('/admin/visits', [AdminVisitsController::class, 'index'])->name('admin.visits.index');
     Route::get('/admin/visit/show/{id}', [AdminVisitsController::class, 'show'])->name('admin.visits.show'); 
@@ -68,80 +80,6 @@ Route::post('/admin/project/delete', [ProjectController::class, 'deleteProject']
     Route::get('/reports/salaries', [ReportController::class, 'salariesReport'])->name('reports.salaries');
     Route::get('/reports/tools', [ReportController::class, 'toolsReport'])->name('reports.tools');
 });
-
-//employee,admin,acc
-Route::middleware(['auth' ,  'role:employee,admin,acc'])->group(function () {
-    
-    //advance
-    Route::get('/employee/advance', [EmployeeAdvanceController::class, 'index'])->name('employee.advance');
-    Route::post('/employee/advance', [EmployeeAdvanceController::class, 'storeAdvance'])->name('employee.advance.store');
-    //expense
-    Route::post('/employee/expense', [EmployeeAdvanceController::class, 'storeExpense'])->name('employee.expense.store');
-    //rewards
-    Route::post('/employee/reward', [RewardController::class, 'storeReward'])->name('employee.reward.store');
-    Route::post('/admin/employee/reward/', [RewardController::class, 'delete'])->name('employee.reward.delete');
-    
-    Route::get('/attendance/list/{user?}', [AttendanceController::class, 'attList'])->name('attendance.list');
-    Route::get('/attendance/filter/', [AttendanceController::class, 'attFilter'])->name('attendance.filter');
-//loans
-Route::post('/loans/request', [LoanController::class, 'requestLoan']);
-
-
-});
-//role:employee,admin,acc,proj
-Route::middleware(['auth' ,  'role:employee,admin,acc,proj'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/calc-emp-att/{id}/{month?}', [AttendanceController::class, 'calculateAttendancePercentageUntillToday'])->name('calc.att');
-    Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->name('password.change');
-    Route::post('/change-password/first', [ChangePasswordController::class, 'update'])->name('password.update.first');
-
-});
-//employee,admin
-Route::middleware(['auth' ,  'role:employee,admin'])->group(function () {
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
-    Route::get('/employee/project/{project}', [UserController::class, 'showProject'])->name('employee.project.show');
-    Route::post('/employee/project/{project}/check-in', [AttendanceController::class, 'checkIn']) ->name('attendance.checkin');
-    Route::post('/attendance/checkout/{project}', [AttendanceController::class, 'checkOut'])->name('attendance.checkout');       
-    Route::post('/issues/store', [IssueController::class, 'store'])->name('issues.store');
-    Route::post('/employee/task/{task}/complete', [UserController::class, 'taskComplete'])->name('employee.tasks.complete');
-    Route::post('/task-progress', [TaskProgressController::class, 'store'])->name('employee.task.progress.store');
-    Route::get('/employee/tasks', [TaskController::class, 'indexEmployee'])->name('employee.tasks.index');
-        //check in
-    //Route::get('/employee/checkin', [AttendanceController::class, 'showCheckIn'])->name('employee.checkin.show');
-        //visits
-    Route::get('/visits', [VisitsController::class, 'index'])->name('visits.index');
-    Route::get('/visit/start', [VisitsController::class, 'start'])->name('visit.start');
-    Route::get('/visit/show/{id}', [VisitsController::class, 'show'])->name('visits.show');
-    Route::post('/visits', [VisitsController::class, 'store'])->name('visits.store');
-    Route::post('/visits/{id}', [VisitsController::class, 'update'])->name('visits.update');
-    Route::post('/visits/edit/{id}', [VisitsController::class, 'edit'])->name('visits.edit');
-    Route::get('/employee/att', [AttendanceController::class, 'employeeAtt'])->name('employee.att.index');
-
-});
-
-//admin,proj,tech,acc
-Route::middleware(['auth', 'role:admin,proj,tech,acc'])->group(function () {
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-});
-Route::middleware(['auth', 'role:admin,proj,tech'])->group(function () {
-   
-    Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
-    Route::get('/projects/edit/{id}', [ProjectController::class, 'edit'])->name('admin.projects.edit');
-    Route::post('/projects/update', [ProjectController::class, 'update'])->name('admin.projects.update');
-    Route::post('/projects', [ProjectController::class, 'store'])->name('admin.projects.store');  
-});
-//admin,proj
-Route::middleware(['auth', 'role:admin,proj'])->group(function () {
-    Route::get('/project/{projectId}', [ProjectController::class, 'show'])->name('project.show');
-          
-    Route::get('/task/{taskId}', [TaskController::class, 'show'])->name('task.show');
-    Route::get('/projects/{projectId}/assign-tasks', [ProjectController::class, 'assignTasks'])->name('projects.assignTasks');
-    Route::post('/projects/{projectId}/save-tasks', [ProjectController::class, 'saveTasks'])->name('projects.saveTasks');
-    Route::post('/admin/task/delete/{id}', [ProjectController::class, 'deleteTask'])->name('admin.projects.task.delete');
-    Route::get('/admin/tasks', [TaskController::class, 'index'])->name('tasks.index');
-});
-
 //admin,acc
 Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     //users
@@ -189,7 +127,8 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::get('/pricing/{id}', [PricingController::class, 'pricing'])->name('acc.pricing');
     Route::post('/pricing/set', [PricingController::class, 'pricingSet'])->name('acc.pricing.set');
     //manula checkin
-    Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
+    Route::get('/attendance/list/{user?}', [AttendanceController::class, 'attList'])->name('attendance.list');
+    Route::get('/attendance/filter/', [AttendanceController::class, 'attFilter'])->name('attendance.filter');
 
     //extractions 
     Route::get('/project/extractions/list/{project}', [ExtractionController::class, 'list'])->name('project.extractions.list');//create new
@@ -197,7 +136,80 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::post('/projects/{project}/extraction', [ExtractionController::class, 'store'])->name('project.extractions.store');
     Route::get('/projects/{project}/extractions/{extraction}/preview', [ExtractionController::class, 'preview'])->name('extractions.preview');
     Route::post('/extraction/delete', [ExtractionController::class, 'delete'])->name('extraction.delete');
+    Route::post('/admin/employee/reward/', [RewardController::class, 'delete'])->name('employee.reward.delete');
+    
 });
+//employee,admin,acc
+Route::middleware(['auth' ,  'role:employee,admin,acc,managment'])->group(function () {
+    
+    //advance
+    Route::get('/employee/advance', [EmployeeAdvanceController::class, 'index'])->name('employee.advance');
+    Route::post('/employee/advance', [EmployeeAdvanceController::class, 'storeAdvance'])->name('employee.advance.store');
+    //expense
+    Route::post('/employee/expense', [EmployeeAdvanceController::class, 'storeExpense'])->name('employee.expense.store');
+    //rewards
+    Route::post('/employee/reward', [RewardController::class, 'storeReward'])->name('employee.reward.store');   
+   //loans
+    Route::post('/loans/request', [LoanController::class, 'requestLoan']);
+    Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
+
+    Route::get('/employee/att', [AttendanceController::class, 'employeeAtt'])->name('employee.att.index');
+
+});
+//role:employee,admin,acc,proj
+Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/calc-emp-att/{id}/{month?}', [AttendanceController::class, 'calculateAttendancePercentageUntillToday'])->name('calc.att');
+    Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->name('password.change');
+    Route::post('/change-password/first', [ChangePasswordController::class, 'update'])->name('password.update.first');
+
+});
+//employee,admin
+Route::middleware(['auth' ,  'role:employee,admin'])->group(function () {
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/employee/project/{project}', [UserController::class, 'showProject'])->name('employee.project.show');
+    Route::post('/employee/project/{project}/check-in', [AttendanceController::class, 'checkIn']) ->name('attendance.checkin');
+    Route::post('/attendance/checkout/{project}', [AttendanceController::class, 'checkOut'])->name('attendance.checkout');       
+    Route::post('/issues/store', [IssueController::class, 'store'])->name('issues.store');
+    Route::post('/employee/task/{task}/complete', [UserController::class, 'taskComplete'])->name('employee.tasks.complete');
+    Route::post('/task-progress', [TaskProgressController::class, 'store'])->name('employee.task.progress.store');
+    Route::get('/employee/tasks', [TaskController::class, 'indexEmployee'])->name('employee.tasks.index');
+        //check in
+    //Route::get('/employee/checkin', [AttendanceController::class, 'showCheckIn'])->name('employee.checkin.show');
+        //visits
+    Route::get('/visits', [VisitsController::class, 'index'])->name('visits.index');
+    Route::get('/visit/start', [VisitsController::class, 'start'])->name('visit.start');
+    Route::get('/visit/show/{id}', [VisitsController::class, 'show'])->name('visits.show');
+    Route::post('/visits', [VisitsController::class, 'store'])->name('visits.store');
+    Route::post('/visits/{id}', [VisitsController::class, 'update'])->name('visits.update');
+    Route::post('/visits/edit/{id}', [VisitsController::class, 'edit'])->name('visits.edit');
+
+});
+
+//admin,proj,tech,acc
+Route::middleware(['auth', 'role:admin,proj,tech,acc'])->group(function () {
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+});
+Route::middleware(['auth', 'role:admin,proj,tech'])->group(function () {
+   
+    Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
+    Route::get('/projects/edit/{id}', [ProjectController::class, 'edit'])->name('admin.projects.edit');
+    Route::post('/projects/update', [ProjectController::class, 'update'])->name('admin.projects.update');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('admin.projects.store');  
+});
+//admin,proj
+Route::middleware(['auth', 'role:admin,proj'])->group(function () {
+    Route::get('/project/{projectId}', [ProjectController::class, 'show'])->name('project.show');
+          
+    Route::get('/task/{taskId}', [TaskController::class, 'show'])->name('task.show');
+    Route::get('/projects/{projectId}/assign-tasks', [ProjectController::class, 'assignTasks'])->name('projects.assignTasks');
+    Route::post('/projects/{projectId}/save-tasks', [ProjectController::class, 'saveTasks'])->name('projects.saveTasks');
+    Route::post('/admin/task/delete/{id}', [ProjectController::class, 'deleteTask'])->name('admin.projects.task.delete');
+    Route::get('/admin/tasks', [TaskController::class, 'index'])->name('tasks.index');
+});
+
+
 
 
 require __DIR__.'/auth.php';

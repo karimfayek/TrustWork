@@ -13,7 +13,7 @@ class AdminUserController extends Controller
 {
     public function index()
     {
-        $users = User::where('status' , 1)->with('salary')->get();
+        $users = User::with('salary')->get();
 
         return Inertia::render('Admin/Users/List', [
             'users' => $users

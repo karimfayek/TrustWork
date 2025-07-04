@@ -94,6 +94,9 @@ export default function CrreateUser() {
                             <option value='proj'>
                                 مدير مشروعات
                             </option>
+                            <option value='managment'>
+                               ادارى
+                            </option>
                             <option value='admin'>
                                 ادمن
                             </option>

@@ -184,7 +184,13 @@ class AttendanceController extends Controller
        // dd($request->all());
         // Check if already checked in today
         if($inOut === 'in'){
-            $date = Carbon::parse($request->check_in_time)->toDateString();
+            if($request->check_in_time == null){
+                $date = now();
+                $time = now();
+            }else{
+                $date = Carbon::parse($request->check_in_time)->toDateString();
+           $time =$request->check_in_time ;
+            }
             $existing = Attendance::whereDate('check_in_time', $date)
                         ->where('user_id', $user)
                         ->where('type', $type)
@@ -211,13 +217,20 @@ class AttendanceController extends Controller
                 'visit_id' => $visit_id,
                 'customer' => $customer,
                 'type' => $type,
-                'check_in_time' =>  $request->check_in_time,
+                'check_in_time' =>  $time,
                 'in_location' => $request->input('location', 'غير محدد'),
                 'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
             ]);
             return back()->with('message', 'تم تسجيل الحضور بنجاح.');
         }elseif($inOut === 'out'){
-            $date = Carbon::parse($request->check_out_time)->toDateString();
+            if($request->check_out_time == null){
+                $date = now();                
+                $time = now();
+            }else{
+
+                $date = Carbon::parse($request->check_out_time)->toDateString();
+           $time =$request->check_out_time;
+            }
             $attendance = Attendance::where('user_id', $user)
             ->where('type', $type)
             ->whereDate('check_in_time', $date)
@@ -229,7 +242,7 @@ class AttendanceController extends Controller
         }
 
         $attendance->update([
-            'check_out_time' => $request->check_out_time,        
+            'check_out_time' => $time,        
             'out_location' => $request->input('location', 'غير محدد'),
         ]);
         return back()->with('message', 'تم تسجيل الانصراف بنجاح.');

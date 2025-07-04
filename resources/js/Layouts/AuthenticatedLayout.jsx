@@ -17,6 +17,7 @@ export default function AuthenticatedLayout({ header, children }) {
         { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc'] },
         { label: 'العملاء', routeName: 'customers.index', roles: ['admin', 'acc'] },
         { label: 'التقارير', routeName: 'reports.index', roles: ['admin'] },
+        { label: 'سلة المحذوفات', routeName: 'admin.recyclebin', roles: ['admin'] },
     ];
     const user = usePage().props.auth.user;
     const role = user?.role;

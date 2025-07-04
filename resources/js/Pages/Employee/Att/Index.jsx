@@ -5,6 +5,7 @@ import axios from 'axios';
 import useGeolocation from '@/hooks/useGeolocation';
 
 export default function AttFrom({ userId ,atts }) {
+    const [IsLoading , setIsLoading] = useState(false)
     const {
         location,
         loading,
@@ -33,7 +34,9 @@ export default function AttFrom({ userId ,atts }) {
     });
     const handleManual = async (e, inOut) => {
         e.preventDefault();
+        setIsLoading(true)
         if (!navigator.geolocation) {
+            setIsLoading(false)
             alert('المتصفح لا يدعم تحديد الموقع');
            
            return
@@ -49,8 +52,10 @@ export default function AttFrom({ userId ,atts }) {
         router.post(route("check.manual"), payload, {
             preserveState: true,
             replace: true,
+            onSuccess : ()=>  setIsLoading(false)
         });
         console.log("Sending payload: ", payload);
+       
     };
     return (
         <UserLayout>
@@ -124,10 +129,12 @@ export default function AttFrom({ userId ,atts }) {
                             </div>
                         </div>
                         <button
+                        disabled={IsLoading}
                             type="submit"
-                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-25"
                         >
-                            تسجيل
+                            {IsLoading ? 'جار التسجيل' : 'تسجيل'}
+                            
                         </button>
                     </form>
                     <div className="max-w-7xl mx-auto p-6">

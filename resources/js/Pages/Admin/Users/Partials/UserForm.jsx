@@ -71,6 +71,9 @@ export default function UserForm({ user }) {
                     <option value="acc">حسابات</option>
                     <option value="tech">مكتب فنى </option>
                     <option value="proj">مدير مشروعات</option>
+                    <option value='managment'>
+                               ادارى
+                            </option>
                     <option value="admin">ادمن</option>
                 </select>
                 <InputError message={errors.role} className="mt-2" />
