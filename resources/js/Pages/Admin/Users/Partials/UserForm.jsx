@@ -13,6 +13,8 @@ export default function UserForm({ user }) {
         base_salary: user?.salary?.base_salary || "",
         email: user?.email || "",
         password: "",
+        phone:user?.phone || '',
+        hire_date:user?.hire_date || '',
         must_change_password: user.must_change_password,
     });
     const handleSalaryChange = (final) => {
@@ -58,7 +60,28 @@ export default function UserForm({ user }) {
                 />
                 <InputError message={errors.email} className="mt-2" />
             </div>
-
+            <div>
+                        <InputLabel htmlFor="phone" value="رقم التليفون " />
+                        <TextInput
+                            id="phone"
+                            type="text"
+                            value={data.phone}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setData('phone', e.target.value)}
+                        />
+                        <InputError message={errors.phone} className="mt-2" />
+                    </div>
+                    <div>
+                        <InputLabel htmlFor="hire_date" value="تاريخ التعيين  " />
+                        <TextInput
+                            id="hire_date"
+                            type="date"
+                            value={data.hire_date}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setData('hire_date', e.target.value)}
+                        />
+                        <InputError message={errors.hire_date} className="mt-2" />
+                    </div>
             <div>
                 <InputLabel htmlFor="role" value="الدور" />
                 <select

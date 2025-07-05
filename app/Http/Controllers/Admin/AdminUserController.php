@@ -107,6 +107,8 @@ class AdminUserController extends Controller
        $user =  User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'hire_date' => $request->hire_date,
             'role' => $currentuserRole === "admin" ? $request->role : 'employee',
             'password' => Hash::make($request->password),
             'must_change_password' => $request->must_change_password,
@@ -156,6 +158,8 @@ class AdminUserController extends Controller
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'hire_date' => $request->hire_date,
             'must_change_password' => $request->must_change_password,
         ]);
 

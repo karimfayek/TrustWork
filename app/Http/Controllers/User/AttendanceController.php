@@ -54,65 +54,116 @@ class AttendanceController extends Controller
     public function attFilter(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
             'from' => 'required|date',
             'to' => 'required|date|after_or_equal:from',
         ]);
-        $user = User::findOrFail($request->user_id);
+    
         $from = Carbon::parse($request->from)->startOfDay();
         $to = Carbon::parse($request->to)->endOfDay();
-
+    
         $report = collect();
-
         $period = CarbonPeriod::create($from, $to);
-        
-        foreach ($period as $current) {
-            $attendances = Attendance::whereDate('check_in_time', $current)
-                ->where('user_id', $user->id)
-                ->with('project')
-                ->get();
-        
-            foreach ($attendances as $att) {
-                if($att->project_id !== null){
-                    $name = $att->project->name;
-                }elseif($att->visit_id !== null){
-                    $name = $att->visit->customer->name;
-                }elseif($att->visit_id === null && $att->project_id === null && $att->type === 'internal'){
-                    $name = 'Trust';
-                }elseif($att->visit_id === null && $att->project_id === null && $att->type === 'external'){
-                    $name = $att->customer;
+    
+        if ($request->user_id !== null) {
+            // حالة: مستخدم محدد
+            $user = User::findOrFail($request->user_id);
+    
+            foreach ($period as $current) {
+                $attendances = Attendance::whereDate('check_in_time', $current)
+                    ->where('user_id', $user->id)
+                    ->with(['project', 'visit.customer', 'user']) // تحميل العلاقات دفعة واحدة
+                    ->get();
+    
+                if ($attendances->isEmpty()) {
+                    $report->push([
+                        'date' => $current->toDateString(),
+                        'type' => 'absent',
+                        'name' => 'غياب',
+                        'check_in' => null,
+                        'check_out' => null,
+                        'user_name' => $user->name,
+                    ]);
+                } else {
+                    foreach ($attendances as $att) {
+                        $name = 'غير معروف';
+                        if ($att->project_id !== null) {
+                            $name = $att->project->name;
+                        } elseif ($att->visit_id !== null) {
+                            $name = $att->visit->customer->name ?? 'زيارة';
+                        } elseif ($att->type === 'internal') {
+                            $name = 'Trust';
+                        } elseif ($att->type === 'external') {
+                            $name = $att->customer;
+                        }
+    
+                        $report->push([
+                            'date' => $current->toDateString(),
+                            'type' => $att->type,
+                            'name' => $name,
+                            'check_in' => $att->check_in_time,
+                            'check_out' => $att->check_out_time,
+                            'user_name' => $att->user->name,
+                        ]);
+                    }
                 }
-                $report->push([
-                    'date' => $current->toDateString(),
-                    'type' => $att->type,
-                    'name' => $name,
-                    'check_in' => $att->check_in_time,
-                    'check_out' => $att->check_out_time,
-                ]);
             }
-        
-         
-        
-            // لو مفيش حضور نهائي
-            if ($attendances->isEmpty()) {
-                $report->push([
-                    'date' => $current->toDateString(),
-                    'type' => 'absent',
-                    'name' => 'غياب',
-                    'check_in' => null,
-                    'check_out' => null,
-                ]);
+    
+        } else {
+            // حالة: كل المستخدمين
+            $users = User::all();
+    
+            foreach ($period as $current) {
+                foreach ($users as $u) {
+                    $attendances = Attendance::whereDate('check_in_time', $current)
+                        ->where('user_id', $u->id)
+                        ->with(['project', 'visit.customer', 'user'])
+                        ->get();
+    
+                    if ($attendances->isEmpty()) {
+                        $report->push([
+                            'date' => $current->toDateString(),
+                            'type' => 'absent',
+                            'name' => 'غياب',
+                            'check_in' => null,
+                            'check_out' => null,
+                            'user_name' => $u->name,
+                        ]);
+                    } else {
+                        foreach ($attendances as $att) {
+                            $name = 'غير معروف';
+                            if ($att->project_id !== null) {
+                                $name = $att->project->name;
+                            } elseif ($att->visit_id !== null) {
+                                $name = $att->visit->customer->name ?? 'زيارة';
+                            } elseif ($att->type === 'internal') {
+                                $name = 'Trust';
+                            } elseif ($att->type === 'external') {
+                                $name = $att->customer;
+                            }
+    
+                            $report->push([
+                                'date' => $current->toDateString(),
+                                'type' => $att->type,
+                                'name' => $name,
+                                'check_in' => $att->check_in_time,
+                                'check_out' => $att->check_out_time,
+                                'user_name' => $att->user->name,
+                            ]);
+                        }
+                    }
+                }
             }
         }
-
-    return Inertia::render('User/ReportView', [
-        'report' => $report,
-        'user' => $user,
-        'from' => $request->from,
-        'to' => $request->to,
-    ]);
-
+    
+        return Inertia::render('User/ReportView', [
+            'report' => $report,
+            'user' => $request->user_id !== null ? $user : null,
+            'from' => $request->from,
+            'to' => $request->to,
+        ]);
     }
+    
     public function attFilterss(Request $request)
     {
         $from = Carbon::parse($request->from)->startOfDay(); // 00:00:00

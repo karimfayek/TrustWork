@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {  Link, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import AttFrom from "../Employee/Att/AttForm";
@@ -6,7 +6,28 @@ import DeleteButton from "@/Components/DeleteButton";
 
 export default function AttList({ atts, visits, users, projects ,showManual = true , customers}) {
 
-  
+  const [selectedUser , setSelectedUser]= useState('')
+  const [attendances, setAttendnces] = useState(atts)
+  const handleFilterUser = (e) => {
+    const value = e.target.value;
+    setSelectedUser(value);
+if(value){
+    const filtered = atts.filter((at) => at.user_id == value); // استخدم atts الأصلية
+    setAttendnces(filtered); 
+}else{
+    setAttendnces(atts);
+}
+    
+}
+useEffect(() => {
+    if (selectedUser === '') {
+      // إذا تم المسح، نعيد كل الحضور
+      setAttendnces(atts);
+    } else {
+      const filtered = atts.filter((at) => at.user_id == selectedUser);
+      setAttendnces(filtered);
+    }
+  }, [selectedUser, atts]);
 
     return (
        
@@ -22,6 +43,13 @@ export default function AttList({ atts, visits, users, projects ,showManual = tr
                         {" "}
                         الحضور والانصراف لكل الموظفين 
                     </h1>
+                    <select name="user" id="user" value={selectedUser} onChange ={ (e) => handleFilterUser(e)}  >
+                    <option value="">اختر الموظف</option>
+                    {users.map((user)=>(
+                        <option value={user.id}>{user.name}</option>
+                    ))}
+                        
+                    </select>
                 </div>
 
                 <div className="overflow-x-auto bg-white rounded-lg shadow">
@@ -29,21 +57,25 @@ export default function AttList({ atts, visits, users, projects ,showManual = tr
                         <thead className="bg-gray-100 text-gray-700">
                             <tr className="text-right">
                                 <th className="px-6 py-3 "> الموظف</th>
+                                <th className="px-6 py-3 "> التاريخ</th>
                                 <th className="px-6 py-3 ">المكان</th>
-                                <th className="px-6 py-3 ">تسجيل الحضور</th>
+                                <th className="px-6 py-3 "> الوقت</th>
                                 <th className="px-6 py-3 ">الانصراف</th>
                                 <th className="px-6 py-3 ">- </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {atts &&
-                                atts.map((att) => (
+                            {attendances &&
+                                attendances.map((att) => (
                                     <tr
                                         key={att.id}
                                         className="hover:bg-gray-50"
                                     >
                                         <td className="px-6 py-4">
                                             {att.user?.name}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                        { new Date(att.check_in_time).toLocaleDateString("ar-EG")} 
                                         </td>
                                         <td className="px-6 py-4">
                                             {att.project && 
@@ -60,16 +92,17 @@ export default function AttList({ atts, visits, users, projects ,showManual = tr
                                             }
                                         </td>
                                         <td className="px-6 py-4">
-                                            {att.check_in_time}
+                                       { att.in_location !== null && new Date(att.check_in_time).toLocaleTimeString("en-US")} 
                                             {att.in_location !== 'غير محدد' && att.in_location !== null &&
-                                            <a href={'https://www.google.com/maps?q='+  att?.in_location } target="_blank" className="text-blue-600 underline">لوكيشن
+                                            <a href={'https://www.google.com/maps?q='+  att?.in_location } target="_blank" className="text-blue-600 underline"> - لوكيشن
                                             </a>
                                             }
                                         </td>
                                         <td className="px-6 py-4">
-                                            {att.check_out_time}
+                                        { att.out_location !== null &&  new Date(att.check_out_time).toLocaleTimeString("en-US")}  
                                             {att.out_location !== 'غير محدد' && att.out_location !== null &&
-                                            <a href={'https://www.google.com/maps?q='+  att?.out_location } target="_blank" className="text-blue-600 underline">لوكيشن
+                                           
+                                            <a href={'https://www.google.com/maps?q='+  att?.out_location } target="_blank" className="text-blue-600 underline" > - لوكيشن
                                             </a>
                                             }
                                         </td>

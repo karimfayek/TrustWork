@@ -57,7 +57,7 @@ export default function AttFrom({ users, projects, showManual, customers }) {
                                 اختر الموظف
                             </label>
                             <select
-                                required
+                                
                                 className="border rounded p-2"
                                 value={filters.user_id}
                                 onChange={(e) => setFilters({

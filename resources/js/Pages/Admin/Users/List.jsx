@@ -38,6 +38,7 @@ export default function Dashboard({ users }) {
                         <thead className="bg-gray-100 text-gray-700">
                             <tr className='text-right'>
                                 <th className="px-6 py-3 ">اسم الموظف</th>
+                                <th className="px-6 py-3 "> رقم التليفون</th>
                                 <th className="px-6 py-3 ">المرتب الاساسي</th>
                                 <th className="px-6 py-3 ">المرتب المتغير</th>
                                 <th className="px-6 py-3 ">المرتب النهائي</th>
@@ -48,6 +49,7 @@ export default function Dashboard({ users }) {
                             {users.map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{user.name}</td>
+                                    <td className="px-6 py-4">{user.phone}</td>
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.base_salary}</td>
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.final_salary - user.salary?.base_salary}</td>
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.final_salary}</td>

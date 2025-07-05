@@ -12,12 +12,13 @@ export default function ReportView({ report, user, from, to }) {
       <AuthenticatedLayout>
       <div className="max-w-4xl mx-auto mt-6 p-4 bg-white rounded shadow">
         <h2 className="text-2xl font-bold mb-4">
-          تقرير حضور: {user.name} من {from} إلى {to}
+          تقرير حضور: {user?.name} من {from} إلى {to}
         </h2>
   
         <table className="min-w-full table-auto border">
   <thead>
     <tr className="bg-gray-100">
+      <th className="border px-4 py-2">الموظف</th>
       <th className="border px-4 py-2">التاريخ</th>
       <th className="border px-4 py-2">النوع</th>
       <th className="border px-4 py-2">المكان</th>
@@ -28,6 +29,7 @@ export default function ReportView({ report, user, from, to }) {
   <tbody>
     {report.map((row, index) => (
       <tr key={index} className={"text-center "+ TrClassName(row.check_in)}>
+      <td className="border px-4 py-2">{row.user_name}</td>
         <td className="border px-4 py-2">{row.date}</td>
         <td className="border px-4 py-2">
           {row.type === 'project'

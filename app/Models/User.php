@@ -27,7 +27,9 @@ class User extends Authenticatable
         'role',
         'status',
         'must_change_password',
-        'deleted_at'
+        'deleted_at',
+        'phone',
+        'hire_date'
     ];
 
     /**
