@@ -6,18 +6,7 @@ import { handleDelete } from '@/Functions/HandelDelete';
 import DeleteButton from '@/Components/DeleteButton';
 
 export default function Dashboard({ users }) {
-    const handleDeleteUser = (e,id) => {
-        e.preventDefault();
-    
-        const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذا الموظف");
-    
-        if (!confirmed) return; // المستخدم رفض
-    
-        router.post(
-            route("admin.user.delete"),
-            { id }
-        );
-    };
+   
     return (
         <AuthenticatedLayout>
             <Head title="Admin Dashboard" />

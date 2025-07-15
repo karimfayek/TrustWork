@@ -6,7 +6,7 @@ import ExtractionPreview from './ExtractionPreview';
 import Items from './Items';
 
 export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay }) {
-    console.log('project',project.tasks )
+    //console.log('project',project.tasks )
     const [items, setItems] = useState([]);
 
 
@@ -30,11 +30,12 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   const [form, setForm] = useState({
     type: 'partial',
     num: extractionsCount +1,
+    supply: false,
     customer_name: project.customer_name || '',
     project_code: project.project_code || '',
     date: '',
     deductions: {
-        "vat": "5",
+        "vat":  "5",
         "profit_tax": "1",
         "initial_insurance": "5",
         "taxes": "5",
@@ -85,7 +86,50 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+   
   };
+  const handleSupplyChange = (e) => {
+    const { name, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: checked }));
+   
+   
+  };
+  useEffect (
+    () => {
+      if(form.supply){
+        setForm((prev) => ({
+          ...prev,
+          deductions: {
+            "vat":  "0",
+            "profit_tax": "0",
+            "initial_insurance": "0",
+            "taxes": "0",
+            "advance_payment": "0",
+            "social_insurance": "0",
+            "previous_payments": prevPay,
+            "progress_percentage" : "100",
+            "other_tax" :"0"
+        },
+        }));
+      }else{
+        setForm((prev) => ({
+          ...prev,
+          deductions: {
+            "vat":  "5",
+            "profit_tax": "1",
+            "initial_insurance": "5",
+            "taxes": "5",
+            "advance_payment": "0",
+            "social_insurance": "3.6",
+            "previous_payments": prevPay,
+            "progress_percentage" : "100",
+            "other_tax" :"0"
+        },
+        }));
+
+      }
+    },[form.supply]
+  )
 
   const handleDeductionChange = (e, key) => {
     const { value } = e.target;
@@ -105,9 +149,13 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   
   const result = CalcItemsExtraction(items, form.deductions);
   const handleSave = (e) => {
+    if(form.date === ''){
+      return
+    }
     e.preventDefault()
     const payload = {
       type: form.type,
+      supply: form.supply,
       date: form.date,
       customer_name: form.customer_name,
       project_code: form.project_code,
@@ -141,11 +189,26 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
                   <option value="partial">جاري  </option>
                   <option value="final"> ختامي</option>
               </select>
+             
               {form.type === 'partial' &&
               
+              <>
               <input type="number" name="num" value={form.num} readOnly className="w-full p-2 border rounded" />
-
+              <div className="mt-4">
+                <label className="flex items-center">
+                    <input
+                     name="supply"
+                        type="checkbox"
+                        checked={form.supply}
+                        onChange={handleSupplyChange}
+                    />
+                    <span className="mr-2 text-sm text-gray-600">   تشوينات  </span>
+                </label>
+            </div>
+             
+              </>
               }
+             
               </div>
               
           </div>
@@ -163,7 +226,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
           </div>
           <div>
               <label className="block text-sm font-medium">تاريخ الطلب</label>
-              <input type="date" name="date" value={form.date} onChange={handleChange} className="w-full p-2 border rounded" />
+              <input type="date" name="date" value={form.date} onChange={handleChange} className="w-full p-2 border rounded" required/>
           </div>
 
 
@@ -177,7 +240,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
                               type="number"
                               step="0.01"
                               className="w-full p-2 border rounded"
-                              value={form.deductions[deduction.key] || ''}
+                              value={ form.deductions[deduction.key] || '' }
                               onChange={(e) => handleDeductionChange(e, deduction.key)} />
                       </div>
                   ))}
@@ -204,8 +267,8 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       <Items items={items} handleItemChange={handleItemChange}  handleDeleteItem = {handleDeleteItem}/>
       
       <ExtractionPreview deductions = {form.deductions}  project={project} 
-      items= {items} type={form.type} date={form.date} customer = {form.customer_name}
-      projectCode={form.project_code} num={form.num}
+      items= {items} type={(form.supply && form.type === 'partial') ? 'supply' : form.type} date={form.date} customer = {form.customer_name}
+      projectCode={form.project_code} num={form.num} supply = {form.supply}
       />
       
       </AuthenticatedLayout>

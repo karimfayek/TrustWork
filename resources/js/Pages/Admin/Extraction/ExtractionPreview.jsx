@@ -3,13 +3,13 @@ import { CalcItemsExtraction } from '@/Functions/Utils/CalcItemsExtraction';
 import React from 'react';
 import Items from './Items';
 
-export default function ExtractionPreview({ deductions, project, items, type,num, date, customer ,projectCode}) {
- 
+export default function ExtractionPreview({ deductions, project, items, type,num, date, customer ,projectCode , supply}) {
+ console.log(type , 'type')
   const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
   const totalWithoutVats = totalCost - (totalCost / 100) * deductions.vat
-  const totalWithoutVat = (totalCost / 1.05)
+  const totalWithoutVat = !supply ? (totalCost / 1.05) : totalCost
   const VatValue = (totalWithoutVat / 100) * deductions.vat
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
   const socialInsurance = (totalCost / 100) * deductions.social_insurance
@@ -21,10 +21,9 @@ export default function ExtractionPreview({ deductions, project, items, type,num
   const extractionTypes = {
     partial: 'جاري ',
     final: ' ختامي',
+    supply: ' جارى تشوينات',
   };
   const result = CalcItemsExtraction(items, deductions);
-  console.log(result.netTotal , 'result')
-  console.log(netTotal , 'netTotal')
   return (
     <div className=" mx-auto bg-white p-6 rounded-2xl  text-gray-800">
     
@@ -34,7 +33,7 @@ export default function ExtractionPreview({ deductions, project, items, type,num
         <p><strong>اسم المشروع:</strong> {project.name}</p>
         <p><strong>اسم العميل:</strong> {customer}</p>
         <p><strong>كود المشروع:</strong> {projectCode}</p>
-        <p><strong> مستخلص:</strong>  {extractionTypes[type]} {type ==='partial' &&  <i>{num}</i>} </p>
+        <p><strong> مستخلص:</strong>  {extractionTypes[type]} {(type ==='partial' || type ==='supply') &&  <i>{num}</i>} </p>
         <p><strong>تاريخ الطلب:</strong> {date}</p>
       </div>
       <div className="mb-[100px]">
@@ -81,10 +80,13 @@ export default function ExtractionPreview({ deductions, project, items, type,num
               <td colSpan={9} className="p-2 border text-center">اجمالى المشروع</td>
               <td className="p-2 border text-center">{totalCost}</td>
             </tr>
+            {!supply &&
+            
             <tr>
               <td colSpan={9} className="p-2 border text-center"> الاجمالي بدون الضريبة المضافة {deductions.vat}% </td>
               <td className="p-2 border text-center">{totalWithoutVat.toLocaleString()}</td>
             </tr>
+            }
 
             {deductions.profit_tax > 0 &&
             <tr>

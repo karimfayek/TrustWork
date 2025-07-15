@@ -4,7 +4,7 @@ export const CalcItemsExtraction = (items, deductions) => {
   const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
-  const totalWithoutVat = (totalCost / 1.05)
+  const totalWithoutVat = deductions.vat > 0 ? (totalCost / 1.05) : totalCost
   const VatValue = (totalWithoutVat / 100) * deductions.vat
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
   const socialInsurance = (totalCost / 100) * deductions.social_insurance

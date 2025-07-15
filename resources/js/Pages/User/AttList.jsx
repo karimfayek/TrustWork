@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {  Link, router } from "@inertiajs/react";
+import {   usePage } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import AttFrom from "../Employee/Att/AttForm";
 import DeleteButton from "@/Components/DeleteButton";
 
 export default function AttList({ atts, visits, users, projects ,showManual = true , customers}) {
-
+    const user = usePage().props.auth.user;
+    const role = user?.role;
   const [selectedUser , setSelectedUser]= useState('')
   const [attendances, setAttendnces] = useState(atts)
   const handleFilterUser = (e) => {
@@ -27,13 +28,15 @@ useEffect(() => {
       const filtered = atts.filter((at) => at.user_id == selectedUser);
       setAttendnces(filtered);
     }
-  }, [selectedUser, atts]);
+}, [selectedUser, atts]);
 
     return (
        
         <AuthenticatedLayout>
 
-        <AttFrom projects= {projects} users={users} showManual={showManual} customers={customers}/>
+        <AttFrom projects= {projects} users={users} showManual={showManual} customers={customers} />
+        {role !== 'proj' &&
+        
             <div className="max-w-7xl mx-auto p-6">
 
               
@@ -118,6 +121,7 @@ useEffect(() => {
                     </table>
                 </div>
             </div>
+        }
        
             </AuthenticatedLayout>
     );

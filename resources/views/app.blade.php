@@ -6,7 +6,8 @@
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
-
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0d6efd" />
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -19,5 +20,12 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+         <script>
+            if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/serviceworker.js');
+            });
+            }
+        </script>
     </body>
 </html>

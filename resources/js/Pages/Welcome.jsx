@@ -1,6 +1,6 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Head, Link } from '@inertiajs/react';
-
+import InstallAppButton from '@/Components/InstallAppButton';
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
   
 
@@ -88,7 +88,10 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                         <footer className="py-16 text-center text-sm text-black ">
                            Trust - Employee Portal
+                           
                         </footer>
+                        
+                <InstallAppButton />
                     </div>
                 </div>
             </div>

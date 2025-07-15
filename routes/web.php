@@ -127,8 +127,6 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::get('/pricing/{id}', [PricingController::class, 'pricing'])->name('acc.pricing');
     Route::post('/pricing/set', [PricingController::class, 'pricingSet'])->name('acc.pricing.set');
     //manula checkin
-    Route::get('/attendance/list/{user?}', [AttendanceController::class, 'attList'])->name('attendance.list');
-    Route::get('/attendance/filter/', [AttendanceController::class, 'attFilter'])->name('attendance.filter');
 
     //extractions 
     Route::get('/project/extractions/list/{project}', [ExtractionController::class, 'list'])->name('project.extractions.list');//create new
@@ -151,7 +149,6 @@ Route::middleware(['auth' ,  'role:employee,admin,acc,managment'])->group(functi
     Route::post('/employee/reward', [RewardController::class, 'storeReward'])->name('employee.reward.store');   
    //loans
     Route::post('/loans/request', [LoanController::class, 'requestLoan']);
-    Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
 
     Route::get('/employee/att', [AttendanceController::class, 'employeeAtt'])->name('employee.att.index');
 
@@ -164,6 +161,15 @@ Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment'])->gr
     Route::post('/change-password/first', [ChangePasswordController::class, 'update'])->name('password.update.first');
 
 });
+Route::middleware(['auth' ,  'role:admin,acc,proj'])->group(function () {
+    
+Route::get('/attendance/list/{user?}', [AttendanceController::class, 'attList'])->name('attendance.list');
+Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
+
+Route::get('/attendance/filter/', [AttendanceController::class, 'attFilter'])->name('attendance.filter');
+
+});
+
 //employee,admin
 Route::middleware(['auth' ,  'role:employee,admin'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -11,7 +11,7 @@ export default function AuthenticatedLayout({ header, children }) {
         { label: 'المهام', routeName: 'tasks.index', roles: ['admin', 'proj'] },
         { label: 'الزيارات', routeName: 'admin.visits.index', roles: ['admin'] },
         { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc'] },
-        { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc'] },
+        { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc' ,'proj'] },
         { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc'] },
         { label: 'الادوات', routeName: 'tools.index', roles: ['admin', 'acc'] },
         { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc'] },
