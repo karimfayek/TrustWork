@@ -39,7 +39,7 @@ export default function ExtractionList({ project }) {
                             {project.extractions?.map((extraction) => (
                                 <tr key={extraction.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{extraction.type === 'partial' && 'جزئي'} {extraction.type === 'final' && 'ختامى'}</td>
-                                    <td className="px-6 py-4">{extraction.type=== 'partial' && extraction.partial_number}</td>
+                                    <td className="px-6 py-4">{ extraction.partial_number}</td>
                                     <td className="px-6 py-4 text-gray-600">{extraction.date}</td>
                                     <td className="px-6 py-4 text-gray-600">{extraction.net_total}</td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
@@ -49,6 +49,12 @@ export default function ExtractionList({ project }) {
                                             className="inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                         >
                                             عرض
+                                        </Link>
+                                        <Link
+                                            href={route('extractions.edit',[ project.id,extraction.id ])}
+                                            className="inline-block bg-blue-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                        >
+                                            تعديل
                                         </Link>
                                         <DeleteButton id={extraction.id} routeName='extraction.delete' />
                                     </td>

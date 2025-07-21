@@ -258,7 +258,8 @@ export default function CreateProject({ users }) {
 
                             {data.tasks.map((task, index) => (
                                 <React.Fragment key={index}>
-                                <p className="font-bold">بند رقم {index + 1}</p><div key={index} className="p-4 mb-4 bg-gray-50 rounded border space-y-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <p className="font-bold">بند رقم {index + 1}</p>
+                                <div key={index} className="p-4 mb-4 bg-gray-50 rounded border space-y-3 grid grid-cols-2 md:grid-cols-4 gap-4">
 
                                     <div>
                                         <InputLabel className={'mt-3'} value="عنوان البند" />

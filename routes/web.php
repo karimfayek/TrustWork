@@ -132,7 +132,9 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::get('/project/extractions/list/{project}', [ExtractionController::class, 'list'])->name('project.extractions.list');//create new
     Route::get('/project/extractions/new/{project}', [ExtractionController::class, 'index'])->name('project.extractions.new');//create new
     Route::post('/projects/{project}/extraction', [ExtractionController::class, 'store'])->name('project.extractions.store');
+    Route::post('/extraction/update/{extraction}', [ExtractionController::class, 'update'])->name('project.extractions.update');
     Route::get('/projects/{project}/extractions/{extraction}/preview', [ExtractionController::class, 'preview'])->name('extractions.preview');
+    Route::get('/projects/{project}/extractions/{extraction}/edit', [ExtractionController::class, 'edit'])->name('extractions.edit');
     Route::post('/extraction/delete', [ExtractionController::class, 'delete'])->name('extraction.delete');
     Route::post('/admin/employee/reward/', [RewardController::class, 'delete'])->name('employee.reward.delete');
     
@@ -157,6 +159,7 @@ Route::middleware(['auth' ,  'role:employee,admin,acc,managment'])->group(functi
 Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/calc-emp-att/{id}/{month?}', [AttendanceController::class, 'calculateAttendancePercentageUntillToday'])->name('calc.att');
+    Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
     Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->name('password.change');
     Route::post('/change-password/first', [ChangePasswordController::class, 'update'])->name('password.update.first');
 
@@ -164,7 +167,6 @@ Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment'])->gr
 Route::middleware(['auth' ,  'role:admin,acc,proj'])->group(function () {
     
 Route::get('/attendance/list/{user?}', [AttendanceController::class, 'attList'])->name('attendance.list');
-Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
 
 Route::get('/attendance/filter/', [AttendanceController::class, 'attFilter'])->name('attendance.filter');
 

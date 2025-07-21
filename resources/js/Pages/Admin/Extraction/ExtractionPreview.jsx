@@ -4,20 +4,40 @@ import React from 'react';
 import Items from './Items';
 
 export default function ExtractionPreview({ deductions, project, items, type,num, date, customer ,projectCode , supply}) {
- console.log(type , 'type')
+
   const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
+  console.log(deductions , 'deductions')
   const totalWithoutVats = totalCost - (totalCost / 100) * deductions.vat
   const totalWithoutVat = !supply ? (totalCost / 1.05) : totalCost
+  console.log(totalWithoutVat , 'totalWithoutVat')
+
   const VatValue = (totalWithoutVat / 100) * deductions.vat
+  console.log(VatValue , 'VatValue')
+
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
+  console.log(profitTax , 'profitTax')
+
   const socialInsurance = (totalCost / 100) * deductions.social_insurance
+  console.log(socialInsurance , 'socialInsurance')
+
   const initialInsurance = (totalCost / 100) * deductions.initial_insurance
+  console.log(initialInsurance , 'initialInsurance')
+
   const otherTax = (totalCost / 100) * deductions.other_tax
-  const previousPayment = deductions.previous_payments
-  const advancePayment = deductions.advance_payment
+  console.log(otherTax , 'otherTax')
+
+  const previousPayment = Number(deductions.previous_payments)
+  console.log(previousPayment , 'previousPayment')
+
+  const advancePayment = Number(deductions.advance_payment)
+  console.log(advancePayment , 'advancePayment')
+
   const netTotal = VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment
+  console.log(netTotal , 'netTotal')
+
+  console.log(VatValue + totalWithoutVat , profitTax ,socialInsurance , initialInsurance ,otherTax , previousPayment , advancePayment, 'totalWithoutVat')
   const extractionTypes = {
     partial: 'جاري ',
     final: ' ختامي',
@@ -33,7 +53,7 @@ export default function ExtractionPreview({ deductions, project, items, type,num
         <p><strong>اسم المشروع:</strong> {project.name}</p>
         <p><strong>اسم العميل:</strong> {customer}</p>
         <p><strong>كود المشروع:</strong> {projectCode}</p>
-        <p><strong> مستخلص:</strong>  {extractionTypes[type]} {(type ==='partial' || type ==='supply') &&  <i>{num}</i>} </p>
+        <p><strong> مستخلص:</strong>  {extractionTypes[type]} <i>{num}</i> </p>
         <p><strong>تاريخ الطلب:</strong> {date}</p>
       </div>
       <div className="mb-[100px]">
@@ -77,7 +97,7 @@ export default function ExtractionPreview({ deductions, project, items, type,num
               )
             )}
             <tr>
-              <td colSpan={9} className="p-2 border text-center">اجمالى المشروع</td>
+              <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
               <td className="p-2 border text-center">{totalCost}</td>
             </tr>
             {!supply &&

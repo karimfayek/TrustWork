@@ -35,6 +35,9 @@ class Task extends Model
     public function project() {
        return $this->belongsTo(Project::class);
     }
+    public function extractionItems() {
+        return $this->hasMany(ExtractionItem::class);
+     }
     public function getUsersCountAttribute()
     {
       return $this->users->count();

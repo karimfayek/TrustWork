@@ -1,4 +1,4 @@
-export default function Items({ items , handleItemChange ,handleDeleteItem}) {
+export default function Items({ items, handleItemChange, handleDeleteItem }) {
     return (
 
         <>
@@ -18,7 +18,7 @@ export default function Items({ items , handleItemChange ,handleDeleteItem}) {
                             <th className="p-2 border" rowSpan="2">الفئة</th>
                             <th className="p-2 border" rowSpan="2">نسبة الصرف</th>
                             <th className="p-2 border" rowSpan="2">إجمالي المبلغ</th>
-                           
+
                         </tr>
                         <tr>
                             <th className="p-2 border"> السابق</th>
@@ -35,38 +35,40 @@ export default function Items({ items , handleItemChange ,handleDeleteItem}) {
                                     <td className="p-2 border text-right">{task.title}</td>
                                     <td className="p-2 border text-center">{task.unit}</td>
                                     <td className="p-2 border text-center">{task.quantity}</td>
-                                    <td className="p-2 border text-center"> <input
-                                      onWheel={(e) => e.target.blur()}
-                                     type="number" value={task.previous_done} className="w-full border p-1"
-                                        onChange={(e) => handleItemChange(index, 'previous_done', e.target.value)}
-                                    /></td>
                                     <td className="p-2 border text-center">
-                                         <input 
-                                         onWheel={(e) => e.target.blur()}
-                                         type="number" value={task.current_done} className="w-full border p-1"
+                                        <input
+                                            onWheel={(e) => e.target.blur()}
+                                            type="number" value={task.previous_done} className="w-full border p-1"
+                                            onChange={(e) => handleItemChange(index, 'previous_done', e.target.value)}
+                                        />
+                                    </td>
+                                    <td className="p-2 border text-center">
+                                        <input
+                                            onWheel={(e) => e.target.blur()}
+                                            type="number" value={task.current_done} className="w-full border p-1"
                                             onChange={(e) => handleItemChange(index, 'current_done', e.target.value)}
                                         /></td>
                                     <td className="p-2 border text-center">{task.total_done}</td>
                                     <td className="p-2 border text-center">{task.unit_price}</td>
-                                    <td className="p-2 border text-center"> 
-                                    <input 
-                                        onWheel={(e) => e.target.blur()}
-                                        type="number" 
-                                        value={task.progress_percentage} 
-                                        className="w-full border p-1"
-                                        onChange={(e) => handleItemChange(index, 'progress_percentage', e.target.value)}
+                                    <td className="p-2 border text-center">
+                                        <input
+                                            onWheel={(e) => e.target.blur()}
+                                            type="number"
+                                            value={task.progress_percentage}
+                                            className="w-full border p-1"
+                                            onChange={(e) => handleItemChange(index, 'progress_percentage', e.target.value)}
                                         />
 
-                                        </td>
+                                    </td>
                                     <td className="p-2 border text-center">{task.total}</td>
                                     <td className="p-2 border text-center">
-  <button
-    onClick={() => handleDeleteItem(index)}
-    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
-  >
-    حذف
-  </button>
-</td>
+                                        <button
+                                            onClick={() => handleDeleteItem(index)}
+                                            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                                        >
+                                            حذف
+                                        </button>
+                                    </td>
                                 </tr>
                             )
                         )}

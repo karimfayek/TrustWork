@@ -1,10 +1,12 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Link } from '@inertiajs/react';
 import React from 'react';
-import Items from './Items';
 
 export default function ExtractionPreview({  project, extraction}) {
 
 const type = extraction.type
+const supply = extraction.supply
 const num =  extraction.partial_number
 const date =  extraction.date
 const customer =  project.customer_name
@@ -16,7 +18,7 @@ const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
   const totalWithoutVats = totalCost - (totalCost / 100) * deductions.vat
-  const totalWithoutVat = (totalCost / 1.05)
+  const totalWithoutVat = !supply ? (totalCost / 1.05) : totalCost
   const VatValue = (totalWithoutVat / 100) * deductions.vat
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
   const socialInsurance = (totalCost / 100) * deductions.social_insurance
@@ -28,18 +30,24 @@ const totalCost = items.reduce((acc, task) => {
   const extractionTypes = {
     partial: 'جاري ',
     final: ' ختامي',
+    supply: ' جارى تشوينات',
   };
 console.log(deductions , )
   return (
+    <AuthenticatedLayout>
+
+   
     <div className=" mx-auto bg-white p-6 rounded-2xl  text-gray-800">
-    
+    <Link href={'/'}>
+
     <ApplicationLogo className="float-left w-[8rem]" />
+    </Link>
 
       <div className="mb-4">
         <p><strong>اسم المشروع:</strong> {project.name}</p>
         <p><strong>اسم العميل:</strong> {customer}</p>
         <p><strong>كود المشروع:</strong> {projectCode}</p>
-        <p><strong> مستخلص:</strong>  {extractionTypes[type]} {type ==='partial' &&  <i>{num}</i>} </p>
+        <p><strong> مستخلص:</strong>  {extractionTypes[type]} <i>{num}</i> {   extraction.supply ===1 &&  <i>تشوينات</i> } </p>
         <p><strong>تاريخ الطلب:</strong> {date}</p>
       </div>
       <div className="mb-[100px]">
@@ -50,7 +58,7 @@ console.log(deductions , )
             <tr>
               <th className="p-2 border" rowSpan="2">م</th>
               <th className="p-2 border" rowSpan="2">بيان الأعمال</th>
-              <th className="p-2 border" rowSpan="2">الوحدة</th>
+              <th className="p-2 border" rowSpan="2">الوحــدة</th>
               <th className="p-2 border" rowSpan="2">كمية العقد</th>
               <th className="p-2 border" colSpan="3">الكمية</th>
               <th className="p-2 border" rowSpan="2">الفئة</th>
@@ -83,13 +91,15 @@ console.log(deductions , )
               )
             )}
             <tr>
-              <td colSpan={9} className="p-2 border text-center">اجمالى المشروع</td>
-              <td className="p-2 border text-center">{totalCost}</td>
+              <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
+              <td className="p-2 border text-center">{Number(totalCost).toFixed(2)}</td>
             </tr>
+            {!supply &&
             <tr>
               <td colSpan={9} className="p-2 border text-center"> الاجمالي بدون الضريبة المضافة {deductions.vat}% </td>
               <td className="p-2 border text-center">{totalWithoutVat.toLocaleString()}</td>
             </tr>
+}
 
             {deductions.profit_tax > 0 &&
             <tr>
@@ -145,5 +155,6 @@ console.log(deductions , )
             طباعة
           </button>
     </div>
+    </AuthenticatedLayout>
   );
 }

@@ -234,6 +234,14 @@ class AttendanceController extends Controller
             'check_in_time' => 'nullable|date',
         ]);
          $user = $request->user_id;
+         
+         $role = User::find($user)->role ;
+        // dd($role);
+        if($role === 'admin' ){
+            $request->validate([
+                'location' => 'required',
+            ]); 
+        }
          $project = $request->project;
          $customer_id = $request->customer_id;
          $inOut = $request->inOut;

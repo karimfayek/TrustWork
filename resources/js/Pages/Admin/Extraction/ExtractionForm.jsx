@@ -5,8 +5,8 @@ import React, { useEffect, useState } from 'react';
 import ExtractionPreview from './ExtractionPreview';
 import Items from './Items';
 
-export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay }) {
-    //console.log('project',project.tasks )
+export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay, previousQuantities }) {
+    console.log('previousQuantities',previousQuantities )
     const [items, setItems] = useState([]);
 
 
@@ -55,9 +55,10 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   useEffect(() => {
       
     const initialItems = project.tasks.map(task => {
+      console.log(previousQuantities[task.id] , 'prev')
       const quantity = Number(task.quantity);
-      const  previous_done =  0;
-      const current_done = quantity ;
+      const  previous_done =  Number(previousQuantities[task.id]) > 0  ? Number(previousQuantities[task.id]) :  0;
+      const current_done =  previous_done < quantity  ? quantity- previous_done : 0 ;
       const total_done = current_done + previous_done;
       const progress_percentage = form.deductions?.progress_percentage || 0;
       const Total = Number(((total_done * task.unit_price ) /100) * progress_percentage).toFixed(2)
@@ -189,11 +190,11 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
                   <option value="partial">جاري  </option>
                   <option value="final"> ختامي</option>
               </select>
-             
+              <input type="number" name="num" value={form.num} readOnly className="w-full p-2 border rounded" />
               {form.type === 'partial' &&
               
               <>
-              <input type="number" name="num" value={form.num} readOnly className="w-full p-2 border rounded" />
+            
               <div className="mt-4">
                 <label className="flex items-center">
                     <input
