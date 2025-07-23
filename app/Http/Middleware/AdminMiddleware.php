@@ -30,8 +30,9 @@ class AdminMiddleware
             'acc' => 'admin.dashboard',
             'proj' => 'admin.dashboard',
             'tech' => 'admin.dashboard',
+            'employee' => 'profile.edit',
             'managment' => 'employee.att.index',
-            default => 'dashboard',
+            default => 'profile.edit',
         }; 
         //dd($redirectTo);
         return redirect()->intended(route( $redirectTo, absolute: false));

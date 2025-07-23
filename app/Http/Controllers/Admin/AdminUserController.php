@@ -14,12 +14,7 @@ class AdminUserController extends Controller
     public function index()
     {
         $users = User::with('salary')->get();
-foreach($users as $user){
-    if($user->role !== 'employee'){
-        $user->offdayestype = 2 ;
-        $user->save();
-    }
-}
+
         return Inertia::render('Admin/Users/List', [
             'users' => $users
         ]);

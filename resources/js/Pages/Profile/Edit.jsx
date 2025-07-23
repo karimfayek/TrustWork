@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 
 export default function Edit({ mustVerifyEmail, status }) {
     const user = usePage().props.auth.user;
+    console.log(user ,'user')
     const [attData, setAttData] = useState({})
-    const [totalCost, setTotalCost] = useState(0)
     console.log('user', user)
     useEffect(() => {
         fetch(`/calc-emp-att/${user.id}`)
@@ -34,7 +34,29 @@ export default function Edit({ mustVerifyEmail, status }) {
 
             <div className="md:grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-10">
 
+            <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                    <h2 className='text-lg font-medium text-gray-900'>
+                        مكافئات
+                    </h2>
+                    <hr />
+                    {user.rewards?.map(
+                        (reward)=>(
+                            <><b>
+                               القيمة
+                            </b>
+                            <p>{reward.amount} - {reward.reason} </p>
+                           
+                            <p>بتاريخ : {reward.reward_date}</p>
+                            <hr className='my-2' />
+                            </>
+                        )
+                    )}
+                   
+                   
 
+
+
+                </div>
                 
                 <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
                     <h2 className='text-lg font-medium text-gray-900'>
