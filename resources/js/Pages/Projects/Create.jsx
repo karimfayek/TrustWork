@@ -16,7 +16,8 @@ export default function CreateProject({ users }) {
         start_date: '',
         end_date: '',
         customer_name: '',
-        project_code: '',
+        project_code: '', 
+        advance_payment:  0,
         user_ids: [],
         tasks: [],
     });
@@ -176,10 +177,21 @@ export default function CreateProject({ users }) {
                             />
                             <InputError message={errors.description} className="mt-2" />
                         </div>
-
+                        <div>
+                                <InputLabel htmlFor="advance_payment" value="دفعه مقدمه " />
+                                <TextInput
+                                    id="advance_payment"
+                                    type="number"
+                                    value={data.advance_payment}
+                                    className="mt-1 block w-full"
+                                    onWheel={(e) => e.target.blur()}
+                                    onChange={(e) => setData('advance_payment', e.target.value)} />
+                                <InputError message={errors.advance_payment} className="mt-2" />
+                            </div>
                         {/* التواريخ */}
                         {role !== 'tech' &&
-                            <><div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
 
                                 <div>

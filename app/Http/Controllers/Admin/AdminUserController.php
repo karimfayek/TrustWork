@@ -14,7 +14,12 @@ class AdminUserController extends Controller
     public function index()
     {
         $users = User::with('salary')->get();
-
+foreach($users as $user){
+    if($user->role !== 'employee'){
+        $user->offdayestype = 2 ;
+        $user->save();
+    }
+}
         return Inertia::render('Admin/Users/List', [
             'users' => $users
         ]);
@@ -109,6 +114,7 @@ class AdminUserController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'hire_date' => $request->hire_date,
+            'offdayestype'=> $request->offdayestype,
             'role' => $currentuserRole === "admin" ? $request->role : 'employee',
             'password' => Hash::make($request->password),
             'must_change_password' => $request->must_change_password,
@@ -160,6 +166,7 @@ class AdminUserController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'hire_date' => $request->hire_date,
+            'offdayestype'=> $request->offdayestype,
             'must_change_password' => $request->must_change_password,
         ]);
 

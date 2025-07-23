@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
-import { router } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 
 const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheckboxChange, role, userIds }) => {
-
+  
+    const [qtyDone, setQtyDone] = useState({task:'' , qty:''});
+    const [userId, setUserId] = useState("");
+    const [progressData, setProgressData] = useState({});
+    const {
+        post,
+        processing,
+        errors: Progresserrors,
+    } = useForm();
     const taskList = Array.isArray(tasks) ? tasks : [tasks];
 
     const handleDeleteOldTask = async (e, id) => {
@@ -41,21 +49,49 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
         updatedList[index].users = userIds
         setData('tasks', updatedList);
     }
-    const handleSubmitProgress = (e, id) => {
+    const handleProgressQtyChange = (qty, taskId) => {
+        setProgressData((prev) => ({
+            ...prev,
+            [taskId]: {
+                ...prev[taskId],
+                qty: qty,
+            },
+        }));
+    };
+    
+    const handleUserChange = (userId, taskId) => {
+        setProgressData((prev) => ({
+            ...prev,
+            [taskId]: {
+                ...prev[taskId],
+                user_id: userId,
+            },
+        }));
+    };
+    
+    const handleSubmitProgress = (e, taskId) => {
         e.preventDefault();
-        console.log(id);
-
+    
+        const taskProgress = progressData[taskId];
+    
+        if (!taskId || !taskProgress?.user_id || !taskProgress?.qty) {
+          
+            
+        }
+    
         router.post(
-            route("employee.task.progress.store"),
+            route("admin.task.progress.store"),
             {
-                task_id: id,
-                quantity_done: qtyDone,
+                task_id: taskId,
+                user_id: taskProgress.user_id,
+                quantity_done: taskProgress.qty,
             },
             {
                 preserveScroll: true,
             }
         );
     };
+    
     return (
         <>
 
@@ -203,58 +239,50 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                         <div>
                             <button onClick={(e) => handleDeleteOldTask(e, task.id)} className='active:bg-gray-900 bg-red-800 border border-transparent duration-150 ease-in-out focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 font-semibold hover:bg-gray-700 mt-7 py-2 rounded-md text-white text-xs tracking-widest transition w-full'>حذف</button>
                         </div>
-                        {(role === 'admin' || role === 'proj') &&
+                        {(role === 'admin' || role === 'proj') && task.remaining > 0 &&
 
                             <div
 
                                 className="space-y-4"
                             >
-                                <div>
-                                    <input
-                                        type="hidden"
-                                        name="task_id"
-                                        value={task.task.id}
-                                    />
-                                    <label className="block mb-1">
-                                        الكمية المنجزة اليوم
-                                    </label>
-                                    <input
-                                        type="number"
-                                        className="w-full border rounded px-3 py-2"
-                                        value={qtyDone || ""}
-                                        onChange={(e) =>
-                                            setQtyDone(e.target.value)
-                                        }
-                                        min={1}
-                                        max={task.task.remaining}
-                                        required
-                                    />
-                                    {Progresserrors.quantity_done && (
-                                        <div className="text-red-600">
-                                            {
-                                                Progresserrors.quantity_done
-                                            }
-                                        </div>
-                                    )}
-                                    {Progresserrors.task_id && (
-                                        <div className="text-red-600">
-                                            {Progresserrors.task_id}
-                                        </div>
-                                    )}
-                                </div>
+                                   <label className="block mb-1">الكمية المنجزة</label>
+        <input
+            type="number"
+            className="w-full border rounded px-3 py-2"
+            value={progressData[task.id]?.qty || ""}
+            onChange={(e) => handleProgressQtyChange(e.target.value, task.id)}
+            min={1}
+            max={task.remaining}
+            
+        />
 
-                                <button
-                                    onClick={(e) =>
-                                        handleSubmitProgress(
-                                            e,
-                                            task.task.id
-                                        )
-                                    }
-                                    className=" bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
-                                    disabled={processing}
-                                >
-                                    حفظ
-                                </button>
+        <label className="block mb-1 mt-2">بواسطة</label>
+        <select
+            className="w-full border rounded px-3 py-2"
+            value={progressData[task.id]?.user_id || ""}
+            onChange={(e) => handleUserChange(e.target.value, task.id)}
+            
+        >
+            <option value="" disabled>
+                اختر الموظف
+            </option>
+            {users?.map((tu) =>
+                task.users?.includes(tu.id) ? (
+                    <option value={tu.id} key={tu.id}>
+                        {tu.name}
+                    </option>
+                ) : null
+            )}
+        </select>
+
+        <button
+            onClick={(e) => handleSubmitProgress(e, task.id)}
+            className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+            disabled={processing}
+        >
+            حفظ
+        </button>
+                             
                             </div>
 
                         }

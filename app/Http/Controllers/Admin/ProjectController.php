@@ -76,6 +76,7 @@ class ProjectController extends Controller
             'start_date' => $request->start_date,
             'project_code' => $request->project_code,
             'customer_name' => $request->customer_name,
+            'advance_payment' => $request->advance_payment,
             'end_date' => $request->end_date,
             'created_by' => auth()->id(),
         ]);
@@ -153,6 +154,7 @@ class ProjectController extends Controller
             'description' => $request->description,
             'start_date' => $request->start_date,
             'project_code' => $request->project_code,
+            'advance_payment' => $request->advance_payment,
             'customer_name' => $request->customer_name,
             'created_by' => auth()->id(),
         ]);

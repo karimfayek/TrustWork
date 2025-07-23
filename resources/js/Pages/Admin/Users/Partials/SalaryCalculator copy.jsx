@@ -11,49 +11,25 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
         Number(user.salary?.base_salary) +
         Number(attData?.taskScore) +
         Number(attData?.rewards) -
-        absenceScore  +
+        absenceScore -
+        Number(attData?.lateScore) +
         Number(attData?.transportaionFees) -
         Number(attData.lostCostThisMonth) -
         Number(attData.deductions) -
         Number(attData.remaining)
     ).toFixed(2);
 
-    const [filters, setFilters] = useState(() => {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
-       
-    return {
-        from: firstDay.toLocaleDateString('en-CA'), // 'YYYY-MM-DD'
-        to: lastDay.toLocaleDateString('en-CA'),
-    };
-    });
-
-   
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(
-                    `/calc-emp-att/${user.id}?from=${filters.from}&to=${filters.to}`
-                );
-                const data = await response.json();
-                setAttData(data)
-               
-            } catch (error) {
-                console.error('Error fetching attendance data:', error);
-            }
-        };
-    
-        if (filters.from && filters.to) {
-            fetchData();
-        }
-    }, [filters, user.id]);
+        fetch(`/calc-emp-att/${user.id}/${month}`)
+            .then((res) => res.json())
+            .then((data) => setAttData(data));
+    }, [month, user.id]);
+
     return (
         <div className="p-6">
             <h2 className='text-2xl text-center underline'>{user.name}</h2>
             <div className="bg-gray-100 mb-12 p-5 shadow-sm ">
-                <MonthSelector month={month} setMonth={setMonth} filters={filters} setFilters={setFilters}/>
+                <MonthSelector month={month} setMonth={setMonth} />
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <EarningsSection user={user} attData={attData} />
@@ -68,51 +44,30 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
     );
 }
 
-const MonthSelector = ({ filters, setFilters }) => (
+const MonthSelector = ({ month, setMonth }) => (
     <div>
-       
-        <form
-                  
-                    className="bg-white shadow rounded p-4 mb-8 space-y-4"
-                >
-                    <h2 className="text-lg font-semibold text-gray-600">
-                        {" "}
-                        عرض نتائج
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        
-                        <div className="flex flex-col">
-                            <label htmlFor="from" className="mb-2">
-                                من تاريخ
-                            </label>
-                            <input
-                                required
-                                className="border rounded p-2"
-                                type="date"
-                                value={filters.from}
-                                onChange={(e) => setFilters({
-                                    ...filters,
-                                    from: e.target.value
-                                })} />
-                        </div>
-                        <div className="flex flex-col">
-                            <label htmlFor="from" className="mb-2">
-                                الى تاريخ
-                            </label>
-                            <input
-                                required
-                                className="border rounded p-2"
-                                type="date"
-                                value={filters.to}
-                                onChange={(e) => setFilters({
-                                    ...filters,
-                                    to: e.target.value
-                                })} />
-                        </div>
-                    </div>
-                    
-                </form>
-
+        <InputLabel value ="عرض نتائج" className='print:hidden'/>
+        <select
+            className="mb-4 w-48 print:hidden"
+            name="month"
+            id="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+        >
+            <option value="null">الى اليوم الحالى</option>
+            <option value="1">يناير</option>
+            <option value="2">فبراير</option>
+            <option value="3">مارس</option>
+            <option value="4">ابريل</option>
+            <option value="5">مايو</option>
+            <option value="6">يونيو</option>
+            <option value="7">يوليو</option>
+            <option value="8">اغسطس</option>
+            <option value="9">سبتمبر</option>
+            <option value="10">اكتوبر</option>
+            <option value="11">نوفمبر</option>
+            <option value="12">ديسمير</option>
+        </select>
     </div>
 );
 
@@ -125,7 +80,7 @@ const EarningsSection = ({ user, attData }) => (
             <p className="text-green-800">{Number(user.salary?.base_salary)}</p>
         </div>
         <div>
-            <b>مستحق لانجاز المهام (متغير)</b>
+            <b>مستحق لانجاز المهام</b>
             <p className="text-green-800">{Number(attData?.taskScore).toFixed(2)}</p>
         </div>
         <div>
@@ -147,7 +102,10 @@ const DeductionsSection = ({ attData, absenceScore }) => (
             <b>استقطاعات اساسيه من الراتب</b>
             <p className="text-red-800">{Number(attData?.deductions).toFixed(2)}</p>
         </div>
-        
+        <b>التاخيرات</b>
+        <p className="text-red-800">
+            <span>{Number(attData.lateScore).toFixed(2)}</span>
+        </p>
         <div>
             <b>غياب</b>
             <p className="text-red-800"><span>{absenceScore}</span></p>

@@ -18,6 +18,7 @@ export default function CrreateUser() {
         role: '',
         phone: '',
         hire_date: '',
+        offdayestype:'',
         must_change_password: false
     });
 
@@ -178,6 +179,18 @@ export default function CrreateUser() {
                     </div>
                     <div className="mt-4">
                         <label className="flex items-center">
+                            <select value={data.offdayestype}
+                                onChange={(e) => setData("offdayestype", e.target.value)}
+                                className="w-full"
+                            >
+                                <option value="" disabled selected>ايام الاجازات</option>
+                                <option value="1" > جمعه</option>
+                                <option value="2" > جمعه + سبت</option>
+                          </select>
+                        </label>
+                    </div>
+                    <div className="mt-4">
+                        <label className="flex items-center">
                             <input
                                 type="checkbox"
                                 checked={data.must_change_password}
@@ -186,6 +199,7 @@ export default function CrreateUser() {
                             <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
                         </label>
                     </div>
+                   
                     <div>
                         <PrimaryButton className="w-full justify-center" disabled={processing}>
                             انشاء الموظف

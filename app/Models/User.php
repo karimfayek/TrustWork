@@ -29,7 +29,8 @@ class User extends Authenticatable
         'must_change_password',
         'deleted_at',
         'phone',
-        'hire_date'
+        'hire_date',
+        'offdayestype'
     ];
 
     /**

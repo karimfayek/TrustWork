@@ -15,6 +15,7 @@ export default function UserForm({ user }) {
         password: "",
         phone:user?.phone || '',
         hire_date:user?.hire_date || '',
+        offdayestype:user?.offdayestype || '',
         must_change_password: user.must_change_password,
     });
     const handleSalaryChange = (final) => {
@@ -150,7 +151,18 @@ export default function UserForm({ user }) {
                 />
                 <InputError message={errors.base_salary} className="mt-2" />
             </div>
-
+            <div className="mt-4">
+                        <label className="flex items-center">
+                            <select value={data.offdayestype}
+                                onChange={(e) => setData("offdayestype", e.target.value)}
+                                className="w-full"
+                            >
+                                <option value="" disabled selected>ايام الاجازات</option>
+                                <option value="1" > جمعه</option>
+                                <option value="2" > جمعه + سبت</option>
+                          </select>
+                        </label>
+                    </div>
             <div className="mt-4">
                 <label className="flex items-center">
                     <input

@@ -8,6 +8,7 @@ import TaskList from '../Admin/Tasks/TaskList';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function EditProject({ users, project, userIds }) {
+   
     const user = usePage().props.auth.user;
     const role = user?.role;
     const [initialTasks, setTasks] = useState(
@@ -21,15 +22,16 @@ export default function EditProject({ users, project, userIds }) {
             unit: task.unit || '',
             tp: task.tp || '',
             up: task.unit_price || '',
+            remaining: task.remaining ?? '',
             users: task.users?.map(user => user.id) ?? [],
         }))
     );
-    
     const { data, setData, post, processing, errors } = useForm({
         name: project?.name || '',
         description: project?.description || '',
         start_date: project?.start_date || '',
         end_date: project?.end_date || '',
+        advance_payment: project?.advance_payment || 0,
         customer_name: project?.customer_name || '',
         project_code: project?.project_code || '',
         user_ids: userIds || [],
@@ -199,7 +201,17 @@ export default function EditProject({ users, project, userIds }) {
                         />
                         <InputError message={errors.description} className="mt-2" />
                     </div>
-
+                    <div>
+                                <InputLabel htmlFor="advance_payment" value="دفعه مقدمه " />
+                                <TextInput
+                                    id="advance_payment"
+                                    type="number"
+                                    value={data.advance_payment}
+                                    className="mt-1 block w-full"
+                                    onWheel={(e) => e.target.blur()}
+                                    onChange={(e) => setData('advance_payment', e.target.value)} />
+                                <InputError message={errors.advance_payment} className="mt-2" />
+                            </div>
                     {role !== 'tech' &&
 
                         <><div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -223,6 +235,7 @@ export default function EditProject({ users, project, userIds }) {
                                     onChange={(e) => setData('end_date', e.target.value)} />
                                 <InputError message={errors.end_date} className="mt-2" />
                             </div>
+                           
                         </div>
                         <div className='border p-2'>
                                     <InputLabel className='mb-2' htmlFor="user_ids"  >

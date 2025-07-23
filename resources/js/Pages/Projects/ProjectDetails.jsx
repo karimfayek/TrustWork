@@ -27,11 +27,12 @@ const ProjectDetails = ({ project, tasks, users }) => {
                     <h2 className="text-xl font-semibold mb-3">المهام</h2>
                     <ul className="bg-white rounded shadow divide-y">
                         {tasks.map(task => (
-                            <li key={task.id} className={task.is_completed ? 'bg-[#dede] p-3 flex justify-between items-center':' p-3 flex justify-between items-center bg-[#FF2D20]/10' }>
+                            <li key={task.id} className={task.remaining < 1 ? 'bg-[#dede] p-3 flex justify-between items-center':' p-3 flex justify-between items-center bg-[#FF2D20]/10' }>
                                 <div>
                                     <h3 className="font-medium">{task.title}</h3>
                                     <p className="text-sm text-gray-500">{task.users && task.users.map((emp)=> <i className='mx-2'>{ emp.name}</i>)}</p>
-                                    <p className="text-sm text-gray-500">{task.is_completed ? 'done' : 'not completed'}</p>
+                                    <p className={task.total_done > 0 ? "text-sm text-green-500" : "text-sm text-red-900"}> تم انجاز: {task.total_done}</p>
+                                    <p className="text-sm text-gray-500">{task.remaining < 1 ? 'done' : 'not completed'}</p>
                                 </div>
                                 <Link
                                     href={route('task.show', task.id)}

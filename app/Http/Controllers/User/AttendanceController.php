@@ -235,9 +235,9 @@ class AttendanceController extends Controller
         ]);
          $user = $request->user_id;
          
-         $role = User::find($user)->role ;
-        // dd($role);
-        if($role === 'admin' ){
+         $role = User::find(auth()->id())->role ;
+         //dd($role);
+        if($role !== 'admin' ){
             $request->validate([
                 'location' => 'required',
             ]); 
@@ -338,16 +338,16 @@ class AttendanceController extends Controller
     return back()->with('message', 'تم تسجيل الانصراف بنجاح.');
 }
 
-public function calculateAttendancePercentageUntillToday($userId, $month=null)
+public function calculateAttendancePercentage(Request $request, $userId)
 {
     
+    $from = $request->query('from');
+    $to = $request->query('to');
 
     $service = new EmployeePerformanceService();
-    $data = $service->calculate($userId, $month);
-//dd($data);
+    $data = $service->calculate($userId, $from, $to);
+
     return response()->json($data);
- 
-    //return round($attendancePercentage, 2); // نقربها لرقمين عشريين
 }
 public function countLateAttendances($userId, $month)
 {

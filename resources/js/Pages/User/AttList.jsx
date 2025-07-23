@@ -7,29 +7,38 @@ import DeleteButton from "@/Components/DeleteButton";
 export default function AttList({ atts, visits, users, projects ,showManual = true , customers}) {
     const user = usePage().props.auth.user;
     const role = user?.role;
+    const [filters, setFilters] = useState({
+        from:  new Date().toISOString().split('T')[0],
+        to:  new Date().toISOString().split('T')[0],
+    });
   const [selectedUser , setSelectedUser]= useState('')
   const [attendances, setAttendnces] = useState(atts)
-  const handleFilterUser = (e) => {
-    const value = e.target.value;
-    setSelectedUser(value);
-if(value){
-    const filtered = atts.filter((at) => at.user_id == value); // استخدم atts الأصلية
-    setAttendnces(filtered); 
-}else{
-    setAttendnces(atts);
-}
-    
-}
-useEffect(() => {
-    if (selectedUser === '') {
-      // إذا تم المسح، نعيد كل الحضور
-      setAttendnces(atts);
-    } else {
-      const filtered = atts.filter((at) => at.user_id == selectedUser);
-      setAttendnces(filtered);
-    }
-}, [selectedUser, atts]);
 
+  
+  const filterAttendances = () => {
+    const fromStr = filters.from;
+    const toStr = filters.to;
+
+    const filtered = atts.filter((att) => {
+        const userMatch = selectedUser ? att.user_id == selectedUser : true;
+
+        const attDateStr = new Date(att.check_in_time).toISOString().split('T')[0];
+
+        const dateMatch = attDateStr >= fromStr && attDateStr <= toStr;
+
+        return userMatch && dateMatch;
+    });
+
+    setAttendnces(filtered);
+};
+
+
+
+
+
+useEffect(() => {
+    filterAttendances();
+}, [filters, selectedUser, atts]);
     return (
        
         <AuthenticatedLayout>
@@ -46,10 +55,26 @@ useEffect(() => {
                         {" "}
                         الحضور والانصراف لكل الموظفين 
                     </h1>
-                    <select name="user" id="user" value={selectedUser} onChange ={ (e) => handleFilterUser(e)}  >
+                    <div className="flex items-center gap-2">
+        <label>من:</label>
+        <input
+            type="date"
+            value={filters.from}
+            onChange={(e) => setFilters((prev) => ({ ...prev, from: e.target.value }))}
+        />
+
+        <label>إلى:</label>
+        <input
+            type="date"
+            value={filters.to}
+            onChange={(e) => setFilters((prev) => ({ ...prev, to: e.target.value }))}
+        />
+    </div>
+
+                    <select name="user" id="user" value={selectedUser}  onChange={(e) => setSelectedUser(e.target.value)}  >
                     <option value="">اختر الموظف</option>
                     {users.map((user)=>(
-                        <option value={user.id}>{user.name}</option>
+                        <option value={user.id} key={user.id}>{user.name}</option>
                     ))}
                         
                     </select>

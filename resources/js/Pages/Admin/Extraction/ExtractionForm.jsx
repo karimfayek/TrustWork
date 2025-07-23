@@ -39,7 +39,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
         "profit_tax": "1",
         "initial_insurance": "5",
         "taxes": "5",
-        "advance_payment": "0",
+        "advance_payment": project.advance_payment || 0 ,
         "social_insurance": "3.6",
         "previous_payments": prevPay,
         "progress_percentage" : "100",
@@ -120,7 +120,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
             "profit_tax": "1",
             "initial_insurance": "5",
             "taxes": "5",
-            "advance_payment": "0",
+            "advance_payment": project.advance_payment || 0 ,
             "social_insurance": "3.6",
             "previous_payments": prevPay,
             "progress_percentage" : "100",
@@ -252,7 +252,8 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
                               className="w-full p-2 border rounded"
                               value={form.deductions['progress_percentage'] || ''}
                               onChange={(e) => handleDeductionChange(e, 'progress_percentage')}  />
-                      </div>
+                    </div>
+                    
               </div>
           </div>
 

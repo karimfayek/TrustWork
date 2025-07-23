@@ -3,8 +3,8 @@ import { router } from "@inertiajs/react";
 export default function AttFrom({ users, projects, showManual, customers }) {
     const [filters, setFilters] = useState({
         user_id: "",
-        from: "",
-        to: "",
+        from:  new Date().toISOString().split('T')[0],
+        to:  new Date().toISOString().split('T')[0],
     });
     const [manuals, SetManulas] = useState({
         user_id: "",

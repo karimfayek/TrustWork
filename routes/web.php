@@ -158,7 +158,7 @@ Route::middleware(['auth' ,  'role:employee,admin,acc,managment'])->group(functi
 //role:employee,admin,acc,proj
 Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/calc-emp-att/{id}/{month?}', [AttendanceController::class, 'calculateAttendancePercentageUntillToday'])->name('calc.att');
+    Route::get('/calc-emp-att/{id}', [AttendanceController::class, 'calculateAttendancePercentage'])->name('calc.att');
     Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
     Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->name('password.change');
     Route::post('/change-password/first', [ChangePasswordController::class, 'update'])->name('password.update.first');
@@ -209,7 +209,7 @@ Route::middleware(['auth', 'role:admin,proj,tech'])->group(function () {
 //admin,proj
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {
     Route::get('/project/{projectId}', [ProjectController::class, 'show'])->name('project.show');
-          
+    Route::post('/task-progress/admin', [TaskProgressController::class, 'storeAdmin'])->name('admin.task.progress.store');
     Route::get('/task/{taskId}', [TaskController::class, 'show'])->name('task.show');
     Route::get('/projects/{projectId}/assign-tasks', [ProjectController::class, 'assignTasks'])->name('projects.assignTasks');
     Route::post('/projects/{projectId}/save-tasks', [ProjectController::class, 'saveTasks'])->name('projects.saveTasks');

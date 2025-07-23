@@ -10,20 +10,23 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeePerformanceService
 {
-    public function calculate($userId, $month = null)
+    public function calculate($userId, $from = null, $to = null)
     {
-        $monthData = $this->getMonthBoundaries($month);
+        
+    $startDate = $from ? Carbon::parse($from)->startOfDay() : Carbon::now()->startOfMonth();
+    $endDate = $to ? Carbon::parse($to)->endOfDay() : Carbon::now()->endOfMonth();
+
         $user = User::with(['tasks.progress', 'salary', 'toolassignments.tool'])->findOrFail($userId);
 
-        $workingDays = $this->countWorkingDays($monthData['start'], $monthData['end']);
-        $workingDaysUntilToday = $this->countWorkingDaysUntilToday($monthData['start'], $monthData['end'], $month);
-        $attendance = $this->getAttendanceData($userId, $monthData['start'], $monthData['today']);
-        $taskData = $this->getTaskData($user, $monthData['start'], $monthData['end']);
+        $workingDays = $this->countWorkingDays($user->offdayestype, $startDate, $endDate);
+        //$workingDaysUntilToday = $this->countWorkingDaysUntilToday($user->offdayestype,$startDate, $endDate, $month);
+        $attendance = $this->getAttendanceData($userId, $startDate, $endDate);
+        $taskData = $this->getTaskData($user, $startDate, $endDate);
         $penaltyScores = $this->calculateScores($user, $taskData['completedTasksPercentage'], $workingDays, $attendance['late_days'] , $attendance['present_days']);
-        $tools = $this->getToolAssignments($user, $monthData['start'], $monthData['end']);
-        $financials = $this->getFinancials($user, $monthData['start'], $monthData['end']);
+        $tools = $this->getToolAssignments($user, $startDate, $endDate);
+        $financials = $this->getFinancials($user, $startDate, $endDate);
         $transportFees = $this->calculateTransportFees($attendance['visits']);
-        $rewards = $this->getRewards($userId, $monthData['start'], $monthData['end']);
+        $rewards = $this->getRewards($userId, $startDate, $endDate);
 
         return [
             'attendance_percentage' => round($attendance['percentage'], 2),
@@ -40,7 +43,7 @@ class EmployeePerformanceService
             'alltasks' => $taskData['totalTasks'],
             'tasksCompleted' => $taskData['completedCount'],
             'completedTasksPercentage' => $taskData['completedTasksPercentage'],
-            'absenceDays' => max(0, $workingDaysUntilToday - $attendance['present_days']),
+            'absenceDays' => max(0, $workingDays - $attendance['present_days']),
             'taskScore' => $penaltyScores['taskScore'],
             'lateScore' => $penaltyScores['lateScore'],
             'lateFees' => $penaltyScores['lateFees'],
@@ -61,28 +64,47 @@ class EmployeePerformanceService
         ];
     }
 
-    private function countWorkingDays($start, $end)
+    private function countWorkingDays($type,$start, $end)
     {
         $days = 0;
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            if ($date->dayOfWeek !== Carbon::FRIDAY) {
-                $days++;
+            if ($type == 1) {
+                // استثناء الجمعة فقط
+                if ($date->dayOfWeek !== Carbon::FRIDAY) {
+                    $days++;
+                }
+            } else {
+                // استثناء الجمعة والسبت
+                if (!in_array($date->dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
+                    $days++;
+                }
             }
         }
         return $days;
     }
 
-    private function countWorkingDaysUntilToday($start, $end, $month)
-    {
-        $today = ($month == null || $month == 'null') ? Carbon::now()->startOfDay() : $end;
-        $count = 0;
-        for ($date = $start->copy(); $date->lte($today); $date->addDay()) {
-            if (!in_array($date->dayOfWeek, [Carbon::FRIDAY])) {
+    private function countWorkingDaysUntilToday($type, $start, $end, $month)
+{
+    $today = ($month == null || $month == 'null') ? Carbon::now()->startOfDay() : $end;
+    $count = 0;
+
+    for ($date = $start->copy(); $date->lte($today); $date->addDay()) {
+        if ($type == 1) {
+            // استثناء الجمعة فقط
+            if ($date->dayOfWeek !== Carbon::FRIDAY) {
+                $count++;
+            }
+        } else {
+            // استثناء الجمعة والسبت
+            if (!in_array($date->dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
                 $count++;
             }
         }
-        return $count;
     }
+
+    return $count;
+}
+
 
     private function getAttendanceData($userId, $start, $today)
     {
@@ -91,30 +113,16 @@ class EmployeePerformanceService
             ->whereDate('check_in_time', '<=', $today)
             ->distinct()
             ->count('check_in_time');
-
-        $visitDays = Visit::where('user_id', $userId)
-            ->whereDate('check_in', '>=', $start)
-            ->whereDate('check_in', '<=', $today)
-            ->distinct(DB::raw('DATE(check_in)'))
-            ->count();
-
-        $lateAttendances = Attendance::where('user_id', $userId)
+         $lateAttendances = Attendance::where('user_id', $userId)
             ->whereBetween('check_in_time', [$start, $today])
             ->where('is_late', true)
             ->count();
-
-        $lateVisits = Visit::select(DB::raw('DATE(check_in) as visit_date'), DB::raw('MIN(check_in) as first_check_in'))
-            ->where('user_id', $userId)
-            ->whereDate('check_in', '>=', $start)
-            ->whereDate('check_in', '<=', $today)
-            ->groupBy(DB::raw('DATE(check_in)'))
-            ->havingRaw('TIME(first_check_in) > "09:00:00"')
-            ->count();
+$user= User::find($userId);
 
         return [
-            'present_days' => $attendanceDays + $visitDays,
-            'late_days' => $lateAttendances + $lateVisits,
-            'percentage' => ($attendanceDays + $visitDays) / max(1, $this->countWorkingDays($start, $today)) * 100,
+            'present_days' => $attendanceDays ,
+            'late_days' => $lateAttendances ,
+            'percentage' => ($attendanceDays ) / max(1, $this->countWorkingDays($user->type,$start, $today)) * 100,
             'visits' => Visit::where('user_id', $userId)
                 ->whereBetween('check_in', [$start, $today])
                 ->get()
