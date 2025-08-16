@@ -6,7 +6,7 @@ import InputLabel from '@/Components/InputLabel';
 
 export default function AdvancePage() {
     const { advances, expenses, totalAdvance, totalExpense, remaining , activeProjects , finalSalary} = usePage().props;
-    console.log(expenses , 'expenses')
+   
     const {
         data: advanceData,
         setData: setAdvanceData,

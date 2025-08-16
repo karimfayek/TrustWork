@@ -3,7 +3,7 @@ import { useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function AssignTasks({ project, tasks, users }) {
-
+console.log(tasks , 'tasks')
     const { data, setData, post } = useForm({
         // Initialize with existing assignments (if editing)
         employee_tasks: tasks.reduce((acc, task) => {

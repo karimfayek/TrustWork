@@ -27,7 +27,7 @@ class AdminUserController extends Controller
     public function edit($id)
     {
         // جلب جميع الموظفين
-        $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects');
+        $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects' , 'loans' , 'leaves');
         $acceptedAdvances = $user->advances()->where('status' , 'accepted')->get()->load('project');
         $pendingAdvances = $user->advances()->where('status' , 'pending')->get()->load('project');
         $expenses = $user->expenses()->select('amount', 'description', 'spent_at', 'id')->get();

@@ -11,6 +11,7 @@ import {
 } from "flowbite-react";
 import { useForm, usePage, router } from "@inertiajs/react";
 import ProjectProgress from "./Projects/ProjectProgress";
+import UserLayout from "@/Layouts/UserLayout";
 export default function ProjectShow({ project, tasks, attendances }) {
     console.log(tasks, 'tasks')
 
@@ -18,7 +19,7 @@ export default function ProjectShow({ project, tasks, attendances }) {
     const isCheckedIn = attendance && attendance.check_in_time;
     const isCheckedOut = attendance && attendance.check_out_time;
     const [openModal, setOpenModal] = useState(false);
-    const [qtyDone, setQtyDone] = useState("");
+    const [qtyDoneMap, setQtyDoneMap] = useState({});
 
     const { post, processing } = useForm();
     const [loading, setLoading] = useState(false);
@@ -32,13 +33,16 @@ export default function ProjectShow({ project, tasks, attendances }) {
 
     const handleSubmitProgress = (e, id) => {
         e.preventDefault();
-        console.log(id);
-
+        const qty = qtyDoneMap[id];
+        if (!qty || qty <= 0) {
+            alert("من فضلك أدخل كمية صحيحة");
+            return;
+          }
         router.post(
             route("employee.task.progress.store"),
             {
                 task_id: id,
-                quantity_done: qtyDone,
+                quantity_done: qty,
             },
             {
                 preserveScroll: true,
@@ -115,6 +119,7 @@ export default function ProjectShow({ project, tasks, attendances }) {
     };
 
     return (
+        <UserLayout>
         <div className="p-6">
             {successMessage && (
                 <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
@@ -292,10 +297,13 @@ export default function ProjectShow({ project, tasks, attendances }) {
                                             <input
                                                 type="number"
                                                 className="w-full border rounded px-3 py-2"
-                                                value={qtyDone || ""}
+                                                value={qtyDoneMap[task.task.id] || ""}
                                                 onChange={(e) =>
-                                                    setQtyDone(e.target.value)
-                                                }
+                                                    setQtyDoneMap({
+                                                      ...qtyDoneMap,
+                                                      [task.task.id]: e.target.value,
+                                                    })
+                                                  }
                                                 min={1}
                                                 max={task.task.remaining}
                                                 required
@@ -383,10 +391,12 @@ export default function ProjectShow({ project, tasks, attendances }) {
                             </Modal>
 
                             <ProjectProgress task={task.task} />
+                        
                         </div>
                     </li>
                 ))}
             </ul>
         </div>
+        </UserLayout>
     );
 }

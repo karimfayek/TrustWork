@@ -43,7 +43,7 @@ class EmployeePerformanceService
             'alltasks' => $taskData['totalTasks'],
             'tasksCompleted' => $taskData['completedCount'],
             'completedTasksPercentage' => $taskData['completedTasksPercentage'],
-            'absenceDays' => max(0, $workingDays - $attendance['present_days']),
+            'absenceDays' => max(0, $workingDays - $attendance['present_days']- $attendance['leaves']),
             'taskScore' => $penaltyScores['taskScore'],
             'lateScore' => $penaltyScores['lateScore'],
             'lateFees' => $penaltyScores['lateFees'],
@@ -108,21 +108,40 @@ class EmployeePerformanceService
 
     private function getAttendanceData($userId, $start, $today)
     {
+        $user= User::find($userId);
+        $offDays = [];
+
+        if ($user->offdayestype == '1') {
+            $offDays = ['Friday'];
+        } elseif ($user->offdayestype == '2') {
+            $offDays = ['Friday', 'Saturday'];
+        }
+
         $attendanceDays = Attendance::where('user_id', $userId)
-            ->whereDate('check_in_time', '>=', $start)
-            ->whereDate('check_in_time', '<=', $today)
-            ->distinct()
-            ->count('check_in_time');
+    ->whereDate('check_in_time', '>=', $start)
+    ->whereDate('check_in_time', '<=', $today)
+    ->get()
+    ->groupBy(function($attendance) {
+        return Carbon::parse($attendance->check_in_time)->toDateString(); // Group by date only
+    })
+    ->filter(function ($attendancesOnDay) use ($offDays) {
+        $dayName = Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
+        return !in_array($dayName, $offDays); // Exclude if it's an off day
+    })
+    ->count();
+    $leaves = $user->leaves()->where('status' , 'approved')->count();
          $lateAttendances = Attendance::where('user_id', $userId)
             ->whereBetween('check_in_time', [$start, $today])
             ->where('is_late', true)
             ->count();
-$user= User::find($userId);
 
+//dd($user);
+//dd($this->countWorkingDays($user->offdayestype,$start, $today));
         return [
             'present_days' => $attendanceDays ,
             'late_days' => $lateAttendances ,
-            'percentage' => ($attendanceDays ) / max(1, $this->countWorkingDays($user->type,$start, $today)) * 100,
+            'leaves' => $leaves ,
+            'percentage' => ($attendanceDays ) / max(1, $this->countWorkingDays($user->offdayestype,$start, $today)) * 100,
             'visits' => Visit::where('user_id', $userId)
                 ->whereBetween('check_in', [$start, $today])
                 ->get()

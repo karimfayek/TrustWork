@@ -27,12 +27,28 @@ const totalCost = items.reduce((acc, task) => {
   const previousPayment = deductions.previous_payments
   const advancePayment = deductions.advance_payment
   const netTotal = VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment
+  const netTotalOther = totalCost + otherTax
   const extractionTypes = {
     partial: 'جاري ',
     final: ' ختامي',
     supply: ' جارى تشوينات',
   };
-console.log(deductions , )
+  const isError = () => {
+    const parse = (val) => Number(String(val).replace(/,/g, ''));
+
+    const diff =
+      parse(totalCost) -
+      parse(profitTax) -
+      parse(socialInsurance) -
+      parse(project.advance_payment) -
+      parse(initialInsurance) -
+      parse(previousPayment) -
+      parse(otherTax) -
+      parse(netTotal);
+      
+  console.log(diff  , 'dif')
+    return type === 'final' && Math.abs(diff) > 0.1; // هامش خطأ صغير
+  };
   return (
     <AuthenticatedLayout>
 
@@ -78,7 +94,15 @@ console.log(deductions , )
                 <tr key={index}>
                   <td className="p-2 border text-right">{index + 1}</td>
                   <td className="p-2 border text-right">{task.title}</td>
-                  <td className="p-2 border text-center">{task.unit}</td>
+                  <td className="p-2 border text-center">{
+                    task.unit === "meter"
+                      ? "MTR"
+                      : task.unit === "number"
+                      ? "NUM"
+                      :task.unit === "ls"
+                      ? "LS"
+                      : task.unit
+                  }</td>
                   <td className="p-2 border text-center">{task.quantity}</td>
                   <td className="p-2 border text-center"> {task.previous_done}</td>
                   <td className="p-2 border text-center">{task.current_done}</td>
@@ -90,60 +114,84 @@ console.log(deductions , )
                 </tr>
               )
             )}
-            <tr>
+             <tr>
               <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
-              <td className="p-2 border text-center">{Number(totalCost).toFixed(2)}</td>
+              <td className="p-2 border text-center">{totalCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
-            {!supply &&
+ 
+            {!supply &&   deductions.vat > 1 &&
+            
             <tr>
               <td colSpan={9} className="p-2 border text-center"> الاجمالي بدون الضريبة المضافة {deductions.vat}% </td>
-              <td className="p-2 border text-center">{totalWithoutVat.toLocaleString()}</td>
+              <td className="p-2 border text-center">{totalWithoutVat.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
-}
+            }
 
             {deductions.profit_tax > 0 &&
             <tr>
               <td colSpan={9} className="p-2 border text-center">  خصم {deductions.profit_tax} % ضريبة   </td>
-              <td className="p-2 border text-center">{profitTax.toLocaleString()}</td>
+              <td className="p-2 border text-center">{profitTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
              }
+   
             {deductions.social_insurance > 0 &&
             <tr>
               <td colSpan={9} className="p-2 border text-center"> تعليه التأمينات الاجتماعيه </td>
-              <td className="p-2 border text-center">{socialInsurance.toLocaleString()}</td>
+              <td className="p-2 border text-center">{socialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           }
             {deductions.advance_payment > 0 &&
 
               <tr>
                 <td colSpan={9} className="p-2 border text-center">خصم دفعة مقدمة    </td>
-                <td className="p-2 border text-center">{deductions.advance_payment.toLocaleString()}</td>
+                <td className="p-2 border text-center">{deductions.advance_payment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
             {initialInsurance > 0 &&
               <tr>
                 <td colSpan={9} className="p-2 border text-center">خصم {deductions.initial_insurance} % تامين اعمال </td>
-                <td className="p-2 border text-center">{initialInsurance.toLocaleString()}</td>
+                <td className="p-2 border text-center">{initialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
             {previousPayment > 0 &&
               <tr>
                 <td colSpan={9} className="p-2 border text-center">خصم ما سبق صرفه</td>
-                <td className="p-2 border text-center">{previousPayment.toLocaleString()}</td>
+                <td className="p-2 border text-center">{previousPayment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
              {otherTax > 0 &&
               <tr>
-                <td colSpan={9} className="p-2 border text-center"> ضريبه أخرى {deductions.other_tax} %  </td>
-                <td className="p-2 border text-center">{otherTax.toLocaleString()}</td>
+                <td colSpan={9} className="p-2 border text-center"> ضرائب  {deductions.other_tax} %  </td>
+                <td className="p-2 border text-center">{otherTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
             <tr>
               <td colSpan={9} className="p-2 border text-center"> صافي المستخلص  </td>
-              <td className="p-2 border text-center">{netTotal.toLocaleString()}</td>
+              {deductions.other_tax > 0 ?
+              <td className="p-2 border text-center">{netTotalOther.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              
+              </td>
+            :
+            <td className="p-2 border text-center">{netTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {isError() &&
+              <p className='text-red-600 print:hidden'>
+                صافى المستخلص غير دقيق
+              </p>
+              }
+              </td>
+            }
+              
+             
+             
             </tr>
 
-
+            {project.notes &&
+                          
+                          <tr>
+                          <td colSpan={1} className="p-2 border text-center"> ملاحظات </td>
+                          <td colSpan={9} className="p-2 border text-center">   {project.notes}  </td>
+                          </tr>
+                        }
 
           </tbody>
         </table>

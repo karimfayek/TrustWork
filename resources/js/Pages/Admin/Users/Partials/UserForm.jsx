@@ -93,6 +93,9 @@ export default function UserForm({ user }) {
                     <option value="">اختر</option>
                     <option value="employee">موظف</option>
                     <option value="acc">حسابات</option>
+                    <option value='hr'>
+                                شئون عاملين
+                            </option>
                     <option value="tech">مكتب فنى </option>
                     <option value="proj">مدير مشروعات</option>
                     <option value='managment'>

@@ -11,7 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-       //
+        Schema::create('settings', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('settings');
     }
 };

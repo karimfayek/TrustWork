@@ -7,6 +7,8 @@ import AdvancesList from "./Partials/AdvancesList";
 import FinancialSettlement from "./Partials/FinancialSettlement";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import DeleteButton from "@/Components/DeleteButton";
+import Loans from "./Partials/Loans";
+import Leaves from "./Partials/Leaves";
 
 export default function EditUser({ user }) {
     useEffect(() => {
@@ -19,6 +21,8 @@ export default function EditUser({ user }) {
         }
     }, []);
     console.log(user, "user");
+    const admin = usePage().props.auth.user;
+    const role = admin?.role;
     const {
         acceptedAdvances,
         pendingAdvances,
@@ -46,7 +50,7 @@ export default function EditUser({ user }) {
         Number(attData.remaining)
     ).toFixed(2);
 
-    console.log("user", user);
+
 
 
     const [pendingAdvancesData, setPendingAdvances] = useState(pendingAdvances);
@@ -171,343 +175,367 @@ export default function EditUser({ user }) {
         type: "",
         user_id: user?.id,
     });
-
+    const [showSection, setShowSection] = useState('')
+    const handleShowSection = (section) => {
+        if (showSection === section) {
+            setShowSection('')
+        } else {
+            setShowSection(section)
+        }
+    }
     return (
         <AuthenticatedLayout>
             <Head title="تعديل موظف " />
 
             <div className=" px-6 py-8 bg-white rounded shadow">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6 ">
                     تعديل موظف{" "}
+                    <button onClick={() => handleShowSection('userform')}>
+                        <p className='border p-1 border-black text-sm'>  {showSection === 'userform' ? 'اخفاء' : 'عرض'}</p>
+                    </button>
                 </h1>
 
-                <UserForm user={user} />
-                <SalaryCalculator
-                    user={user}
-                    acceptedAdvances={acceptedAdvances}
-                    totalAdvance={totalAdvance}
-                    totalExpense={totalExpense}
-                    remaining={remaining}
-                />
+                {showSection === 'userform' &&
 
+                    <UserForm user={user} />
+                }
+                <hr />
+                <h1 className="text-2xl font-bold text-gray-800 mb-6 ">
+                    الحضور - المرتب - المهام - معلومات اخرى
+                    <button onClick={() => handleShowSection('salary')}>
+                        <p className='border p-1 border-black text-sm'>  {showSection === 'salary' ? 'اخفاء' : 'عرض'}</p>
+                    </button>
+                </h1>
+                {showSection === 'salary' &&
+                    <SalaryCalculator
+                        user={user}
+                        acceptedAdvances={acceptedAdvances}
+                        totalAdvance={totalAdvance}
+                        totalExpense={totalExpense}
+                        remaining={remaining}
+                    />
+                }
+                <hr />
                 <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">العهدة المالية</h1>
+                    <h1 className="text-2xl font-bold mb-4">العهدة المالية
+                    <button onClick={() => handleShowSection('advances')}>
+                        <p className='border p-1 border-black text-sm'>  {showSection === 'advances' ? 'اخفاء' : 'عرض'}</p>
+                    </button>
+                    </h1>
+                    {showSection === 'advances' &&
+                    <><div className="mb-6">
+                            <p>
+                                <strong>إجمالي العهدة:</strong> {totalAdvance} ج
+                            </p>
+                            <p>
+                                <strong>إجمالي المصروفات:</strong> {totalExpense} ج
+                            </p>
+                            <p>
+                                <strong>المتبقي:</strong> {remaining} ج
+                                {remaining > 0 &&
 
-                    <div className="mb-6">
-                        <p>
-                            <strong>إجمالي العهدة:</strong> {totalAdvance} ج
-                        </p>
-                        <p>
-                            <strong>إجمالي المصروفات:</strong> {totalExpense} ج
-                        </p>
-                        <p>
-                            <strong>المتبقي:</strong> {remaining} ج
-                            {remaining > 0 &&
+                                    <FinancialSettlement user_id={user.id} amountOrig={remaining} />}
+                            </p>
+                        </div><div className="md:grid grid-cols-3 gap-6" id="advances">
+                                <AdvancesList
+                                    advances={pendingAdvances}
+                                    type="pending"
+                                    onDelete={handleDeleteAdvance}
+                                    onApprove={handleApproveClick}
+                                    onReject={handleStatusAdvance}
+                                    onUpdate={updatePendingAdvance} />
+                                <div>
+                                    <h2 className="text-lg font-semibold mb-2">
+                                        العهد المُستلمة
+                                    </h2>
 
-                                <FinancialSettlement user_id={user.id} amountOrig={remaining} />
-                            }
-                        </p>
-                    </div>
+                                    <ul className="bg-white p-4 rounded shadow">
+                                       {Array.isArray(acceptedAdvances) && acceptedAdvances.length > 0 && acceptedAdvances.map((a, index) => (
+                                            <li key={index} className="border-b py-2">
 
-                    <div className="md:grid grid-cols-3 gap-6" id="advances">
-                        <AdvancesList
-                            advances={pendingAdvances}
-                            type="pending"
-                            onDelete={handleDeleteAdvance}
-                            onApprove={handleApproveClick}
-                            onReject={handleStatusAdvance}
-                            onUpdate={updatePendingAdvance}
-                        />
-                        <div>
-                            <h2 className="text-lg font-semibold mb-2">
-                                العهد المُستلمة
-                            </h2>
+                                                <div className="flex items-center justify-between">
 
-                            <ul className="bg-white p-4 rounded shadow">
-                                {acceptedAdvances.map((a, index) => (
-                                    <li key={index} className="border-b py-2">
+                                                    <div>
+                                                        <div>
+                                                            📅{" "}
+                                                            {a.given_at || "بانتظار الموافقة"}
+                                                        </div>
+                                                        <div>💵 {a.amount} ج.م</div>
+                                                        <div>💸 {a.method} </div>
+                                                        <div>📝 {a.note}</div>
+                                                        <div>📝 {a.project?.name}</div>
+                                                    </div>
 
-                                        <div className="flex items-center justify-between">
-
-                                            <div>
-                                                <div>
-                                                    📅{" "}
-                                                    {a.given_at || "بانتظار الموافقة"}
+                                                    <div>
+                                                        <DeleteButton id={a.id} routeName='admin.advance.delete' />
+                                                    </div>
                                                 </div>
-                                                <div>💵 {a.amount} ج.م</div>
-                                                <div>💸 {a.method} </div>
-                                                <div>📝 {a.note}</div>
-                                                <div>📝 {a.project?.name}</div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-lg font-semibold mb-2 mt-3">
+                                        المصروفات
+                                    </h2>
+                                    <ul className="bg-white p-4 rounded shadow">
+                                        {expenses.map((e, index) => (
+                                            <li key={index} className="border-b py-2">
+                                                <div className="flex items-center justify-between">
+
+                                                    <div>
+                                                        <div>📅 {e.spent_at}</div>
+                                                        <div>💸 {e.amount} ج</div>
+                                                        <div>📝 {e.description}</div>
+                                                    </div>
+
+                                                    <div>
+                                                        <DeleteButton id={e.id} routeName='' />
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-semibold mb-2 mt-3">
+                                        الاستقطاعات
+                                    </h2>
+                                    <ul className="bg-white p-4 rounded shadow">
+                                        {deductions.map((d, index) => (
+                                            <li key={index} className="border-b py-2">
+
+                                                <div className="flex items-center justify-between">
+
+                                                    <div>
+                                                        <div>📅 {d.deducted_at}</div>
+                                                        <div>💸 {d.amount} ج</div>
+                                                        <div>📝 {d.note}</div>
+                                                        <div>📝 {d.type}</div>
+                                                    </div>
+
+                                                    <div>
+                                                        <DeleteButton id={d.id} routeName='admin.deduction.delete' />
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div><div className="mt-10 md:grid grid-cols-3 gap-6">
+                                {/* نموذج العهدة */}
+                                <div className="bg-white p-4 rounded shadow">
+                                    <h3 className="font-semibold mb-2">
+                                        إضافة عهدة جديدة
+                                    </h3>
+                                    <form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            console.log('postadvance');
+                                            postAdvance(
+                                                route("admin.advance.store"),
+                                                {
+                                                    preserveScroll: true,
+                                                    onSuccess: () => resetAdvance()
+                                                }
+                                            );
+                                        } }
+                                    >
+                                        <input
+                                            required
+                                            type="number"
+                                            onWheel={(e) => e.target.blur()}
+                                            placeholder="المبلغ"
+                                            value={advanceData.amount}
+                                            onChange={(e) => setAdvanceData("amount", e.target.value)}
+                                            className="w-full border p-2 mb-2" />
+                                        {advanceErrors.amount && (
+                                            <div className="text-red-600">
+                                                {advanceErrors.amount}
                                             </div>
-
-                                            <div>
-                                                <DeleteButton id={a.id} routeName='admin.advance.delete' />
+                                        )}
+                                        <input
+                                            required
+                                            type="text"
+                                            placeholder="الغرض من العهدة"
+                                            value={advanceData.note}
+                                            onChange={(e) => setAdvanceData("note", e.target.value)}
+                                            className="w-full border p-2 mb-2" />
+                                        {advanceErrors.note && (
+                                            <div className="text-red-600">
+                                                {advanceErrors.note}
                                             </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                                        )}
+                                        <select required value={advanceData.project_id} onChange={e => setAdvanceData('project_id', e.target.value)} className="w-full border p-2 mb-2">
+                                            <option value="">للمشروع</option>
+                                            {user.active_projects.map(
+                                                (project) => (
+                                                    <option value={project.id} key={project.id}>{project.name}</option>
+                                                )
+                                            )}
+                                        </select>
+                                        <select
+                                            required
+                                            className="w-full p-2 border rounded mb-4"
+                                            value={advanceData.method}
+                                            onChange={(e) => setAdvanceData('method', e.target.value)}
+                                        >
+                                            <option value="">-- اختر طريقة --</option>
+                                            <option value="cash">كاش</option>
+                                            <option value="wallet">محفظة</option>
+                                            <option value="insta">انستا باي</option>
+                                            <option value="bank">تحويل بنكي</option>
+                                        </select>
+                                        <button
+                                            type="submit"
+                                            disabled={processingAdvance}
+                                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                                        >
+                                            حفظ العهدة
+                                        </button>
+                                    </form>
+                                </div>
 
-                        <div>
-                            <h2 className="text-lg font-semibold mb-2 mt-3">
-                                المصروفات
-                            </h2>
-                            <ul className="bg-white p-4 rounded shadow">
-                                {expenses.map((e, index) => (
-                                    <li key={index} className="border-b py-2">
-                                        <div className="flex items-center justify-between">
-
-                                            <div>
-                                                <div>📅 {e.spent_at}</div>
-                                                <div>💸 {e.amount} ج</div>
-                                                <div>📝 {e.description}</div>
+                                {/* نموذج المصروف */}
+                                <div className="bg-white p-4 rounded shadow">
+                                    <h3 className="font-semibold mb-2">إضافة مصروف</h3>
+                                    <form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            postExpense(
+                                                route("employee.expense.store"),
+                                                {
+                                                    preserveScroll: true,
+                                                    onSuccess: () => resetExpense()
+                                                }
+                                            );
+                                        } }
+                                    >
+                                        <input
+                                            type="number"
+                                            onWheel={(e) => e.target.blur()}
+                                            placeholder="المبلغ"
+                                            value={expenseData.amount}
+                                            onChange={(e) => setExpenseData("amount", e.target.value)}
+                                            className="w-full border p-2 mb-2" />
+                                        {expenseErrors.note && (
+                                            <div className="text-red-600">
+                                                {expenseErrors.note}
                                             </div>
-
-                                            <div>
-                                                <DeleteButton id={e.id} routeName='' />
+                                        )}
+                                        <input
+                                            type="text"
+                                            placeholder="الوصف"
+                                            value={expenseData.description}
+                                            onChange={(e) => setExpenseData(
+                                                "description",
+                                                e.target.value
+                                            )}
+                                            className="w-full border p-2 mb-2" />
+                                        {expenseErrors.description && (
+                                            <div className="text-red-600">
+                                                {expenseErrors.description}
                                             </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-semibold mb-2 mt-3">
-                                الاستقطاعات
-                            </h2>
-                            <ul className="bg-white p-4 rounded shadow">
-                                {deductions.map((d, index) => (
-                                    <li key={index} className="border-b py-2">
-
-                                        <div className="flex items-center justify-between">
-
-                                            <div>
-                                                <div>📅 {d.deducted_at}</div>
-                                                <div>💸 {d.amount} ج</div>
-                                                <div>📝 {d.note}</div>
-                                                <div>📝 {d.type}</div>
+                                        )}
+                                        <button
+                                            type="submit"
+                                            disabled={processingExpense}
+                                            className="bg-green-500 text-white px-4 py-2 rounded"
+                                        >
+                                            حفظ المصروف
+                                        </button>
+                                    </form>
+                                </div>
+                                <div className="bg-white p-4 rounded shadow">
+                                    <h3 className="font-semibold mb-2">
+                                        إضافة استقطاعات
+                                    </h3>
+                                    <form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            postDeduction(
+                                                route("admin.deduction.store"),
+                                                {
+                                                    preserveScroll: true,
+                                                    onSuccess: () => resetDeduction()
+                                                }
+                                            );
+                                        } }
+                                    >
+                                        <input
+                                            type="number"
+                                            onWheel={(e) => e.target.blur()}
+                                            placeholder="المبلغ"
+                                            value={deductionData.amount}
+                                            onChange={(e) => setDeductionData(
+                                                "amount",
+                                                e.target.value
+                                            )}
+                                            className="w-full border p-2 mb-2" />
+                                        {deductionErrors.amount && (
+                                            <div className="text-red-600">
+                                                {deductionErrors.amount}
                                             </div>
-
-                                            <div>
-                                                <DeleteButton id={d.id} routeName='admin.deduction.delete' />
+                                        )}
+                                        <input
+                                            type="text"
+                                            placeholder="type"
+                                            value={deductionData.type}
+                                            onChange={(e) => setDeductionData("type", e.target.value)}
+                                            className="w-full border p-2 mb-2"
+                                            required />
+                                        {deductionErrors.type && (
+                                            <div className="text-red-600">
+                                                {deductionErrors.type}
                                             </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="mt-10 md:grid grid-cols-3 gap-6">
-                        {/* نموذج العهدة */}
-                        <div className="bg-white p-4 rounded shadow">
-                            <h3 className="font-semibold mb-2">
-                                إضافة عهدة جديدة
-                            </h3>
-                            <form
-                                onSubmit={(e) => {
-                                    e.preventDefault();
-                                    console.log('postadvance')
-                                    postAdvance(
-                                        route("admin.advance.store"),
-                                        {
-                                            preserveScroll: true,
-                                            onSuccess: () => resetAdvance(),
-                                        }
-                                    );
-                                }}
-                            >
-                                <input
-                                    required
-                                    type="number"
-                                    onWheel={(e) => e.target.blur()}
-                                    placeholder="المبلغ"
-                                    value={advanceData.amount}
-                                    onChange={(e) =>
-                                        setAdvanceData("amount", e.target.value)
-                                    }
-                                    className="w-full border p-2 mb-2"
-                                />
-                                {advanceErrors.amount && (
-                                    <div className="text-red-600">
-                                        {advanceErrors.amount}
-                                    </div>
-                                )}
-                                <input
-                                    required
-                                    type="text"
-                                    placeholder="الغرض من العهدة"
-                                    value={advanceData.note}
-                                    onChange={(e) =>
-                                        setAdvanceData("note", e.target.value)
-                                    }
-                                    className="w-full border p-2 mb-2"
-                                />
-                                {advanceErrors.note && (
-                                    <div className="text-red-600">
-                                        {advanceErrors.note}
-                                    </div>
-                                )}
-                                <select required value={advanceData.project_id} onChange={e => setAdvanceData('project_id', e.target.value)} className="w-full border p-2 mb-2">
-                                    <option value="">للمشروع</option>
-                                    {user.active_projects.map(
-                                        (project) => (
-                                            <option value={project.id} key={project.id} >{project.name}</option>
-                                        )
-                                    )}
-                                </select>
-                                <select
-                                    required
-                                    className="w-full p-2 border rounded mb-4"
-                                    value={advanceData.method}
-                                    onChange={(e) => setAdvanceData('method', e.target.value)}
-                                >
-                                    <option value="">-- اختر طريقة --</option>
-                                    <option value="cash">كاش</option>
-                                    <option value="wallet">محفظة</option>
-                                    <option value="insta">انستا باي</option>
-                                    <option value="bank">تحويل بنكي</option>
-                                </select>
-                                <button
-                                    type="submit"
-                                    disabled={processingAdvance}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                                >
-                                    حفظ العهدة
-                                </button>
-                            </form>
-                        </div>
-
-                        {/* نموذج المصروف */}
-                        <div className="bg-white p-4 rounded shadow">
-                            <h3 className="font-semibold mb-2">إضافة مصروف</h3>
-                            <form
-                                onSubmit={(e) => {
-                                    e.preventDefault();
-                                    postExpense(
-                                        route("employee.expense.store"),
-                                        {
-                                            preserveScroll: true,
-                                            onSuccess: () => resetExpense(),
-                                        }
-                                    );
-                                }}
-                            >
-                                <input
-                                    type="number"
-                                    onWheel={(e) => e.target.blur()}
-                                    placeholder="المبلغ"
-                                    value={expenseData.amount}
-                                    onChange={(e) =>
-                                        setExpenseData("amount", e.target.value)
-                                    }
-                                    className="w-full border p-2 mb-2"
-                                />
-                                {expenseErrors.note && (
-                                    <div className="text-red-600">
-                                        {expenseErrors.note}
-                                    </div>
-                                )}
-                                <input
-                                    type="text"
-                                    placeholder="الوصف"
-                                    value={expenseData.description}
-                                    onChange={(e) =>
-                                        setExpenseData(
-                                            "description",
-                                            e.target.value
-                                        )
-                                    }
-                                    className="w-full border p-2 mb-2"
-                                />
-                                {expenseErrors.description && (
-                                    <div className="text-red-600">
-                                        {expenseErrors.description}
-                                    </div>
-                                )}
-                                <button
-                                    type="submit"
-                                    disabled={processingExpense}
-                                    className="bg-green-500 text-white px-4 py-2 rounded"
-                                >
-                                    حفظ المصروف
-                                </button>
-                            </form>
-                        </div>
-                        <div className="bg-white p-4 rounded shadow">
-                            <h3 className="font-semibold mb-2">
-                                إضافة استقطاعات
-                            </h3>
-                            <form
-                                onSubmit={(e) => {
-                                    e.preventDefault();
-                                    postDeduction(
-                                        route("admin.deduction.store"),
-                                        {
-                                            preserveScroll: true,
-                                            onSuccess: () => resetDeduction(),
-                                        }
-                                    );
-                                }}
-                            >
-                                <input
-                                    type="number"
-                                    onWheel={(e) => e.target.blur()}
-                                    placeholder="المبلغ"
-                                    value={deductionData.amount}
-                                    onChange={(e) =>
-                                        setDeductionData(
-                                            "amount",
-                                            e.target.value
-                                        )
-                                    }
-                                    className="w-full border p-2 mb-2"
-                                />
-                                {deductionErrors.amount && (
-                                    <div className="text-red-600">
-                                        {deductionErrors.amount}
-                                    </div>
-                                )}
-                                <input
-                                    type="text"
-                                    placeholder="type"
-                                    value={deductionData.type}
-                                    onChange={(e) =>
-                                        setDeductionData("type", e.target.value)
-                                    }
-                                    className="w-full border p-2 mb-2"
-                                    required
-                                />
-                                {deductionErrors.type && (
-                                    <div className="text-red-600">
-                                        {deductionErrors.type}
-                                    </div>
-                                )}
-                                <input
-                                    type="text"
-                                    placeholder="الوصف"
-                                    value={deductionData.note}
-                                    onChange={(e) =>
-                                        setDeductionData("note", e.target.value)
-                                    }
-                                    className="w-full border p-2 mb-2"
-                                />
-                                {deductionErrors.note && (
-                                    <div className="text-red-600">
-                                        {deductionErrors.note}
-                                    </div>
-                                )}
-                                <button
-                                    type="submit"
-                                    disabled={processingDeduction}
-                                    className="bg-green-500 text-white px-4 py-2 rounded"
-                                >
-                                    حفظ الاستقطاع
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                                        )}
+                                        <input
+                                            type="text"
+                                            placeholder="الوصف"
+                                            value={deductionData.note}
+                                            onChange={(e) => setDeductionData("note", e.target.value)}
+                                            className="w-full border p-2 mb-2" />
+                                        {deductionErrors.note && (
+                                            <div className="text-red-600">
+                                                {deductionErrors.note}
+                                            </div>
+                                        )}
+                                        <button
+                                            type="submit"
+                                            disabled={processingDeduction}
+                                            className="bg-green-500 text-white px-4 py-2 rounded"
+                                        >
+                                            حفظ الاستقطاع
+                                        </button>
+                                    </form>
+                                </div>
+                            </div></>
+}
                 </div>
+                <hr />
+                <h1 className="text-2xl font-bold text-gray-800 p-6 ">
+                   السلف
+                    <button onClick={() => handleShowSection('loans')}>
+                        <p className='border p-1 border-black text-sm'>  {showSection === 'loans' ? 'اخفاء' : 'عرض'}</p>
+                    </button>
+                </h1>
+                {showSection === 'loans' &&
+                   
+                <Loans totalExpense={totalExpense} loans={user.loans} role={role} />
+                }
+                <hr />
+                <h1 className="text-2xl font-bold text-gray-800 p-6 ">
+                   الاجازات
+                    <button onClick={() => handleShowSection('leaves')}>
+                        <p className='border p-1 border-black text-sm'>  {showSection === 'leaves' ? 'اخفاء' : 'عرض'}</p>
+                    </button>
+                </h1>
+                {showSection === 'leaves' &&
+                   
+                   <Leaves leaves={user.leaves} role={role} />
+                }
+               
             </div>
             {showModal && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

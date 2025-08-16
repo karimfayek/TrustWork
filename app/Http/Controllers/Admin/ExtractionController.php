@@ -90,6 +90,7 @@ class ExtractionController extends Controller
             'items.*.total' => 'required|numeric',
         ]);
        // dd($request->supply);
+      // dd($request->all());
         $extraction = $project->extractions()->create([
             'type' => $request->type,
             'supply' => $request->supply,
@@ -98,7 +99,7 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=>  $request->netTotal,
+            'net_total'=> $request->deductions['other_tax'] > 0 ? $request->netotherTotal : $request->netTotal,
             'partial_number' => $project->extractions()->where('type' , 'partial')->count() +1,
         ]);
         foreach ($validated['items'] as $itemData) {
@@ -140,8 +141,8 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=>  $request->netTotal,
-            'partial_number' => $request->num,
+            'net_total'=> $request->deductions['other_tax'] > 0 ? $request->netotherTotal : $request->netTotal,
+           
         ]);
         $sentTaskIds = collect($validated['items'])->pluck('task_id')->toArray();
 $extraction->items()->whereNotIn('task_id', $sentTaskIds)->delete();
@@ -178,18 +179,82 @@ foreach ($validated['items'] as $itemData) {
     }
     public function edit(Project $project, Extraction $extraction)
     {
-        //dd($project);
+        $projectId = $project->id;
+        $previousExtractionIds = Extraction::where('project_id', $projectId)
+        ->where('supply', 0)
+        ->where('id', '!=', $extraction->id) // استثناء المستخلص الحالي
+        ->pluck('id');
+
+    $previousQuantities = DB::table('extraction_items')
+        ->whereIn('extraction_id', $previousExtractionIds)
+        ->select('task_id', DB::raw('SUM(current_done) as total_prev_done'))
+        ->groupBy('task_id')
+        ->pluck('total_prev_done', 'task_id');
+        
+        $previousQuantitiess = $extraction->items()
+        ->select('task_id', DB::raw('SUM(total_done) as total_prev_done'))
+        ->groupBy('task_id')
+        ->pluck('total_prev_done', 'task_id');
+        //dd($previousQuantitiess);
+        $deductionsList = [
+            ['key' => 'initial_insurance', 'label' => 'تأمين أعمال %'],
+            ['key' => 'profit_tax', 'label' => 'أرباح تجارية وصناعية %'],
+            ['key' => 'social_insurance', 'label' => 'تأمينات اجتماعية %'],
+            ['key' => 'other_tax', 'label' => 'ضريبة أخرى نسبة مئوية'],
+            ['key' => 'vat', 'label' => 'ض قيمة مضافة'],
+            ['key' => 'advance_payment', 'label' => ' خصم دفعة مقدمة    '],
+            ['key' => 'previous_payments', 'label' => ' ما سبق صرفة'],
+        ];
         return Inertia::render('Admin/Extraction/ExtractionEdit', [
-            'project' => $project,
+            'project' => $project->load('tasks'),
             'extraction' => $extraction->load('items', 'items.task'),
+            'previousQuantities' => $previousQuantities,
+            'deductionsList' => $deductionsList
         ]);
     }
+    
+    public function UploadFIle(Request $request , $id)
+    {
+        $extraction = Extraction::findOrFail($id);
 
+        $request->validate([
+            'file' => 'required|mimes:jpeg,png,jpg,pdf|max:10240', // 10MB كحد أقصى
+        ]);
+
+        if ($request->hasFile('file')) {            
+            $path = $request->file('file')->store('extractions', 'public');
+            $file = public_path('\\storage\\' . $extraction->file);
+            
+            if (file_exists($file)) {
+                unlink($file);
+            }
+            $extraction->file = $path;
+        }
+
+        $extraction->save();
+
+        return back()->with('message', 'تم  رفع المرفق!');
+    }
+    
+    public function SetCollected(Request $request , $id)
+    {
+       // dd($request->all());
+        $extraction = Extraction::findOrFail($id);
+        $iscollected = $request->is_collected ;
+        $extraction->is_collected = $iscollected;
+        $extraction->save();
+        return back()->with('message', '  تم تعديل حالة التحصيل!');
+    }
     public function delete(Request $request)
     {
 
-        Extraction::find($request->id)
-        ->delete();
+        $extraction = Extraction::find($request->id);
+        $file = public_path('\\storage\\' . $extraction->file);
+            
+        if (file_exists($file)) {
+            @unlink($file);
+        }
+        $extraction->delete();
         return back()->with('message' , 'تم الحذف');
     }
 

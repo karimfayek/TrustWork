@@ -32,6 +32,7 @@ class AdminMiddleware
             'tech' => 'admin.dashboard',
             'employee' => 'profile.edit',
             'managment' => 'employee.att.index',
+            'hr' => 'users.index',
             default => 'profile.edit',
         }; 
         //dd($redirectTo);

@@ -82,16 +82,56 @@ class AttendanceController extends Controller
                     ->with(['project', 'visit.customer', 'user']) // تحميل العلاقات دفعة واحدة
                     ->get();
     
-                if ($attendances->isEmpty()) {
-                    $report->push([
-                        'date' => $current->toDateString(),
-                        'type' => 'absent',
-                        'name' => 'غياب',
-                        'check_in' => null,
-                        'check_out' => null,
-                        'user_name' => $user->name,
-                    ]);
-                } else {
+                    if ($attendances->isEmpty()) {
+                        $dayName = $current->format('l'); // 'Friday', 'Saturday', ...
+                        
+                        // حدد أيام العطلة بناء على نوع الموظف
+                        $offDays = [];
+                        if ($user->offdayestype == '1') {
+                            $offDays = ['Friday'];
+                        } elseif ($user->offdayestype == '2') {
+                            $offDays = ['Friday', 'Saturday'];
+                        }
+                    
+                        // تحقق هل هذا اليوم إجازة معتمدة من جدول leaves
+                        $hasLeave = \App\Models\Leave::where('user_id', $user->id)
+                        ->where('status', 'approved')
+                        ->whereDate('leave_date', $current->toDateString())
+                        ->first();
+                    
+                        if ($hasLeave) {
+                            $leaveName = $hasLeave->type === 'regular' ? 'إجازة اعتيادية' : 'إجازة عارضة';
+                            $report->push([
+                                'date' => $current->toDateString(),
+                                'type' => 'leave',
+                                'name' => $leaveName,
+                                'check_in' => null,
+                                'check_out' => null,
+                                'user_name' => $user->name,
+                            ]);
+                        } elseif (in_array($dayName, $offDays)) {
+                            // اليوم إجازة أسبوعية
+                            $report->push([
+                                'date' => $current->toDateString(),
+                                'type' => 'off',
+                                'name' => 'إجازة أسبوعية',
+                                'check_in' => null,
+                                'check_out' => null,
+                                'user_name' => $user->name,
+                            ]);
+                        } else {
+                            // غياب
+                            $report->push([
+                                'date' => $current->toDateString(),
+                                'type' => 'absent',
+                                'name' => 'غياب',
+                                'check_in' => null,
+                                'check_out' => null,
+                                'user_name' => $user->name,
+                            ]);
+                        }
+                    }
+                     else {
                     foreach ($attendances as $att) {
                         $name = 'غير معروف';
                         if ($att->project_id !== null) {
@@ -127,16 +167,58 @@ class AttendanceController extends Controller
                         ->with(['project', 'visit.customer', 'user'])
                         ->get();
     
-                    if ($attendances->isEmpty()) {
-                        $report->push([
-                            'date' => $current->toDateString(),
-                            'type' => 'absent',
-                            'name' => 'غياب',
-                            'check_in' => null,
-                            'check_out' => null,
-                            'user_name' => $u->name,
-                        ]);
-                    } else {
+                        if ($attendances->isEmpty()) {
+                            $dayName = $current->format('l'); // 'Friday', 'Saturday', ...
+                            
+                            // حدد أيام العطلة بناء على نوع الموظف
+                            $offDays = [];
+                            if ($u->offdayestype == '1') {
+                                $offDays = ['Friday'];
+                            } elseif ($u->offdayestype == '2') {
+                                $offDays = ['Friday', 'Saturday'];
+                            }
+                        
+                            // تحقق هل هذا اليوم إجازة معتمدة من جدول leaves
+                            $hasLeave = \App\Models\Leave::where('user_id', $u->id)
+                        ->where('status', 'approved')
+                        ->whereDate('leave_date', $current->toDateString())
+                        ->first();
+                    
+                        
+                            if ($hasLeave) {
+                                $leaveName = $hasLeave->type === 'regular' ? 'إجازة اعتيادية' : 'إجازة عارضة';
+                                $report->push([
+                                    'date' => $current->toDateString(),
+                                    'type' => 'leave',
+                                    'name' => $leaveName ,
+                                    'check_in' => null,
+                                    'check_out' => null,
+                                    'user_name' => $u->name,
+                                ]);
+                            } elseif (in_array($dayName, $offDays)) {
+                                // اليوم إجازة أسبوعية
+                                $report->push([
+                                    'date' => $current->toDateString(),
+                                    'type' => 'off',
+                                    'name' => 'إجازة أسبوعية',
+                                    'check_in' => null,
+                                    'check_out' => null,
+                                    'user_name' => $u->name,
+                                ]);
+                            } else {
+                                // غياب
+                                $report->push([
+                                    'date' => $current->toDateString(),
+                                    'type' => 'absent',
+                                    'name' => 'غياب',
+                                    'check_in' => null,
+                                    'check_out' => null,
+                                    'user_name' => $u->name,
+                                ]);
+                            }
+                        }
+                        
+                        else {
                         foreach ($attendances as $att) {
                             $name = 'غير معروف';
                             if ($att->project_id !== null) {
@@ -237,7 +319,7 @@ class AttendanceController extends Controller
          
          $role = User::find(auth()->id())->role ;
          //dd($role);
-        if($role !== 'admin' ){
+        if($role !== 'admin' && $role !== 'proj'  && $role !== 'acc' ){
             $request->validate([
                 'location' => 'required',
             ]); 

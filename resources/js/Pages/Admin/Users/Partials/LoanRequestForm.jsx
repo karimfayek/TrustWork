@@ -13,7 +13,7 @@ export default function LoanRequestForm({ maxAmount }) {
 
   useEffect(() => {
     const today = new Date();
-    if (today.getDate() < 15) {
+    if (today.getDate() < 2) {
       setTodayValid(false);
     }
   }, []);

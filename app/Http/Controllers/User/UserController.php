@@ -30,6 +30,8 @@ class UserController extends Controller
     public function showProject($id)
     {
     //$this->authorize('view', $project);
+    $t = TaskUser::where('project_id' ,$id)->get();
+    //dd($t);
     $project = Project::find($id)->load('users');
     $tasks = TaskUser::where('user_id' , auth()->id())->where('project_id' ,$project->id)->with('task')->get();
     

@@ -109,10 +109,13 @@ export default function CrreateUser() {
                             <option value="">اختر </option>
                             
                             <option value='employee'>
-                                موظف
+                                فنى
                             </option>
                             <option value='acc'>
                                 حسابات
+                            </option>
+                            <option value='hr'>
+                                شئون عاملين
                             </option>
 
                             <option value="tech">مكتب فنى </option>

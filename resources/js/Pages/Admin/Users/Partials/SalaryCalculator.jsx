@@ -1,15 +1,15 @@
 import InputLabel from '@/Components/InputLabel';
 import { useState, useEffect } from 'react';
 
-export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance, totalExpense, remaining }) {
+export default function SalaryCalculator({ user, forUser=false, totalAdvance, totalExpense, remaining }) {
     const [attData, setAttData] = useState({});
     const [month, setMonth] = useState(null);
     
-    const absenceScore = Number(attData?.absenceDays) * Number(Number(user.salary?.base_salary) * 0.1);
-    
+    // const absenceScore = Number(attData?.absenceDays) * Number(Number(user.salary?.base_salary) * 0.1)  ; Number(attData?.taskScore) +
+     const absenceScore = Number(attData?.absenceDays) * (Number(Number(user.salary?.final_salary) / 30)  );
+
     const deserved = Number(
-        Number(user.salary?.base_salary) +
-        Number(attData?.taskScore) +
+        Number(user.salary?.final_salary) +        
         Number(attData?.rewards) -
         absenceScore  +
         Number(attData?.transportaionFees) -
@@ -21,7 +21,7 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
     const [filters, setFilters] = useState(() => {
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const lastDay = forUser ? new Date(now) : new Date(now.getFullYear(), now.getMonth() + 1, 0);
     
        
     return {
@@ -29,7 +29,7 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
         to: lastDay.toLocaleDateString('en-CA'),
     };
     });
-
+  
    
     useEffect(() => {
         const fetchData = async () => {
@@ -51,14 +51,21 @@ export default function SalaryCalculator({ user, acceptedAdvances, totalAdvance,
     }, [filters, user.id]);
     return (
         <div className="p-6">
-            <h2 className='text-2xl text-center underline'>{user.name}</h2>
             <div className="bg-gray-100 mb-12 p-5 shadow-sm ">
+            <h2 className='bg-white p-5 text-2xl text-center underline'>{user.name}</h2>
+                {!forUser &&
+                
                 <MonthSelector month={month} setMonth={setMonth} filters={filters} setFilters={setFilters}/>
+                }
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {!forUser &&
+                    <>
                     <EarningsSection user={user} attData={attData} />
                     <DeductionsSection attData={attData} absenceScore={absenceScore} />
                     <SalarySummary deserved={deserved} />
+                    </>
+                }
                     <AttendanceSection attData={attData} />
                     <TasksSection attData={attData} />
                     <ToolsSection attData={attData} />
@@ -121,13 +128,13 @@ const EarningsSection = ({ user, attData }) => (
         <h2 className="text-lg font-medium text-gray-900">استحقاقات</h2>
         <hr />
         <div>
-            <b>الاساسي</b>
-            <p className="text-green-800">{Number(user.salary?.base_salary)}</p>
+            <b>المرتب</b>
+            <p className="text-green-800">{Number(user.salary?.final_salary)}</p>
         </div>
-        <div>
+       {/*  <div>
             <b>مستحق لانجاز المهام (متغير)</b>
             <p className="text-green-800">{Number(attData?.taskScore).toFixed(2)}</p>
-        </div>
+        </div> */}
         <div>
             <b>الانتقالات</b>
             <p className="text-green-800">{Number(attData?.transportaionFees).toFixed(2)}</p>
@@ -182,10 +189,10 @@ const AttendanceSection = ({ attData }) => (
         <hr />
         <b>النسبة المئوية للحضور</b>
         <p>{attData?.attendance_percentage} %</p>
-        <div>
+       {/*  <div>
             <b>عدد ايام العمل فى الشهر</b>
             <p>{attData?.total_days} يوم</p>
-        </div>
+        </div> */}
         <div>
             <b>عدد ايام الحضور المتأخر</b>
             <p>{attData?.late_days}</p>

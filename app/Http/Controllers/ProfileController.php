@@ -18,9 +18,31 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        $finalSalary = $user->salary->final_salary;
+        $advances = $user->advances()->get()->load('project');
+        $expenses = $user->expenses()->get()->load('by', 'advance' , 'advance.project');
+        $leaves = $user->leaves()->get();
+        $loans = $user->loans()->get();
+
+        $totalAdvance = $user->advances()->accepted()->sum('amount');
+      // dd($totalAdvance);
+       $userProjects = $user->projects();
+       $activeProjects = $userProjects->whereDate('end_date', '>=', now()->toDateString())
+       ->get();
+      //dd($activeProjects);
+        $totalExpense = $expenses->sum('amount');
+        $remaining = $totalAdvance - $totalExpense;
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
+            'advances' => $advances,
+            'expenses' => $expenses,
+            'totalAdvance' => $totalAdvance,
+            'totalExpense' => $totalExpense,
+            'remaining' => $remaining,
+            'activeProjects' => $activeProjects,
+            'finalSalary'=>  (int)$finalSalary,
+            'leaves'=> $leaves,
+            'loans' =>$loans
         ]);
     }
 

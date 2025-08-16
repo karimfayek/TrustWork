@@ -1,25 +1,46 @@
 
 import UserLayout from '@/Layouts/UserLayout';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import LoanRequestForm from '../Admin/Users/Partials/LoanRequestForm';
+import SalaryCalculator from '../Admin/Users/Partials/SalaryCalculator';
+import InputLabel from '@/Components/InputLabel';
+import LeaveRequestForm from '../Admin/Users/Partials/LeaveRequestForm';
+import Loans from '../Admin/Users/Partials/Loans';
+import Leaves from '../Admin/Users/Partials/Leaves';
 
-export default function Edit({ mustVerifyEmail, status }) {
+
+export default function Edit() {
+    const { advances, expenses, totalAdvance, totalExpense, remaining, activeProjects, finalSalary, leaves, loans } = usePage().props;
     const user = usePage().props.auth.user;
-    console.log(user ,'user')
-    const [attData, setAttData] = useState({})
-    console.log('user', user)
-    useEffect(() => {
-        fetch(`/calc-emp-att/${user.id}`)
-            .then((res) => {
-                return res.json();
-            })
-            .then((data) => {
-                console.log('attdata', data);
-                setAttData(data);
-            });
-    }, []);
-    const absenceScore = Number(attData?.absenceDays) * Number(Number(user.salary?.base_salary) * .10)
-    const deserved = Number(Number(user.salary?.base_salary) + Number(attData?.taskScore) + Number(attData?.rewards) - absenceScore - Number(attData?.lateScore) + Number(attData?.transportaionFees) - Number(attData.lostCostThisMonth) - Number(attData.deductions) - Number(attData.remaining)).toFixed(2)
+    const [showAdvances, setShowAdvances] = useState(false)
+    const [showExpenses, setShowExpenses] = useState(false)
+    const [showLeaves, setShowLeaves] = useState(false)
+    const [showAtt, setShowAtt] = useState(false)
+    const {
+        data: advanceData,
+        setData: setAdvanceData,
+        post: postAdvance,
+        processing: processingAdvance,
+        reset: resetAdvance,
+        errors: advanceErrors,
+    } = useForm({
+        amount: '',
+        note: '',
+    });
+    const {
+        data: expenseData,
+        setData: setExpenseData,
+        post: postExpense,
+        processing: processingExpense,
+        reset: resetExpense,
+        errors: expenseErrors,
+    } = useForm({
+        amount: '',
+        description: '',
+        advance_id: '',
+        file: null,
+    });
 
 
     return (
@@ -31,141 +52,205 @@ export default function Edit({ mustVerifyEmail, status }) {
             }
         >
             <Head title="Profile" />
+            <div className='p-6'>
 
-            <div className="md:grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-10">
+                <h1 className="text-2xl font-bold mb-4"> الحضور والمهام والادوات</h1>
+                <button onClick={() => setShowAtt(!showAtt)}>
+                    <p className='border p-1 border-black'>  {showAtt ? 'اخفاء' : 'عرض'}</p>
+                </button>
+                <hr className='mt-6' />
+                {showAtt &&
 
-            <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                    <h2 className='text-lg font-medium text-gray-900'>
-                        مكافئات
-                    </h2>
-                    <hr />
-                    {user.rewards?.map(
-                        (reward)=>(
-                            <><b>
-                               القيمة
-                            </b>
-                            <p>{reward.amount} - {reward.reason} </p>
-                           
-                            <p>بتاريخ : {reward.reward_date}</p>
-                            <hr className='my-2' />
-                            </>
-                        )
-                    )}
-                   
-                   
+                    <SalaryCalculator user={user} forUser={true} />
+                }
+            </div>
+            {user.rewards.length > 0 &&
 
+                <div className="md:grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-10">
 
+                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+                        <h2 className='text-lg font-medium text-gray-900'>
+                            مكافئات
+                        </h2>
+                        <hr />
+                        {user.rewards?.map(
+                            (reward) => (
+                                <><b>
+                                    القيمة
+                                </b>
+                                    <p>{reward.amount} - {reward.reason} </p>
 
+                                    <p>بتاريخ : {reward.reward_date}</p>
+                                    <hr className='my-2' />
+                                </>
+                            )
+                        )}
+
+                    </div>
                 </div>
-                
-                <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                    <h2 className='text-lg font-medium text-gray-900'>
-                        الحضور
-                    </h2>
-                    <hr />
-                    <b>
-                        النسبة المئوية للحضور
-                    </b>
-                    <p>{attData?.attendance_percentage} %</p>
-                    <div>
-                        <b>
-                            عدد ايام العمل فى الشهر
-                        </b>
-                        <p>{attData?.total_days} يوم</p>
-                    </div>
-                    <div>
-                        <b>
-                            عدد ايام الحضور المتأخر
-                        </b>
-                        <p>{attData?.late_days}</p>
-                    </div>
+            }
+            <div className="p-6">
+                <h1 className="text-2xl font-bold mb-4">العهدة المالية</h1>
+                <button onClick={() => setShowAdvances(!showAdvances)}>
+                    <p className='border p-1 border-black'>  {showAdvances ? 'اخفاء' : 'عرض'}</p>
+                </button>
+                {showAdvances &&
+                    <>
+                        <div className="mb-6">
+                            <p><strong>إجمالي العهدة:</strong> {totalAdvance} ج</p>
+                            <p><strong>إجمالي المصروفات:</strong> {totalExpense} ج</p>
+                            <p><strong>المتبقي:</strong> {remaining} ج</p>
+                        </div>
 
-                    <div>
-                        <b>
-                            عدد ايام الحضور خلال الشهر
-                        </b>
-                        <p>{attData?.att_days}</p>
-                    </div>
-                    <div>
-                        <b>
-                            عدد ايام الغياب خلال الشهر
-                        </b>
-                        <p>{attData?.absenceDays}</p>
-                    </div>
+                        <div className="sm:grid grid-cols-2 gap-6">
+                            <div>
+                                <h2 className="text-lg font-semibold mb-2">العهد </h2>
+                                <ul className="bg-white p-4 rounded shadow">
+                                    {advances?.map((a, index) => (
+                                        <li key={index} className="border-b py-2">
+                                            <div>📅 {a.given_at || 'بانتظار الموافقه'}</div>
+                                            <div>💵 {a.amount} ج</div>
+                                            <div>📝 {a.note}</div>
+                                            <div>📝 المشروع : {a.project?.name}</div>
+                                            <div>📝 {a.status}</div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
 
+                            <div>
+                                <h2 className="text-lg font-semibold mb-2">المصروفات</h2>
+                                <ul className="bg-white p-4 rounded shadow">
+                                    {expenses?.map((e, index) => (
+                                        <li key={index} className="border-b py-2">
+                                            <div>📅 {e.spent_at}</div>
+                                            <div>💸 {e.amount} ج</div>
+                                            <div>📝 {e.description}</div>
+                                            <div>📝 المشروع : {e.advance?.project?.name}</div>
+                                            <div>اضيفت بواسطة :  {e.by?.name}</div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
 
+                            {/* نموذج العهدة */}
+                            <div className="bg-white p-4 rounded shadow">
+                                <h3 className="font-semibold mb-2">طلب عهدة </h3>
+                                <form onSubmit={e => {
+                                    e.preventDefault();
+                                    postAdvance(route('employee.advance.store'), {
+                                        onSuccess: () => resetAdvance(),
+                                    });
+                                }}>
+                                    <input
+                                        type="number"
+                                        placeholder="المبلغ"
+                                        value={advanceData.amount}
+                                        onChange={e => setAdvanceData('amount', e.target.value)}
+                                        className="w-full border p-2 mb-2"
+                                        required
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="الغرض من العهدة"
+                                        value={advanceData.note}
+                                        onChange={e => setAdvanceData('note', e.target.value)}
+                                        className="w-full border p-2 mb-2"
+                                        required
+                                    />
+                                    {advanceErrors.amount && <div className="text-red-600">{advanceErrors.amount}</div>}
+                                    <select value={advanceData.project_id} onChange={e => setAdvanceData('project_id', e.target.value)} className="w-full border p-2 mb-2">
 
-                </div>
-                <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                    <h2 className='text-lg font-medium text-gray-900'>
-                        المهام
-                    </h2>
-                    <hr />
-                    <b>
-                        اجمالى المهام المسندة خلال الشهر
-                    </b>
-                    <p>{attData?.alltasks}</p>
-                    <div>
-                        <b>
-                            المهام المكتمله
-                        </b>
-                        <p>{attData?.tasksCompleted}</p>
-                    </div>
-                    <div>
-                        <b>
-                            النسبه المئوية لاكمال المهام
-                        </b>
-                        <p>{attData?.completedTasksPercentage} %</p>
-                    </div>
-
-                </div>
-                <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                    <h2 className='text-lg font-medium text-gray-900'>
-                        الادوات
-                    </h2>
-                    <hr />
-                    <b>
-                        ادوات معه:
-                    </b>
-
-                    <ul className='inline-flex flex-wrap'>
-                        {attData.assignments && attData.assignments.map((assign) => (
-                            <>
-                                {assign.status === 'assigned' &&
-                                    <li className='bg-[#b7ffb7] p-1.5 m-2'>{assign.tool?.name} * {assign.quantity}</li>
-                                }
-                            </>
-
-                        ))}
-                    </ul>
-                    <div>
-                        <b>
-                            ادوات مفقودة:
-                        </b>
-                        {attData.lostThismonth?.length < 1 &&
-                            <p className='bg-[#FF2D20]/10 p-1.5 m-2' > لا يوجد</p>
-                        }
-                        <ul className='inline-flex flex-wrap'>
-                            {attData.lostThismonth && attData.lostThismonth.map((t) => (
+                                        {activeProjects?.map(
+                                            (project) => (
+                                                <option value={project.id} key={project.id} >{project.name}</option>
+                                            )
+                                        )}
+                                        <option value=''  >اخرى</option>
+                                    </select>
+                                    <button type="submit" disabled={processingAdvance} className="bg-blue-500 text-white px-4 py-2 rounded">
+                                        طلب العهدة
+                                    </button>
+                                </form>
+                            </div>
 
 
-                                <li className='bg-[#FF2D20]/10 p-1.5 m-2'>{t.tool?.name} * {t.quantity} *{t.tool.estimated_value} ج </li>
+                            {/* نموذج المصروف */}
+                            <div className="bg-white p-4 rounded shadow">
+                                <h3 className="font-semibold mb-2">إضافة مصروف</h3>
+                                <form onSubmit={e => {
+                                    e.preventDefault();
+                                    postExpense(route('employee.expense.store'), {
+                                        onSuccess: () => resetExpense(),
+                                    });
+                                }}>
+                                    <input
+                                        required
+                                        type="number"
+                                        placeholder="المبلغ"
+                                        value={expenseData.amount}
+                                        onChange={e => setExpenseData('amount', e.target.value)}
+                                        className="w-full border p-2 mb-2"
+                                    />
+                                    {expenseErrors.amount && <div className="text-red-600">{expenseErrors.amount}</div>}
+                                    <input
+                                        required
+                                        type="text"
+                                        placeholder="الوصف"
+                                        value={expenseData.description}
+                                        onChange={e => setExpenseData('description', e.target.value)}
+                                        className="w-full border p-2 mb-2"
+                                    />
+                                    {expenseErrors.description && <div className="text-red-600">{expenseErrors.description}</div>}
+                                    <select required value={expenseData.advance_id} onChange={e => setExpenseData('advance_id', e.target.value)} className="w-full border p-2 mb-2">
+                                        <option value="">من العهدة</option>
+                                        {advances?.map(
+                                            (adv) => (
+                                                <option value={adv.id} key={adv.id} >{adv.project ? adv.project.name : 'اخرى'} - {adv.amount} جم</option>
+                                            )
+                                        )}
+                                    </select>
+                                    {expenseErrors.advance_id && <div className="text-red-600">{expenseErrors.advance_id}</div>}
+                                    <InputLabel>ارفق الايصال</InputLabel>
+                                    <input
+                                        type="file"
+                                        onChange={e => setExpenseData('file', e.target.files[0])}
+                                        className={'bg-[#FF2D20]/10 border border-black mb-2 w-full'}
+                                        required
+                                    />
+                                    {expenseErrors.file && <div className="text-red-600">{expenseErrors.file}</div>}
+                                    <button type="submit" disabled={processingExpense} className="bg-green-500 text-white px-4 py-2 rounded">
+                                        حفظ المصروف
+                                    </button>
+                                </form>
+                            </div>
 
+                        </div>
+                    </>}
 
+                <hr className='py-6 my-4' />
+                <h1 className="text-2xl font-bold mb-4"> السلف</h1>
+                <button onClick={() => setShowExpenses(!showExpenses)}>
+                    <p className='border p-1 border-black'>  {showExpenses ? 'اخفاء' : 'عرض'}</p>
+                </button>
+                {showExpenses &&
+                    <Loans totalExpense={totalExpense} loans={loans} >
 
-                            ))}
-                        </ul>
+                        <LoanRequestForm maxAmount={finalSalary * .25} />
+                    </Loans>
+                }
 
-                    </div>
-                    <div>
-                        <b>
-                            قيمه الادوات المفقودة
-                        </b>
-                        <p>
-                            {attData.lostCostThisMonth} ج</p>
-                    </div>
+                <hr className='py-6 my-4' />
+                <h1 className="text-2xl font-bold mb-4"> الاجازات</h1>
+                <button onClick={() => setShowLeaves(!showLeaves)}>
+                    <p className='border p-1 border-black'>  {showLeaves ? 'اخفاء' : 'عرض'}</p>
+                </button>
+                {showLeaves &&
+                    <Leaves leaves={leaves} >
 
-                </div>
+                        <LeaveRequestForm maxAmount={finalSalary * .25} />
+                    </Leaves>
+                }
             </div>
         </UserLayout >
     );

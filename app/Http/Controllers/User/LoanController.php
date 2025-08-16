@@ -14,7 +14,7 @@ class LoanController extends Controller
 {
     $user = Auth::user();
     // تحقق من التاريخ
-    if (now()->day < 15) {
+    if (now()->day < 2) {
        return back()->withErrors(['message' => 'لا يمكنك طلب السلفة إلا بعد يوم 15 من الشهر.']);
     }
 
@@ -39,5 +39,28 @@ class LoanController extends Controller
     ]);
 
     return redirect()->back()->with('message', 'تم إرسال طلب السلفة بنجاح.');
+}
+public function changeStatus(Request $request)
+{
+    $request->validate([
+        'leave_id' => 'required',
+        'status' => 'required',
+    ]);
+    // dd($request->all());
+    $loan = \App\Models\Loan::findOrFail($request->loan_id);
+    
+    $loan->update([
+        'status' =>  $request->status,
+    ]);
+
+    return redirect()->back()->with('success', 'تم تحديث حالة السلفة.');
+
+}
+public function delete(Request $request)
+{
+   //dd($request->all());
+    $loan = \App\Models\Loan::find($request->id)->delete();
+   
+    return back()->with('message', 'تم   الحذف!'); 
 }
 }

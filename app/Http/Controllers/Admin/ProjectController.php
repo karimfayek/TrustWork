@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Mail\ProjectCreatedForPricing;
 use Illuminate\Support\Facades\Mail;
+use App\Services\TaskAssignmentService;
 class ProjectController extends Controller
 {
     public function create()
@@ -82,10 +83,15 @@ class ProjectController extends Controller
         ]);
         
         if (config('app.env') === 'production') {
-            Mail::to(['accounting@trustits.net', 'hend@trustits.net'])
-        ->cc(['kariem.pro@gmail.com', 'msalah@trustits.net']) 
-        ->send(new ProjectCreatedForPricing($project));
-        }       
+            $emails = explode(',', \App\Models\Setting::where('key', 'pricing_notify')->value('value'));
+            if (!empty($emails)) {
+                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+            
+                if (!empty($emailsArray)) {
+                    Mail::to($emails)->send(new ProjectCreatedForPricing($project));
+                }
+            }
+        }     
         // ربط الموظفين بالمشروع
         $project->users()->attach($request->user_ids);
 
@@ -125,6 +131,7 @@ class ProjectController extends Controller
     }
     public function update(Request $request)
     {
+        $taskService = new TaskAssignmentService();
       //dd($request->all());
        $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -175,24 +182,14 @@ class ProjectController extends Controller
                  'project_id' => $project->id,
              ]);          
           // dd($taskDataNew);
-            $userCount = count($taskDataNew['users']);
-           
-            $isCollaborative = $taskDataNew['unit'] === 'collaborative'; 
-        
-            foreach ($taskDataNew['users'] as $userId) {
-                $user = User::findOrFail($userId);
-        
-                // احسب الكمية المنسوبة لهذا الموظف
-                $quantityPerUser = $isCollaborative
-                    ? ($taskDataNew['quantity'])
-                    : $taskDataNew['quantity'] / $userCount;
-        
-                // خزّن الكمية مع المشروع في العلاقة pivot
-                $user->tasks()->attach($task->id, [
-                    'project_id' => $project->id,
-                    'quantity' => $quantityPerUser,
-                ]);
-            }
+                $taskService->assignUsersToTask(
+                    $task,
+                    $taskDataNew['users'],
+                    $project->id,
+                    $taskDataNew['quantity'],
+                    $taskDataNew['unit'],
+                    false // attach للمهام الجديدة
+                );
          }
          foreach ($request->tasks as $taskData) {
            // dd($taskData);
@@ -212,38 +209,28 @@ class ProjectController extends Controller
         
             // معالجة users سواء كانوا كائنات أو أرقام
            // dd($taskData['users']);
-            if (isset($taskData['users'][0]) && is_array($taskData['users'][0])) {
-                $userIds = array_column($taskData['users'], 'id');
-            } else {
-                $userIds = $taskData['users'];
+           
+           $userIds = [];
+
+            if (!empty($taskData['users'])) {
+                $firstUser = $taskData['users'][0];
+
+                $userIds = is_array($firstUser)
+                    ? array_column($taskData['users'], 'id')
+                    : $taskData['users'];
             }
-        
-            $usersData = [];
-           // dd( $userCount);
-            $userCount = count($userIds);
+            //dd($userIds);
+            $taskService->assignUsersToTask(
+                $task,
+                $userIds,
+                $project->id,
+                $taskData['quantity'],
+                $taskData['unit'],
+                true // sync للمهام المعدلة
+            );
            //dd($isCollaborative && $userCount > 0);
-           if( $userCount > 0){            
-            $isCollaborative = $taskData['unit'] === 'collaborative'; 
-
-                if($isCollaborative){
-                        //if collaborative then 
-                    $quantityPerUser = ($taskData['quantity']);
-
-                }else {
-                    $quantityPerUser =   $taskData['quantity'] / $userCount;
-                }
-              
-           
-               foreach ($userIds as $userId) {
-                   $usersData[$userId] = [
-                       'project_id' => $project->id,
-                       'quantity' => $quantityPerUser
-                   ];
-               }
-           
-              
-           }
-           $task->users()->sync($usersData);
+         
+          
         }
         
         
@@ -257,7 +244,8 @@ class ProjectController extends Controller
     public function assignTasks($projectId)
     {
         $project = Project::with('tasks', 'users')->findOrFail($projectId);
-        $tasks = Task::with('users')->get(); // جلب جميع المهام المتاحة
+        $tasks = Task::where('project_id' , $projectId)->with('users')->get(); // جلب جميع المهام المتاحة
+        //dd($project->tasks);
         $users = User::where('role' , 'employee')->where('status' , 1)->get(); // جلب جميع الموظفين
     
         // إرسال البيانات إلى React عبر Inertia
@@ -270,23 +258,30 @@ class ProjectController extends Controller
     
     public function saveTasks(Request $request, $projectId)
     {
+        $taskService = new TaskAssignmentService();
+        //dd($projectId);
         $project = Project::findOrFail($projectId);
     
         if ($request->has('employee_tasks')) {
+           // dd($request->employee_tasks);
             foreach ($request->employee_tasks as $taskId => $userIds) {
                 $task = Task::findOrFail($taskId);
-    
-                // نتأكد أن القيمة مصفوفة
+
                 $userIdsArray = is_array($userIds) ? $userIds : [$userIds];
-    
-                // توليد بيانات الربط بين المهمة والموظفين والمشروع
-                $syncData = [];
-                foreach ($userIdsArray as $userId) {
-                    $syncData[$userId] = ['project_id' => $projectId];
-                }
-    
-                // الربط
-                $task->users()->sync($syncData);
+            
+                // ⚠️ نحتاج الكمية ونوع المهمة (unit)
+                $quantity = $task->quantity ?? 1;
+                $unitType = $task->unit ?? 'normal'; // مثلاً 'collaborative' أو غيرها
+            
+                // استخدام الخدمة
+                $taskService->assignUsersToTask(
+                    $task,
+                    $userIdsArray,
+                    $project->id,
+                    $quantity,
+                    $unitType,
+                    true // نستخدم sync لأن هذه الصفحة للتعديل
+                );
             }
         }
     

@@ -13,7 +13,7 @@ export const CalcItemsExtraction = (items, deductions) => {
   const previousPayment = parseFloat(deductions?.previous_payments || 0);
   const advancePayment = parseFloat(deductions?.advance_payment || 0);
   const netTotal = VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment
-
+const netTotalOther = totalCost + otherTax
     return {
       totalCost: totalCost.toFixed(2),
       totalWithoutVat: totalWithoutVat.toFixed(2),
@@ -24,5 +24,6 @@ export const CalcItemsExtraction = (items, deductions) => {
       previousPayment: previousPayment.toFixed(2),
       advancePayment: advancePayment.toFixed(2),
       netTotal: netTotal.toFixed(2),
+      netTotalOther: netTotalOther.toFixed(2),
     };
   };

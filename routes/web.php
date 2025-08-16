@@ -18,14 +18,17 @@ use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\PricingController;
 use App\Http\Controllers\Admin\ExtractionController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\AttendanceController;
 use App\Http\Controllers\User\VisitsController;
 use App\Http\Controllers\Admin\AdminVisitsController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\User\EmployeeAdvanceController;
 use App\Http\Controllers\User\IssueController;
 use App\Http\Controllers\User\TaskProgressController;
 use App\Http\Controllers\User\LoanController;
+use App\Http\Controllers\User\EmployeeLeavesController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 
 
@@ -52,6 +55,7 @@ Route::middleware(['auth' ,  'role:admin'])->group(function () {
         return '<h1>Reoptimized class loader</h1>';
     });
 //recycle
+Route::post('/admin/fetch-notifications', [NotificationController::class, 'index'])->name('admin.fetch.notifications');
 Route::get('/admin/recycle-bin', [RecycleController::class, 'index'])->name('admin.recyclebin');
 
 Route::post('/admin/recycle-bin/restore/project/{id}', [RecycleController::class, 'restoreProject'])->name('admin.recyclebin.restore.project');
@@ -79,9 +83,31 @@ Route::post('/admin/recycle-bin/delete/user/{id}', [RecycleController::class, 'f
     Route::get('/reports/attendance', [ReportController::class, 'attReport'])->name('reports.attendance');
     Route::get('/reports/salaries', [ReportController::class, 'salariesReport'])->name('reports.salaries');
     Route::get('/reports/tools', [ReportController::class, 'toolsReport'])->name('reports.tools');
+    //settings
+    Route::get('/settings', [SettingController::class, 'show'])->name('settings');
+    Route::get('/admin/settings', [SettingController::class, 'index'])->name('settings.get');
+    Route::post('/admin/settings', [SettingController::class, 'store'])->name('settings.post');
 });
 //admin,acc
 Route::middleware(['auth', 'role:admin,acc'])->group(function () {
+     //pricing 
+    
+     Route::get('/pricing/{id}', [PricingController::class, 'pricing'])->name('acc.pricing');
+     Route::post('/pricing/set', [PricingController::class, 'pricingSet'])->name('acc.pricing.set');
+    
+ 
+     //extractions 
+     Route::get('/project/extractions/list/{project}', [ExtractionController::class, 'list'])->name('project.extractions.list');//create new
+     Route::get('/project/extractions/new/{project}', [ExtractionController::class, 'index'])->name('project.extractions.new');//create new
+     Route::post('/projects/{project}/extraction', [ExtractionController::class, 'store'])->name('project.extractions.store');
+     Route::post('/extraction/update/{extraction}', [ExtractionController::class, 'update'])->name('project.extractions.update');
+     Route::get('/projects/{project}/extractions/{extraction}/preview', [ExtractionController::class, 'preview'])->name('extractions.preview');
+     Route::get('/projects/{project}/extractions/{extraction}/edit', [ExtractionController::class, 'edit'])->name('extractions.edit');
+     Route::post('/extraction/delete', [ExtractionController::class, 'delete'])->name('extraction.delete');
+     Route::post('/extraction/file/upload/{id}', [ExtractionController::class, 'UploadFIle'])->name('extraction.file.upload');
+     Route::post('/extraction/set/collected/{id}', [ExtractionController::class, 'SetCollected'])->name('extraction.collected.set');
+});
+Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     //users
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('/user/{userId}', [ProjectController::class, 'show'])->name('admin.user.show');
@@ -122,26 +148,26 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::post('/admin/advance/status', [EmployeeAdvanceController::class, 'statusAdvanceAdmin'])->name('admin.advance.status');
     Route::post('/admin/advance/settlement', [EmployeeAdvanceController::class, 'settlementAdvanceAdmin'])->name('admin.advance.settlement');
 
-    //pricing 
-    
-    Route::get('/pricing/{id}', [PricingController::class, 'pricing'])->name('acc.pricing');
-    Route::post('/pricing/set', [PricingController::class, 'pricingSet'])->name('acc.pricing.set');
-    //manula checkin
+   //leaves
+   
+   Route::post('/admin/leaves/status', [EmployeeLeavesController::class, 'changeStatus'])->name('admin.leave.status');
+   Route::post('/admin/leave/delete', [EmployeeLeavesController::class, 'delete'])->name('leave.delete');
+   
+   //loans
+   
+   Route::post('/admin/loans/status', [LoanController::class, 'changeStatus'])->name('admin.loan.status');
+   Route::post('/admin/loans/delete', [LoanController::class, 'delete'])->name('loan.delete');
 
-    //extractions 
-    Route::get('/project/extractions/list/{project}', [ExtractionController::class, 'list'])->name('project.extractions.list');//create new
-    Route::get('/project/extractions/new/{project}', [ExtractionController::class, 'index'])->name('project.extractions.new');//create new
-    Route::post('/projects/{project}/extraction', [ExtractionController::class, 'store'])->name('project.extractions.store');
-    Route::post('/extraction/update/{extraction}', [ExtractionController::class, 'update'])->name('project.extractions.update');
-    Route::get('/projects/{project}/extractions/{extraction}/preview', [ExtractionController::class, 'preview'])->name('extractions.preview');
-    Route::get('/projects/{project}/extractions/{extraction}/edit', [ExtractionController::class, 'edit'])->name('extractions.edit');
-    Route::post('/extraction/delete', [ExtractionController::class, 'delete'])->name('extraction.delete');
     Route::post('/admin/employee/reward/', [RewardController::class, 'delete'])->name('employee.reward.delete');
     
 });
 //employee,admin,acc
-Route::middleware(['auth' ,  'role:employee,admin,acc,managment'])->group(function () {
+Route::middleware(['auth' ,  'role:employee,admin,acc,managment,hr'])->group(function () {
+    //leaves
     
+    Route::get('/employee/leaves', [EmployeeLeavesController::class, 'index'])->name('employee.leaves');
+    Route::post('/leaves/request', [EmployeeLeavesController::class, 'store'])->name('employee.leaves.store');
+    //Route::post('/leaves/request', [EmployeeLeavesController::class, 'requestLeave'])->name('employee.leaves.request');
     //advance
     Route::get('/employee/advance', [EmployeeAdvanceController::class, 'index'])->name('employee.advance');
     Route::post('/employee/advance', [EmployeeAdvanceController::class, 'storeAdvance'])->name('employee.advance.store');
@@ -156,7 +182,7 @@ Route::middleware(['auth' ,  'role:employee,admin,acc,managment'])->group(functi
 
 });
 //role:employee,admin,acc,proj
-Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment'])->group(function () {
+Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment,hr'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/calc-emp-att/{id}', [AttendanceController::class, 'calculateAttendancePercentage'])->name('calc.att');
     Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
@@ -164,7 +190,7 @@ Route::middleware(['auth' ,  'role:employee,admin,acc,proj,tech,managment'])->gr
     Route::post('/change-password/first', [ChangePasswordController::class, 'update'])->name('password.update.first');
 
 });
-Route::middleware(['auth' ,  'role:admin,acc,proj'])->group(function () {
+Route::middleware(['auth' ,  'role:admin,acc,proj,hr'])->group(function () {
     
 Route::get('/attendance/list/{user?}', [AttendanceController::class, 'attList'])->name('attendance.list');
 

@@ -1,14 +1,15 @@
 import { CalcItemsExtraction } from '@/Functions/Utils/CalcItemsExtraction';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { router } from '@inertiajs/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ExtractionPreview from './ExtractionPreview';
 import Items from './Items';
 
-export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay, previousQuantities }) {
+export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay, previousQuantities , 
+  edit=false, extractionId=null , defaultDeductions=null , date=null , supply=false ,extraction=null , DefaultProgressPercentage=null}) {
     console.log('previousQuantities',previousQuantities )
     const [items, setItems] = useState([]);
-
+    const [lang, setLang] = useState('en');
 
     const handleItemChange = (index, field, value) => {
       const updatedItems = [...items];
@@ -26,35 +27,96 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       setItems(updatedItems);
     };
     
-    
+    if(defaultDeductions !== null){
+
+    }
+    const progPercent = DefaultProgressPercentage !== null ? DefaultProgressPercentage : 100
+    const deductions = defaultDeductions !== null ? defaultDeductions :  {
+      "vat":  "5",
+      "profit_tax": "1",
+      "initial_insurance": "5",
+      "taxes": "5",
+      "advance_payment": project.advance_payment || 0 ,
+      "social_insurance": "3.6",
+      "previous_payments": prevPay,
+      "progress_percentage" : progPercent,
+      "other_tax" :"0"
+  }
   const [form, setForm] = useState({
     type: 'partial',
     num: extractionsCount +1,
-    supply: false,
+    supply: supply,
     customer_name: project.customer_name || '',
     project_code: project.project_code || '',
-    date: '',
-    deductions: {
-        "vat":  "5",
-        "profit_tax": "1",
-        "initial_insurance": "5",
-        "taxes": "5",
-        "advance_payment": project.advance_payment || 0 ,
-        "social_insurance": "3.6",
-        "previous_payments": prevPay,
-        "progress_percentage" : "100",
-        "other_tax" :"0"
-    },
+    date: date ? date : '',
+    deductions: deductions,
     previous_payments: 0,
     notes: '',
   });
   
-  const progressPercentage = form.deductions?.progress_percentage;
+  const progressPercentage =  form.deductions?.progress_percentage;
 
-  
+  console.log(progressPercentage , 'progress pres')
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) {
+      // أول ريندر فقط
+      isFirstRender.current = false;
+    if(extraction !== null){
+      const initialItemss =   extraction.items.map(item => {
+        const quantity = Number(item.quantity);
+        const  previous_done =  item.previous_done;
+        const current_done = item.current_done ;
+        const total_done = item.total_done;
+        const Total = Number( item.total).toFixed(2)
+    
+        return {
+          task_id: item.task_id,
+          title: lang === 'en' ? item.task?.title :  item.task?.description,
+          unit: item.task?.unit,
+          quantity: quantity,
+          unit_price: Number(item.task?.unit_price),
+          tp: Number(item.task?.tp),
+          previous_done,
+          current_done: Number(current_done.toFixed(2)),
+          total_done: Number(total_done.toFixed(2)),
+          progress_percentage: Number(item.progress_percentage || 0),
+          total:Total,
+        };
+      })
+      setItems(initialItemss);
+      return; 
+    }// إيقاف هنا لأننا لا نحتاج نحدث العناصر في التعديل
+    }else{
+      if(extraction !== null){
+        const initialItemss =   extraction.items.map(item => {
+          const quantity = Number(item.quantity);
+          const  previous_done =  item.previous_done;
+          const current_done = item.current_done ;
+          const total_done = item.total_done;
+          const Total = Number( item.total).toFixed(2)
       
-    const initialItems = project.tasks.map(task => {
+          return {
+            task_id: item.task_id,
+            title: lang === 'en' ? item.task?.title :  item.task?.description,
+            unit: item.task?.unit,
+            quantity: quantity,
+            unit_price: Number(item.task?.unit_price),
+            tp: Number(item.task?.tp),
+            previous_done,
+            current_done: Number(current_done.toFixed(2)),
+            total_done: Number(total_done.toFixed(2)),
+            progress_percentage: Number(progressPercentage || 0),
+            total:Total,
+          };
+        })
+        setItems(initialItemss);
+        return; 
+      }
+
+    }
+    if(extraction === null){
+    const initialItemss = project.tasks.map(task => {
       console.log(previousQuantities[task.id] , 'prev')
       const quantity = Number(task.quantity);
       const  previous_done =  Number(previousQuantities[task.id]) > 0  ? Number(previousQuantities[task.id]) :  0;
@@ -65,7 +127,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   
       return {
         task_id: task.id,
-        title: task.title,
+        title: lang === 'en' ? task?.title :  task?.description,
         unit: task.unit,
         quantity: quantity,
         unit_price: Number(task.unit_price),
@@ -78,8 +140,14 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       };
     });
   
-    setItems(initialItems);
-  }, [project.tasks, progressPercentage]);
+    setItems(initialItemss);
+    console.log(initialItemss ,'inita')
+  }
+  }, [ project.tasks,
+    form.deductions?.progress_percentage,
+    previousQuantities,
+    extraction,lang
+  ]);
 
   
 
@@ -92,6 +160,16 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   const handleSupplyChange = (e) => {
     const { name, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: checked }));
+   
+   
+  };
+  const handleToggleLang = (e) => {
+    e.preventDefault()
+   if(lang === 'en'){
+    setLang('ar')
+   }else{
+    setLang('en')
+   }
    
    
   };
@@ -115,17 +193,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       }else{
         setForm((prev) => ({
           ...prev,
-          deductions: {
-            "vat":  "5",
-            "profit_tax": "1",
-            "initial_insurance": "5",
-            "taxes": "5",
-            "advance_payment": project.advance_payment || 0 ,
-            "social_insurance": "3.6",
-            "previous_payments": prevPay,
-            "progress_percentage" : "100",
-            "other_tax" :"0"
-        },
+          deductions: deductions,
         }));
 
       }
@@ -163,10 +231,15 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       deductions: form.deductions,
       notes: form.notes,
       netTotal: result.netTotal,
+      netotherTotal: result.netTotalOther,
       items: items, // جدول البنود بكل القيم
     };
-  
+  if(edit){
+    router.post(route('project.extractions.update' , extractionId), payload);
+  }else{
     router.post(route('project.extractions.store' , project.id), payload);
+  }
+    
   };
   const handleDeleteItem = (index) => {
     const updatedItems = [...items];
@@ -178,6 +251,14 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
     <form onSubmit={handleSubmit} className="print:hidden space-y-4  mx-auto bg-white p-6 rounded-2xl shadow">
       <div className='bg-blue-50 flex items-center justify-between p-4 sticky top-0'>
           <h2 className="font-bold text-2xl text-center">طلب صرف مستخلص</h2>
+          <button onClick={(e)=> handleToggleLang(e)}>
+            {lang === 'en' &&
+            'عربى'
+            }
+             {lang === 'ar' &&
+            'انجليزى'
+            }
+          </button>
 <button className='bg-green-100 border border-green-700 px-3 text-2xl' onClick={(e)=>handleSave(e)}>  
   حفظ
 </button>
@@ -269,8 +350,11 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       <Items items={items} handleItemChange={handleItemChange}  handleDeleteItem = {handleDeleteItem}/>
       
       <ExtractionPreview deductions = {form.deductions}  project={project} 
-      items= {items} type={(form.supply && form.type === 'partial') ? 'supply' : form.type} date={form.date} customer = {form.customer_name}
-      projectCode={form.project_code} num={form.num} supply = {form.supply}
+      items= {items} type={(form.supply && form.type === 'partial') ? 'supply' : form.type} 
+      date={form.date} customer = {form.customer_name}
+      projectCode={form.project_code} 
+      num={form.num} supply = {form.supply}
+      notes ={form.notes}
       />
       
       </AuthenticatedLayout>

@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\Advance;
 use App\Models\Project;
 use Inertia\Inertia;
+
+use App\Models\Setting;
 class EmployeeAdvanceController extends Controller
 {
     public function index(Request $request)
@@ -41,10 +43,12 @@ class EmployeeAdvanceController extends Controller
 
     public function storeAdvance(Request $request)
     {
+       
+        
         $request->validate([
             'amount' => 'required|numeric|min:1',
             'note' => 'required|string|max:255',
-            'project_id' => 'required',
+            'project_id' => 'nullable',
         ]);
         // dd($request->all());
         //$existing = Advance::where()
@@ -60,14 +64,30 @@ class EmployeeAdvanceController extends Controller
             'status' => 'pending',
         ]);
         $project= Project::find($request->project_id);
-        //Mail::to('kariem.pro@gmail.com')->send( new SendEmail($user->name,$user->email,$request->amount,$request->note));
-        Mail::to('accounting@trustits.net')->cc(['kariem.pro@gmail.com', 'msalah@trustits.net'])->send(new AdvanceRequestNotification(
-            $user->name,
-            $project->name,
-            $request->amount,
-            $request->note,
-            $user->id,
-        ));
+        if($project){
+            $Porjectname =  $project->name ;
+        }else{
+            $Porjectname =  'اخرى' ;
+        }
+       
+
+        if (config('app.env') === 'production') {
+            $emails = explode(',', Setting::where('key', 'advance_request_notify')->value('value'));
+            if (!empty($emails)) {
+                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+            
+                if (!empty($emailsArray)) {
+                    Mail::to($emails)->send(new AdvanceRequestNotification(
+                        $user->name,
+                        $Porjectname,
+                        $request->amount,
+                        $request->note,
+                        $user->id,
+                    ));
+                }
+            }
+       
+    }
         return redirect()->back()->with('success', 'تم طلب العهدة.');
     }
     public function storeAdvanceAdmin(Request $request)

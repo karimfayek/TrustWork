@@ -19,13 +19,16 @@
     body {
       margin: 0;
       padding: 0;
-      zoom: 90%
+      zoom: 80%;
+      background-color: #fff;
     }
-  
+    .bg-gray-100{
+      background-color:#fff
+    }
     .print-container {
       width: 100%;
       overflow: visible;
-      zoom: 85%; /* قلل الحجم شوية لو الجدول كبير */
+      zoom: 90%; /* قلل الحجم شوية لو الجدول كبير */
     }
   
     table {
@@ -38,7 +41,7 @@
     th, td {
       padding: 2px 4px;
       border: 1px solid #000;
-      min-width: 20px;
+      min-width: 30px;
       max-width: 200px;
     }
     td{

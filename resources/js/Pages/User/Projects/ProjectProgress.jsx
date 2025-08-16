@@ -1,7 +1,7 @@
 
 
 export default function ProjectProgress ({task}) {
-    console.log(task)
+  
     return (
 <>
 

@@ -201,17 +201,20 @@ export default function EditProject({ users, project, userIds }) {
                         />
                         <InputError message={errors.description} className="mt-2" />
                     </div>
+                    {(role === 'admin' || role === 'acc') &&
+                    
                     <div>
-                                <InputLabel htmlFor="advance_payment" value="دفعه مقدمه " />
-                                <TextInput
-                                    id="advance_payment"
-                                    type="number"
-                                    value={data.advance_payment}
-                                    className="mt-1 block w-full"
-                                    onWheel={(e) => e.target.blur()}
-                                    onChange={(e) => setData('advance_payment', e.target.value)} />
-                                <InputError message={errors.advance_payment} className="mt-2" />
-                            </div>
+                        <InputLabel htmlFor="advance_payment" value="دفعه مقدمه " />
+                        <TextInput
+                            id="advance_payment"
+                            type="number"
+                            value={data.advance_payment}
+                            className="mt-1 block w-full"
+                            onWheel={(e) => e.target.blur()}
+                            onChange={(e) => setData('advance_payment', e.target.value)} />
+                        <InputError message={errors.advance_payment} className="mt-2" />
+                    </div>
+                    }
                     {role !== 'tech' &&
 
                         <><div className="grid grid-cols-1 md:grid-cols-2 gap-4">

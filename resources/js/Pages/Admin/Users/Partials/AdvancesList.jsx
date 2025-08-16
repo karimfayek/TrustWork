@@ -15,9 +15,9 @@ export default function AdvancesList({
             </h2>
 
             <ul className="bg-white p-4 rounded shadow">
-                {advances.map((advance, index) => (
+            {Array.isArray(advances) && advances.length > 0 && advances.map((advance, index) => (
                     <li key={index} className="border-b py-2">
-                        <div>📅 {advance.given_at || "بانتظار الموافقة"}</div>
+                        <div>📅 {advance.given_at || ".بانتظار الموافقة"}</div>
                         <div>
                             💵
                             {type === 'pending' ? (

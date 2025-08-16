@@ -3,19 +3,19 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const allNavLinks = [
         { label: 'المشاريع', routeName: 'admin.dashboard', roles: ['admin', 'proj' ,'tech' ,'acc'] },
         { label: 'المهام', routeName: 'tasks.index', roles: ['admin', 'proj'] },
         { label: 'الزيارات', routeName: 'admin.visits.index', roles: ['admin'] },
-        { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc'] },
-        { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc' ,'proj'] },
-        { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc'] },
-        { label: 'الادوات', routeName: 'tools.index', roles: ['admin', 'acc'] },
-        { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc'] },
-        { label: 'العملاء', routeName: 'customers.index', roles: ['admin', 'acc'] },
+        { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc' , 'hr'] },
+        { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc' ,'proj' ,'hr'] },
+        { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc','hr'] },
+        { label: 'الادوات', routeName: 'tools.index', roles: ['admin', 'acc' ,'hr'] },
+        { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc','hr'] },
+        { label: 'العملاء', routeName: 'customers.index', roles: ['admin', 'acc' ,'hr'] },
         { label: 'التقارير', routeName: 'reports.index', roles: ['admin'] },
         { label: 'سلة المحذوفات', routeName: 'admin.recyclebin', roles: ['admin'] },
     ];
@@ -25,10 +25,29 @@ export default function AuthenticatedLayout({ header, children }) {
         link.roles.includes(role)
     );
     const { props } = usePage();
+    const [notifications , setNotifications] = useState([]) 
+    const [showNotifications , setShowNotifications] = useState(false)
     const successMessage = props.flash.message;
     const errorMessages = props.errors;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+
+useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const response = await fetch(
+                `/admin/fetch-notifications`
+            );
+            const data = await response.json();
+            setNotifications(data)
+            
+        } catch (error) {
+            console.error('Error fetching attendance data:', error);
+        }
+    };
+
+    fetchData();
+}, []);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -89,7 +108,16 @@ export default function AuthenticatedLayout({ header, children }) {
                                             الملف الشخصى
                                         </Dropdown.Link>
                                    
-                              
+                                        {role === 'admin' &&
+                             
+                             <ResponsiveNavLink
+                             href={route('settings')}
+                             className='text-blue-600'
+                             active={route().current('settings')}
+                            >
+                              الاعدادات
+                            </ResponsiveNavLink>
+                             }
                                         <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
@@ -101,9 +129,82 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </Dropdown.Content>
                                 </Dropdown>
                             </div>
+                            {/* Notification bell */}
+<div className="relative me-4">
+  <button
+    onClick={() => setShowNotifications(prev => !prev)}
+    className="relative inline-flex items-center justify-center rounded-full bg-white text-gray-600 hover:text-gray-800 focus:outline-none"
+  >
+    <svg
+      className="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 00-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
+    </svg>
+
+    {notifications.length > 0 && (
+      <span className="absolute -top-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs text-white">
+        {notifications.length}
+      </span>
+    )}
+  </button>
+
+  {showNotifications && (
+    <div className="absolute right-0 mt-2 w-64 rounded-md border border-gray-200 bg-white shadow-lg z-50">
+      <div className="max-h-64 overflow-y-auto py-2 text-sm text-gray-700">
+        {notifications.length > 0 ? (
+          notifications.map((n, i) => (
+            <div key={i} className="px-4 py-2 hover:bg-gray-100">
+              {n.message}
+            </div>
+          ))
+        ) : (
+          <div className="px-4 py-2 text-center text-gray-500">لا توجد إشعارات</div>
+        )}
+      </div>
+    </div>
+  )}
+</div>
+
                         </div>
 
                         <div className="-me-2 flex items-center sm:hidden">
+                            {/* Notification icon for mobile */}
+<div className="me-3 flex sm:hidden">
+  <button
+    onClick={() => setShowNotifications(prev => !prev)}
+    className="relative inline-flex items-center justify-center rounded-full bg-white text-gray-600 hover:text-gray-800 focus:outline-none"
+  >
+    <svg
+      className="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 00-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
+    </svg>
+    {notifications.length > 0 && (
+      <span className="absolute -top-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs text-white">
+        {notifications.length}
+      </span>
+    )}
+  </button>
+</div>
+
                             <button
                                 onClick={() =>
                                     setShowingNavigationDropdown(
@@ -184,7 +285,17 @@ export default function AuthenticatedLayout({ header, children }) {
                                             {label}
                                         </ResponsiveNavLink>
                                 ))}
-                            
+                             {role === 'admin' &&
+                             
+                             <ResponsiveNavLink
+                              
+                                href={route('settings')}
+                                className='text-blue-600'
+                                active={route().current('settings')}
+                            >
+                              الاعدادات
+                            </ResponsiveNavLink>
+                             }
                             <ResponsiveNavLink
                                 method="post"
                                 href={route('logout')}
