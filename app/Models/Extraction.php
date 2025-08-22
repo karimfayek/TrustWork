@@ -8,7 +8,7 @@ class Extraction extends Model
 {
     protected $fillable = [
         'project_id', 'type', 'date', 'deductions', 'customer_name', 
-        'notes','project_code','partial_number','deductions_json','net_total','supply','file','is_collected'
+        'notes','project_code','partial_number','deductions_json','net_total','supply','file','is_collected','isnotinclusive'
     ];
     protected $casts = [
         'deductions_json' => 'array',

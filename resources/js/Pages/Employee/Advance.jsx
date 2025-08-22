@@ -117,7 +117,7 @@ export default function AdvancePage() {
                                 <option value="">للمشروع</option>
                                 {activeProjects.map(
                                     (project)=>(
-                                        <option value={project.id} key={project.id} >{project.name}</option>
+                                        <option value={project?.id} key={project?.id} >{project?.name}</option>
                                     )
                                 )}
                             </select>
@@ -160,7 +160,7 @@ export default function AdvancePage() {
                                 <option value="">من العهدة</option>
                                 {advances.map(
                                     (adv)=>(
-                                        <option value={adv.id} key={adv.id} >{adv.project.name} - {adv.amount} جم</option>
+                                        <option value={adv.id} key={adv.id} >{adv.project?.name} - {adv.amount} جم</option>
                                     )
                                 )}
                             </select>

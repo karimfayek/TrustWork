@@ -33,6 +33,7 @@ export default function EditProject({ users, project, userIds }) {
         end_date: project?.end_date || '',
         advance_payment: project?.advance_payment || 0,
         customer_name: project?.customer_name || '',
+        customer_email: project?.customer_email || '',
         project_code: project?.project_code || '',
         user_ids: userIds || [],
         tasks: initialTasks || [],
@@ -176,6 +177,18 @@ export default function EditProject({ users, project, userIds }) {
                                 
                             />
                             <InputError message={errors.customer_name} className="mt-2" />
+                        </div>
+                        <div>
+                            <InputLabel htmlFor="customer_name" value="ايميل العميل" />
+                            <TextInput
+                                id="name"
+                                type="text"
+                                value={data.customer_email}
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData('customer_email', e.target.value)}
+                                
+                            />
+                            <InputError message={errors.customer_email} className="mt-2" />
                         </div>
                         <div>
                             <InputLabel htmlFor="project_code" value="كود المشروع " />

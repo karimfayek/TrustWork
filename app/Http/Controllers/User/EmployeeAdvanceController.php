@@ -72,7 +72,7 @@ class EmployeeAdvanceController extends Controller
        
 
         if (config('app.env') === 'production') {
-            $emails = explode(',', Setting::where('key', 'advance_request_notify')->value('value'));
+            $emails =  Setting::where('key', 'advance_request_notify')->value('value');
             if (!empty($emails)) {
                 $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
             

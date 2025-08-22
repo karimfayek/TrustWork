@@ -16,6 +16,7 @@ export default function CreateProject({ users }) {
         start_date: '',
         end_date: '',
         customer_name: '',
+        customer_email: '',
         project_code: '', 
         advance_payment:  0,
         user_ids: [],
@@ -152,6 +153,18 @@ export default function CreateProject({ users }) {
                                 required
                             />
                             <InputError message={errors.customer_name} className="mt-2" />
+                        </div>
+                        <div>
+                            <InputLabel htmlFor="customer_name" value="ايميل العميل" />
+                            <TextInput
+                                id="name"
+                                type="text"
+                                value={data.customer_email}
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData('customer_email', e.target.value)}
+                                
+                            />
+                            <InputError message={errors.customer_email} className="mt-2" />
                         </div>
                         <div>
                             <InputLabel htmlFor="project_code" value="كود المشروع " />

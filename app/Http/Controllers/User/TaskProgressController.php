@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\TaskProgress;
 use Illuminate\Http\Request;
+use Mail;
+use App\Mail\TaskProgress as TaskProgressMail;
 
 class TaskProgressController extends Controller
 {
@@ -18,6 +20,10 @@ class TaskProgressController extends Controller
         ]);
 
         $task = Task::findOrFail($data['task_id']);
+       
+        $emails = \App\Models\Setting::where('key', 'task_progress_notify')->value('value');
+        $emailscc = $task->project->customer_email;
+        //dd($emails);
        if($task->unit === 'collaborative'){
            foreach($task->users as $user){
                $progress = TaskProgress::create([
@@ -27,6 +33,33 @@ class TaskProgressController extends Controller
                'quantity_done' => $data['quantity_done'],
                 ]);
            }
+           if (config('app.env') !== 'production') {
+            if (!empty($emails) ) {
+                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+            
+                if (!empty($emailsArray)) {
+                    Mail::to($emails)->send(new TaskProgressMail(
+                        $task->project->name,
+                        $task,
+                        $data['quantity_done'],
+                        $task->users,
+                    ));
+                }
+            }
+            if (!empty($emailscc) ) {
+                $emailsArrayCC = array_filter(array_map('trim', explode(',', $emailscc)));
+            
+                if (!empty($emailsArrayCC)) {
+                    Mail::to($emailscc)->send(new TaskProgressMail(
+                        $task->project->name,
+                        $task,
+                        $data['quantity_done'],
+                        $task->users,
+                    ));
+                }
+            }
+       
+            }
             return back()->with([
             'message'=> 'تم   بنجاح.',
             'type' => 'success'
@@ -39,7 +72,33 @@ class TaskProgressController extends Controller
             'date' => now()->toDateString(),
             'quantity_done' => $data['quantity_done'],
         ]);
-
+        if (config('app.env') !== 'production') {
+            if (!empty($emails) ) {
+                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+            
+                if (!empty($emailsArray)) {
+                    Mail::to($emails)->send(new TaskProgressMail(
+                        $task->project->name,
+                        $task,
+                        $data['quantity_done'],
+                        \App\Models\User::find(auth()->id()),
+                    ));
+                }
+            }
+            if (!empty($emailscc) ) {
+                $emailsArrayCC = array_filter(array_map('trim', explode(',', $emailscc)));
+            
+                if (!empty($emailsArrayCC)) {
+                    Mail::to($emailscc)->send(new TaskProgressMail(
+                        $task->project->name,
+                        $task,
+                        $data['quantity_done'],
+                        \App\Models\User::find(auth()->id()),
+                    ));
+                }
+            }
+       
+            }
         return back()->with([
             'message'=> 'تم   بنجاح.',
             'type' => 'success'

@@ -90,16 +90,17 @@ class ExtractionController extends Controller
             'items.*.total' => 'required|numeric',
         ]);
        // dd($request->supply);
-      // dd($request->all());
+    //dd($request->all());
         $extraction = $project->extractions()->create([
             'type' => $request->type,
             'supply' => $request->supply,
+            'isnotinclusive' => $request->isnotinclusive,
             'date'=>$request->date,
             'customer_name' => $request->customer_name,
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=> $request->deductions['other_tax'] > 0 ? $request->netotherTotal : $request->netTotal,
+            'net_total'=>  $request->netTotal,
             'partial_number' => $project->extractions()->where('type' , 'partial')->count() +1,
         ]);
         foreach ($validated['items'] as $itemData) {
@@ -136,12 +137,13 @@ class ExtractionController extends Controller
          $extraction->update([
             'type' => $request->type,
             'supply' => $request->supply,
+            'isnotinclusive' => $request->isnotinclusive,
             'date'=>$request->date,
             'customer_name' => $request->customer_name,
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=> $request->deductions['other_tax'] > 0 ? $request->netotherTotal : $request->netTotal,
+            'net_total'=>  $request->netTotal,
            
         ]);
         $sentTaskIds = collect($validated['items'])->pluck('task_id')->toArray();

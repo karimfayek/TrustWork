@@ -58,6 +58,7 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'project_code' => 'nullable|string',
             'customer_name' => 'nullable|string',
+            'customer_email' => 'nullable|email|string',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date',
             'user_ids' => 'nullable|array',
@@ -77,6 +78,7 @@ class ProjectController extends Controller
             'start_date' => $request->start_date,
             'project_code' => $request->project_code,
             'customer_name' => $request->customer_name,
+            'customer_email' => $request->customer_email,
             'advance_payment' => $request->advance_payment,
             'end_date' => $request->end_date,
             'created_by' => auth()->id(),
@@ -136,6 +138,7 @@ class ProjectController extends Controller
        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'customer_email' => 'nullable|email|string',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date',
             'user_ids' => 'nullable|array',
@@ -163,6 +166,7 @@ class ProjectController extends Controller
             'project_code' => $request->project_code,
             'advance_payment' => $request->advance_payment,
             'customer_name' => $request->customer_name,
+            'customer_email' => $request->customer_email,
             'created_by' => auth()->id(),
         ]);
        // dd($request->tasksnew);

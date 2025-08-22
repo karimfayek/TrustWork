@@ -1,18 +1,27 @@
-export const CalcItemsExtraction = (items, deductions) => {
+export const CalcItemsExtraction = (items, deductions , isNotInclusives , supply) => {
     // تأكد من أن الخصومات أرقام
-   
+   console.log(isNotInclusives , 'isnot inc calc')
   const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
-  const totalWithoutVat = deductions.vat > 0 ? (totalCost / 1.05) : totalCost
-  const VatValue = (totalWithoutVat / 100) * deductions.vat
+  const totalWithoutVat =
+  isNotInclusives
+    ? totalCost
+    :  !supply &&  deductions.vat > 0
+    ? totalCost / 1.05
+    : totalCost;
+    const VatValue = isNotInclusives ? (totalWithoutVat / 100) * deductions.vat : 0
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
   const socialInsurance = (totalCost / 100) * deductions.social_insurance
   const initialInsurance = (totalCost / 100) * deductions.initial_insurance
   const otherTax = (totalCost / 100) * deductions.other_tax
   const previousPayment = parseFloat(deductions?.previous_payments || 0);
   const advancePayment = parseFloat(deductions?.advance_payment || 0);
-  const netTotal = VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment
+  const netTotal = !isNotInclusives ?
+  VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment :
+
+  totalCost - profitTax - socialInsurance - initialInsurance - previousPayment - advancePayment + VatValue  + otherTax
+console.log(isNotInclusives , 'isnotinc')
 const netTotalOther = totalCost + otherTax
     return {
       totalCost: totalCost.toFixed(2),

@@ -10,6 +10,7 @@ export default function AdminSettings() {
     att_notify:"",
     loan_notify:"",
     leave_request_notify:"",
+    task_progress_notify: "" ,
   });
 
   // تحميل البيانات الحالية
@@ -108,6 +109,18 @@ export default function AdminSettings() {
             type="text"
             name="att_notify"
             value={settings.att_notify}
+            onChange={handleChange}
+            placeholder="مثال: v1@test.com, v2@test.com"
+            className="w-full border rounded p-2 focus:outline-none focus:ring focus:ring-blue-200"
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">
+            ضع إيميلات الإشعار للتقدم فى بنود المشروع</label>
+          <input
+            type="text"
+            name="task_progress_notify"
+            value={settings.task_progress_notify}
             onChange={handleChange}
             placeholder="مثال: v1@test.com, v2@test.com"
             className="w-full border rounded p-2 focus:outline-none focus:ring focus:ring-blue-200"

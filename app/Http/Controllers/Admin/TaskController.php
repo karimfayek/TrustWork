@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\Project;
 use App\Models\User;
 use Inertia\Inertia;
 
@@ -13,9 +14,11 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::with('project')->with('users')->get();
+        $projects = Project::with('tasks')->get();
 
         return Inertia::render('Admin/Tasks/Tasks', [
-            'tasks' => $tasks
+            'tasks' => $tasks,
+            'projects' => $projects,
         ]);
     }
     public function indexEmployee()

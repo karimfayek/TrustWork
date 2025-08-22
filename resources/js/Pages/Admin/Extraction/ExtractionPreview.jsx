@@ -3,19 +3,18 @@ import { CalcItemsExtraction } from '@/Functions/Utils/CalcItemsExtraction';
 import React from 'react';
 import Items from './Items';
 
-export default function ExtractionPreview({ deductions, project, items, type,num, date, customer ,projectCode , supply , notes}) {
-console.log(deductions , 'dedevv')
+export default function ExtractionPreview({ deductions, project, items, type,num, date, customer ,projectCode , supply , notes , isNotInclusive}) {
+
   const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
-  const totalWithoutVats = totalCost - (totalCost / 100) * deductions.vat
   const totalWithoutVat =
-  deductions.vat < 1
+  isNotInclusive
     ? totalCost
-    : !supply
+    : !supply &&  deductions.vat > 0
     ? totalCost / 1.05
     : totalCost;
-  const VatValue = (totalWithoutVat / 100) * deductions.vat
+  const VatValue = isNotInclusive ? (totalWithoutVat / 100) * deductions.vat : 0
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
   const socialInsurance = (totalCost / 100) * deductions.social_insurance
   const initialInsurance = (totalCost / 100) * deductions.initial_insurance
@@ -23,18 +22,18 @@ console.log(deductions , 'dedevv')
   const previousPayment = Number(deductions.previous_payments)
   const advancePayment = Number(deductions.advance_payment)
  
+  const netTotal = !isNotInclusive ?
+    VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment :
 
-  const netTotal = VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment
-const netTotalOther = totalCost + otherTax
-
-  console.log(VatValue + totalWithoutVat , profitTax ,socialInsurance , initialInsurance ,otherTax , previousPayment , advancePayment, 'totalWithoutVat')
+    totalCost - profitTax - socialInsurance - initialInsurance - previousPayment - advancePayment + VatValue  + otherTax
   const extractionTypes = {
     partial: 'جاري ',
     final: ' ختامي',
     supply: ' جارى تشوينات',
   };
   
-  const result = CalcItemsExtraction(items, deductions);
+ 
+const addOrMinus = !isNotInclusive ? 'خصم' : ''
 
   const isError = () => {
     const parse = (val) => Number(String(val).replace(/,/g, ''));
@@ -116,8 +115,14 @@ const netTotalOther = totalCost + otherTax
               <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
               <td className="p-2 border text-center">{totalCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
+            {(isNotInclusive == true && VatValue > 0) && 
+            <tr>
+              <td colSpan={9} className="p-2 border text-center">ضريبه القيمه المضافة </td>
+              <td className="p-2 border text-center">{VatValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+            }
  
-            {!supply && deductions.vat > 1 &&
+            {!supply &&  !isNotInclusive && deductions.vat > 0 &&
             
             <tr>
               <td colSpan={9} className="p-2 border text-center"> الاجمالي بدون الضريبة المضافة {deductions.vat}% </td>
@@ -127,7 +132,7 @@ const netTotalOther = totalCost + otherTax
 
             {deductions.profit_tax > 0 &&
             <tr>
-              <td colSpan={9} className="p-2 border text-center">  خصم {deductions.profit_tax} % ضريبة   </td>
+              <td colSpan={9} className="p-2 border text-center">  {addOrMinus} {deductions.profit_tax} % ضريبة   </td>
               <td className="p-2 border text-center">{profitTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
              }
@@ -147,7 +152,7 @@ const netTotalOther = totalCost + otherTax
             }
             {initialInsurance > 0 &&
               <tr>
-                <td colSpan={9} className="p-2 border text-center">خصم {deductions.initial_insurance} % تامين اعمال </td>
+                <td colSpan={9} className="p-2 border text-center">{addOrMinus} {deductions.initial_insurance} % تامين اعمال </td>
                 <td className="p-2 border text-center">{initialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
@@ -165,22 +170,10 @@ const netTotalOther = totalCost + otherTax
             }
             <tr>
               <td colSpan={9} className="p-2 border text-center"> صافي المستخلص  </td>
-              {deductions.other_tax > 0 ?
-              <td className="p-2 border text-center">{netTotalOther.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              
-              </td>
-            :
+             
             <td className="p-2 border text-center">{netTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              {isError() &&
-              <p className='text-red-600 print:hidden'>
-                صافى المستخلص غير دقيق
-              </p>
-              }
+            
               </td>
-            }
-              
-             
-             
             </tr>
             {notes &&
                           

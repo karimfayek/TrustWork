@@ -35,7 +35,7 @@ export default function ExtractionEdit({ project, extraction, previousQuantities
   project={project} deductionsList={deductionsList} extractionsCount={ extraction.partial_number -1} 
   prevPay={extraction.deductions_json.previous_payments}
    previousQuantities={previousQuantities} edit={true} extractionId={extraction.id} defaultDeductions={extraction.deductions_json}
-   date={extraction.date} supply={extraction.supply} extraction={extraction} DefaultProgressPercentage={progressPercentage}
+   date={extraction.date} supply={extraction.supply} extraction={extraction} DefaultProgressPercentage={progressPercentage}  isNotInclusive={extraction.isnotinclusive}
   />
  )
 }

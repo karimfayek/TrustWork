@@ -14,7 +14,7 @@ class LoanController extends Controller
 {
     $user = Auth::user();
     // تحقق من التاريخ
-    if (now()->day < 2) {
+    if (now()->day < 15) {
        return back()->withErrors(['message' => 'لا يمكنك طلب السلفة إلا بعد يوم 15 من الشهر.']);
     }
 

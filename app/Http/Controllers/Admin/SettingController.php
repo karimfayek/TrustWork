@@ -21,6 +21,7 @@ class SettingController extends Controller
             'pricing_notify' => Setting::where('key', 'pricing_notify')->value('value'),
             'att_notify' => Setting::where('key', 'att_notify')->value('value'),
             'leave_request_notify' => Setting::where('key', 'leave_request_notify')->value('value'),
+            'task_progress_notify' => Setting::where('key', 'task_progress_notify')->value('value'),
         ];
     }
 
@@ -55,6 +56,9 @@ class SettingController extends Controller
         ]);
         Setting::updateOrCreate(['key' => 'leave_request_notify'], [
             'value' => $request->leave_request_notify
+        ]);
+        Setting::updateOrCreate(['key' => 'task_progress_notify'], [
+            'value' => $request->task_progress_notify
         ]);
 
         return response()->json(['message' => 'تم الحفظ بنجاح']);

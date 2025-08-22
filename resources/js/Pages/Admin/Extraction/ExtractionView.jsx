@@ -7,6 +7,7 @@ export default function ExtractionPreview({  project, extraction}) {
 
 const type = extraction.type
 const supply = extraction.supply
+const isNotInclusive = extraction.isnotinclusive
 const num =  extraction.partial_number
 const date =  extraction.date
 const customer =  project.customer_name
@@ -17,17 +18,26 @@ const deductions =  extraction.deductions_json
 const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
-  const totalWithoutVats = totalCost - (totalCost / 100) * deductions.vat
-  const totalWithoutVat = !supply ? (totalCost / 1.05) : totalCost
-  const VatValue = (totalWithoutVat / 100) * deductions.vat
+  const totalWithoutVat =
+  isNotInclusive
+    ? totalCost
+    : !supply &&  deductions.vat > 0
+    ? totalCost / 1.05
+    : totalCost;
+  const VatValue = isNotInclusive ? (totalWithoutVat / 100) * deductions.vat : 0
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
   const socialInsurance = (totalCost / 100) * deductions.social_insurance
   const initialInsurance = (totalCost / 100) * deductions.initial_insurance
   const otherTax = (totalCost / 100) * deductions.other_tax
   const previousPayment = deductions.previous_payments
   const advancePayment = deductions.advance_payment
-  const netTotal = VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment
-  const netTotalOther = totalCost + otherTax
+
+  const addOrMinus = !isNotInclusive ? 'خصم' : ''
+  const netTotal = !isNotInclusive ?
+  VatValue + totalWithoutVat - profitTax - socialInsurance - initialInsurance - otherTax - previousPayment - advancePayment :
+
+  totalCost - profitTax - socialInsurance - initialInsurance - previousPayment - advancePayment + VatValue  + otherTax
+
   const extractionTypes = {
     partial: 'جاري ',
     final: ' ختامي',
@@ -118,8 +128,13 @@ const totalCost = items.reduce((acc, task) => {
               <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
               <td className="p-2 border text-center">{totalCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
- 
-            {!supply &&   deductions.vat > 1 &&
+            {(isNotInclusive == true && VatValue > 0) && 
+            <tr>
+              <td colSpan={9} className="p-2 border text-center">ضريبه القيمه المضافة </td>
+              <td className="p-2 border text-center">{VatValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+}
+        {!supply &&  !isNotInclusive && deductions.vat > 0 &&
             
             <tr>
               <td colSpan={9} className="p-2 border text-center"> الاجمالي بدون الضريبة المضافة {deductions.vat}% </td>
@@ -129,7 +144,7 @@ const totalCost = items.reduce((acc, task) => {
 
             {deductions.profit_tax > 0 &&
             <tr>
-              <td colSpan={9} className="p-2 border text-center">  خصم {deductions.profit_tax} % ضريبة   </td>
+              <td colSpan={9} className="p-2 border text-center">   {addOrMinus} {deductions.profit_tax} % ضريبة   </td>
               <td className="p-2 border text-center">{profitTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
              }
@@ -149,7 +164,7 @@ const totalCost = items.reduce((acc, task) => {
             }
             {initialInsurance > 0 &&
               <tr>
-                <td colSpan={9} className="p-2 border text-center">خصم {deductions.initial_insurance} % تامين اعمال </td>
+                <td colSpan={9} className="p-2 border text-center"> {addOrMinus} {deductions.initial_insurance} % تامين اعمال </td>
                 <td className="p-2 border text-center">{initialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
@@ -167,11 +182,7 @@ const totalCost = items.reduce((acc, task) => {
             }
             <tr>
               <td colSpan={9} className="p-2 border text-center"> صافي المستخلص  </td>
-              {deductions.other_tax > 0 ?
-              <td className="p-2 border text-center">{netTotalOther.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              
-              </td>
-            :
+             
             <td className="p-2 border text-center">{netTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               {isError() &&
               <p className='text-red-600 print:hidden'>
@@ -179,10 +190,6 @@ const totalCost = items.reduce((acc, task) => {
               </p>
               }
               </td>
-            }
-              
-             
-             
             </tr>
 
             {project.notes &&

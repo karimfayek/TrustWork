@@ -6,7 +6,7 @@ import ExtractionPreview from './ExtractionPreview';
 import Items from './Items';
 
 export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay, previousQuantities , 
-  edit=false, extractionId=null , defaultDeductions=null , date=null , supply=false ,extraction=null , DefaultProgressPercentage=null}) {
+  edit=false, extractionId=null , defaultDeductions=null , date=null , supply=false ,extraction=null , DefaultProgressPercentage=null, isNotInclusive=false }) {
     console.log('previousQuantities',previousQuantities )
     const [items, setItems] = useState([]);
     const [lang, setLang] = useState('en');
@@ -46,6 +46,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
     type: 'partial',
     num: extractionsCount +1,
     supply: supply,
+    isnotinclusive : isNotInclusive ,
     customer_name: project.customer_name || '',
     project_code: project.project_code || '',
     date: date ? date : '',
@@ -163,6 +164,12 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
    
    
   };
+  const handleInclusiveChange = (e) => {
+    const { name, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: checked }));
+   
+   
+  };
   const handleToggleLang = (e) => {
     e.preventDefault()
    if(lang === 'en'){
@@ -216,7 +223,8 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
     setShowPrint(true)
   };
   
-  const result = CalcItemsExtraction(items, form.deductions);
+  const result = CalcItemsExtraction(items, form.deductions , form.isnotinclusive , form.supply);
+  console.log(form.isnotinclusive , 'form')
   const handleSave = (e) => {
     if(form.date === ''){
       return
@@ -225,6 +233,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
     const payload = {
       type: form.type,
       supply: form.supply,
+      isnotinclusive: form.isnotinclusive,
       date: form.date,
       customer_name: form.customer_name,
       project_code: form.project_code,
@@ -314,6 +323,15 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
 
           <div>
               <label className="block text-sm font-medium mb-2">الاستقطاعات</label>
+              <label className="flex items-center my-4 print:hidden">
+                    <input
+                     name="isnotinclusive"
+                        type="checkbox"
+                        checked={form.isnotinclusive}
+                        onChange={handleInclusiveChange}
+                    />
+                    <span className="mr-2 text-sm text-gray-600">   السعر غير شامل الضريبه ؟  </span>
+                </label>
               <div className="grid grid-cols-4 gap-4">
                   {deductionsList.map((deduction) => (
                       <div key={deduction.key}>
@@ -354,7 +372,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       date={form.date} customer = {form.customer_name}
       projectCode={form.project_code} 
       num={form.num} supply = {form.supply}
-      notes ={form.notes}
+      notes ={form.notes} isNotInclusive = {form.isnotinclusive}
       />
       
       </AuthenticatedLayout>
