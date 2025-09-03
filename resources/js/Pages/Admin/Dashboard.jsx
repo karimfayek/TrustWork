@@ -3,8 +3,8 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Dashboard({ projects }) {
-    const user = usePage().props.auth.user;
-    const role = user?.role;
+        const logedinUser = usePage().props.auth.user
+
     const handleDeleteProject = (e, id) => {
         e.preventDefault();
     
@@ -25,7 +25,7 @@ export default function Dashboard({ projects }) {
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-3xl font-bold text-gray-800">
                         المشاريع  </h1>
-                    {role !== 'acc' &&
+                    {!logedinUser?.rolesnames?.includes('tech') &&
                     
                     <Link
                         href={route('admin.projects.create')}
@@ -59,7 +59,7 @@ export default function Dashboard({ projects }) {
                                         {project.end_date}
                                         </td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
-                                        {(role === 'admin' || role === 'proj') &&
+                                         {['proj', 'admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
 
                                             <>
                                                 <Link
@@ -77,7 +77,7 @@ export default function Dashboard({ projects }) {
 
                                             </>
                                         }
-                                        {(role === 'admin' || role === 'proj' || role === 'tech') &&
+                                         {['proj', 'admin' , 'tech'].some(role => logedinUser?.rolesnames?.includes(role)) &&
 
                                             <Link
                                                 href={route('admin.projects.edit', project.id)}
@@ -86,38 +86,36 @@ export default function Dashboard({ projects }) {
                                                 تعديل
                                             </Link>
                                         }
-                                        {(role === 'admin') &&
-
-                                            <>
-                                            <Link
-                                                href={route('project.extractions.list', project.id)}
-                                                className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                            >
-                                                مستخلص
-                                            </Link>
-                                            <button
-                                        onClick={(e) => handleDeleteProject (e, project.id)}
-                                          
-                                            className="inline-block bg-red-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                        >
-                                            مسح
-                                        </button>
-                                            </>
-                                        }
+                                        
                                        
 
-                                        {(role == 'acc') &&
+                                          {['acc' ,'admin'].some(role => logedinUser?.rolesnames?.includes(role))&&
                                          <><Link
                                                 href={route('project.extractions.list', project.id)}
                                                 className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                             >
                                                 مستخلص
-                                            </Link><Link
+                                            </Link>
+                                            <Link
                                                 href={route('acc.pricing', project.id)}
                                                 className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                             >
                                                     تسعير
-                                                </Link></>
+                                                </Link>
+                                                </>
+                                        }
+                                          {['admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
+
+                                            <>
+                                           
+                                            <button
+                                        onClick={(e) => handleDeleteProject (e, project.id)}
+                                          
+                                            className="inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                        >
+                                            مسح
+                                        </button>
+                                            </>
                                         }
                                     </td>
                                 </tr>

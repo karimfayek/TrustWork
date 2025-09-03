@@ -2,9 +2,9 @@ import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import PrimaryButton from "@/Components/PrimaryButton";
 import InputError from "@/Components/InputError";
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 
-export default function UserForm({ user }) {
+export default function UserForm({ user, allRoles }) {
     const basicSalary = user?.salary?.final_salary * .65 || ''
     const { data, setData, post, processing, errors } = useForm({
         name: user?.name || "",
@@ -13,11 +13,22 @@ export default function UserForm({ user }) {
         base_salary: user?.salary?.base_salary || "",
         email: user?.email || "",
         password: "",
-        phone:user?.phone || '',
-        hire_date:user?.hire_date || '',
-        offdayestype:user?.offdayestype || '',
+        phone: user?.phone || '',
+        hire_date: user?.hire_date || '',
+        offdayestype: user?.offdayestype || '',
         must_change_password: user.must_change_password,
+        roles: user?.roles || [],
     });
+
+    const logedinUser = usePage().props.auth.user
+    console.log(logedinUser, 'logeninuser')
+    const handleRolesChange = (e) => {
+        const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+        setData((prevData) => ({
+            ...prevData,
+            roles: selected
+        }));
+    };
     const handleSalaryChange = (final) => {
         if (!isNaN(final)) {
             setData((prevData) => ({
@@ -30,7 +41,6 @@ export default function UserForm({ user }) {
             setData("final_salary", final);
         }
     };
-    console.log(basicSalary, 'basic')
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route("admin.user.update", user.id));
@@ -62,50 +72,44 @@ export default function UserForm({ user }) {
                 <InputError message={errors.email} className="mt-2" />
             </div>
             <div>
-                        <InputLabel htmlFor="phone" value="رقم التليفون " />
-                        <TextInput
-                            id="phone"
-                            type="text"
-                            value={data.phone}
-                            className="mt-1 block w-full"
-                            onChange={(e) => setData('phone', e.target.value)}
-                        />
-                        <InputError message={errors.phone} className="mt-2" />
-                    </div>
-                    <div>
-                        <InputLabel htmlFor="hire_date" value="تاريخ التعيين  " />
-                        <TextInput
-                            id="hire_date"
-                            type="date"
-                            value={data.hire_date}
-                            className="mt-1 block w-full"
-                            onChange={(e) => setData('hire_date', e.target.value)}
-                        />
-                        <InputError message={errors.hire_date} className="mt-2" />
-                    </div>
+                <InputLabel htmlFor="phone" value="رقم التليفون " />
+                <TextInput
+                    id="phone"
+                    type="text"
+                    value={data.phone}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData('phone', e.target.value)}
+                />
+                <InputError message={errors.phone} className="mt-2" />
+            </div>
+            <div>
+                <InputLabel htmlFor="hire_date" value="تاريخ التعيين  " />
+                <TextInput
+                    id="hire_date"
+                    type="date"
+                    value={data.hire_date}
+                    className="mt-1 block w-full"
+                    onChange={(e) => setData('hire_date', e.target.value)}
+                />
+                <InputError message={errors.hire_date} className="mt-2" />
+            </div>
             <div>
                 <InputLabel htmlFor="role" value="الدور" />
-                <select
-                    className="border rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full"
-                    value={data.role}
-                    onChange={(e) => setData("role", e.target.value)}
+                <select multiple value={data.roles} onChange={handleRolesChange}
+                    className="w-1/2 border rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block "
                 >
-                    <option value="">اختر</option>
-                    <option value="employee">موظف</option>
-                    <option value="acc">حسابات</option>
-                    <option value='hr'>
-                                شئون عاملين
-                            </option>
-                    <option value="tech">مكتب فنى </option>
-                    <option value="proj">مدير مشروعات</option>
-                    <option value='managment'>
-                               ادارى
-                            </option>
-                    <option value="admin">ادمن</option>
+                    {allRoles && allRoles.map((role) => (
+                        <option key={role.id} value={role.id}>
+                            {role.name}
+                        </option>
+                    ))}
                 </select>
-                <InputError message={errors.role} className="mt-2" />
-            </div>
 
+                <InputError message={errors.roles} className="mt-2" />
+            </div>
+                    <div>
+                        <p>{user.role} </p>
+                    </div>
             <div>
                 <InputLabel htmlFor="password" value="الباسورد" />
                 <TextInput
@@ -117,55 +121,62 @@ export default function UserForm({ user }) {
                 />
                 <InputError message={errors.password} className="mt-2" />
             </div>
-            <div>
-                <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
-                <TextInput
-                    id="final_salary"
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    value={data.final_salary}
-                    className="mt-1 block w-full"
-                    onChange={(e) => handleSalaryChange(e.target.value)}
-                />
-                <InputError message={errors.final_salary} className="mt-2" />
-            </div>
-            <div>
-                <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
-                <TextInput
-                    id="base_salary"
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    value={data.base_salary}
-                    className="mt-1 block w-full"
-                    onChange={(e) => setData("base_salary", e.target.value)}
-                    readOnly
-                />
-                <InputError message={errors.base_salary} className="mt-2" />
-            </div>
-            <div>
-                <InputLabel htmlFor="base_salary" value=" المتغير" />
-                <TextInput
-                    id="base_salary"
-                    type="number"
-                    onWheel={(e) => e.target.blur()}
-                    value={Number(data.final_salary) - Number(data.base_salary)}
-                    className="mt-1 block w-full"
-                    readOnly
-                />
-                <InputError message={errors.base_salary} className="mt-2" />
-            </div>
-            <div className="mt-4">
-                        <label className="flex items-center">
-                            <select value={data.offdayestype}
-                                onChange={(e) => setData("offdayestype", e.target.value)}
-                                className="w-full"
-                            >
-                                <option value="" disabled selected>ايام الاجازات</option>
-                                <option value="1" > جمعه</option>
-                                <option value="2" > جمعه + سبت</option>
-                          </select>
-                        </label>
+            {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role))
+                &&
+                <>
+                    <div>
+                        <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
+                        <TextInput
+                            id="final_salary"
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={data.final_salary}
+                            className="mt-1 block w-full"
+                            onChange={(e) => handleSalaryChange(e.target.value)}
+                        />
+                        <InputError message={errors.final_salary} className="mt-2" />
                     </div>
+                    <div>
+                        <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
+                        <TextInput
+                            id="base_salary"
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={data.base_salary}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setData("base_salary", e.target.value)}
+                            readOnly
+                        />
+                        <InputError message={errors.base_salary} className="mt-2" />
+                    </div>
+                    <div>
+                        <InputLabel htmlFor="base_salary" value=" المتغير" />
+                        <TextInput
+                            id="base_salary"
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={Number(data.final_salary) - Number(data.base_salary)}
+                            className="mt-1 block w-full"
+                            readOnly
+                        />
+                        <InputError message={errors.base_salary} className="mt-2" />
+                    </div>
+                </>
+            }
+
+            <div className="mt-4">
+                <label className="flex items-center">
+                    <select value={data.offdayestype}
+                    required
+                        onChange={(e) => setData("offdayestype", e.target.value)}
+                        className="w-full"
+                    >
+                        <option value="" disabled selected>ايام الاجازات</option>
+                        <option value="1" > جمعه</option>
+                        <option value="2" > جمعه + سبت</option>
+                    </select>
+                </label>
+            </div>
             <div className="mt-4">
                 <label className="flex items-center">
                     <input

@@ -19,11 +19,13 @@ export default function AuthenticatedLayout({ header, children }) {
         { label: 'التقارير', routeName: 'reports.index', roles: ['admin'] },
         { label: 'سلة المحذوفات', routeName: 'admin.recyclebin', roles: ['admin'] },
     ];
-    const user = usePage().props.auth.user;
-    const role = user?.role;
-    const roleLinks = allNavLinks.filter(link =>
-        link.roles.includes(role)
-    );
+   const user = usePage().props.auth.user;
+const userRoles = user?.rolesnames ?? []; // مثلا ['admin', 'proj']
+
+// هات اللينكات اللي اي رول من رولز اليوزر موجود في roles بتاعتها
+const roleLinks = allNavLinks.filter(link =>
+    link.roles.some(role => userRoles.includes(role))
+);
     const { props } = usePage();
     const [notifications , setNotifications] = useState([]) 
     const [showNotifications , setShowNotifications] = useState(false)
@@ -32,7 +34,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
-useEffect(() => {
+/* useEffect(() => {
     const fetchData = async () => {
         try {
             const response = await fetch(
@@ -47,7 +49,7 @@ useEffect(() => {
     };
 
     fetchData();
-}, []);
+}, []); */
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -108,7 +110,7 @@ useEffect(() => {
                                             الملف الشخصى
                                         </Dropdown.Link>
                                    
-                                        {role === 'admin' &&
+                                        {['admin'].some(role => userRoles?.includes(role)) &&
                              
                              <ResponsiveNavLink
                              href={route('settings')}
@@ -285,7 +287,7 @@ useEffect(() => {
                                             {label}
                                         </ResponsiveNavLink>
                                 ))}
-                             {role === 'admin' &&
+                            {['admin'].some(role => userRoles?.includes(role)) &&
                              
                              <ResponsiveNavLink
                               
@@ -325,18 +327,7 @@ useEffect(() => {
                             {successMessage}
                         </div>
                     )}
-                     {errorMessages.length > 0 && (
-                        <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
-                            <ul>
-                                {errorMessages.map(
-                                    (err) =>(
-                                        <li>{err}</li>
-                                    )
-                            
-                                )}
-                            </ul>
-                        </div>
-                    )}
+                    
                      {Object.entries(errorMessages).length > 0 && (
                         <div className="bg-red-100 text-red-800 border border-red-300 p-2 rounded mt-4">
                            

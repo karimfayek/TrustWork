@@ -14,7 +14,7 @@ export default function ExtractionPreview({ deductions, project, items, type,num
     : !supply &&  deductions.vat > 0
     ? totalCost / 1.05
     : totalCost;
-  const VatValue = isNotInclusive ? (totalWithoutVat / 100) * deductions.vat : 0
+  const VatValue = !isNotInclusive ? (totalWithoutVat / 100) * deductions.vat : 0
   const profitTax = (totalWithoutVat / 100) * deductions.profit_tax
   const socialInsurance = (totalCost / 100) * deductions.social_insurance
   const initialInsurance = (totalCost / 100) * deductions.initial_insurance

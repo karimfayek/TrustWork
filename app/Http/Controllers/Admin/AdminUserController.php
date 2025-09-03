@@ -21,13 +21,25 @@ class AdminUserController extends Controller
     }
     public function create()
     {
-        return Inertia::render('Admin/Users/Create');
+        $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
+        if (in_array('admin', $currentUserRoles)) {
+        $roles = \App\Models\Role::Select('id', 'name')->get();
+        }else{
+            $roles = \App\Models\Role::Select('id', 'name')->where('name', '!=', 'admin')->get();
+        }
+         
+
+        return Inertia::render('Admin/Users/Create', [
+            'roles' => $roles
+        ]);
     }
 
     public function edit($id)
     {
         // جلب جميع الموظفين
         $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects' , 'loans' , 'leaves');
+        $user['roles'] = $user->roles()->pluck('id');
+        $user['rolesnames']= $user->roles()->pluck('name');
         $acceptedAdvances = $user->advances()->where('status' , 'accepted')->get()->load('project');
         $pendingAdvances = $user->advances()->where('status' , 'pending')->get()->load('project');
         $expenses = $user->expenses()->select('amount', 'description', 'spent_at', 'id')->get();
@@ -35,9 +47,15 @@ class AdminUserController extends Controller
         $totalAdvance = $acceptedAdvances->sum('amount');
         $totalExpense = $expenses->sum('amount');
         $remaining = $totalAdvance - $totalExpense;
-       // $project = Project::with('tasks' , 'tasks.users', 'users')->find($id);
-       
-       // $userIds = $project->users->pluck('id');
+        
+        $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
+        if (in_array('admin', $currentUserRoles)) {
+        $roles = \App\Models\Role::Select('id', 'name')->get();
+        }else{
+            $roles = \App\Models\Role::Select('id', 'name')->where('name', '!=', 'admin')->get();
+        }
+
+        
        return Inertia::render('Admin/Users/Edit', [
         'acceptedAdvances' => $acceptedAdvances,
         'pendingAdvances' => $pendingAdvances,
@@ -47,6 +65,7 @@ class AdminUserController extends Controller
         'remaining' => $remaining,
         'user' => $user,
         'deductions' => $deductions,
+        'roles' => $roles
     ]);
        
     }
@@ -97,32 +116,45 @@ class AdminUserController extends Controller
        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'base_salary' => 'required|numeric',
-            'final_salary' => 'required|numeric',
+            'base_salary' => 'nullable|numeric',
+            'final_salary' => 'nullable|numeric',
             'password' => 'required|min:8',
+            'roles' => 'array',
         ]);
-        $currentuserRole = auth()->user()->role ;
+      $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
+        if (in_array('admin', $currentUserRoles)) {
+        $isAdmin = true ;
+        }else{
+            $isAdmin = false ;
+        }
 
-       
+    // لو المستخدم مش admin وحاول يدي admin لحد
+   
        $user =  User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'hire_date' => $request->hire_date,
             'offdayestype'=> $request->offdayestype,
-            'role' => $currentuserRole === "admin" ? $request->role : 'employee',
+            'role' => $isAdmin ? $request->role : 'employee',
             'password' => Hash::make($request->password),
             'must_change_password' => $request->must_change_password,
         ]);
 
-        if($user){
-
+        if($user && $isAdmin){
+       
             $user->salary()->create([
                 'base_salary' => $request->base_salary,
                 'final_salary' => $request->final_salary,
             ]);
         }
-      
+        $adminRoleId = \App\Models\Role::where('name', 'admin')->value('id');
+       if (!in_array('admin', $currentUserRoles) &&  in_array($adminRoleId, $validated['roles'])) {
+        
+        
+        return back()->withErrors(['message' => 'غير مسموح لك بإعطاء صلاحية admin']);
+    }
+     $user->roles()->sync($validated['roles']);
     
         return back()->with('message', 'تم انشاء الموظف بنجاح!'); // "Task updated successfully"
     }
@@ -134,6 +166,7 @@ class AdminUserController extends Controller
             'email' => 'required|email',
             'base_salary' => 'required|numeric',
             'final_salary' => 'required|numeric',
+            'roles' => 'array',
         ]);
        // dd($request->all());
        $currentuserRole = auth()->user()->role ;
@@ -156,6 +189,7 @@ class AdminUserController extends Controller
             'password' => $pass,
         ]);
     }
+    
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
@@ -165,11 +199,19 @@ class AdminUserController extends Controller
             'must_change_password' => $request->must_change_password,
         ]);
 
-        if($currentuserRole === "admin" && auth()->user()->id !== $user->id ){
-            $user->update([
-                'role' => $request->role,
-            ]);
-        }
+    $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
+
+    // لو المستخدم مش admin وحاول يدي admin لحد
+     $adminRoleId = \App\Models\Role::where('name', 'admin')->value('id');
+       if (!in_array('admin', $currentUserRoles) &&  in_array($adminRoleId, $validated['roles'])) {
+        
+        return back()->withErrors(['message' => 'غير مسموح لك بإعطاء صلاحية admin']);
+    }
+         $user->roles()->sync($validated['roles']);
+
+       /*  if($isAdmin && auth()->user()->id !== $user->id ){
+           $user->roles()->sync($validated['roles']);
+        } */
 
       //  $user->update($validated);
      

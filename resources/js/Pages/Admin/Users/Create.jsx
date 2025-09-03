@@ -6,9 +6,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-export default function CrreateUser() {
+export default function CrreateUser({ roles }) {
 
 
+    const logedinUser = usePage().props.auth.user
     const { data, setData, post, processing, reset: resetUserForm, errors } = useForm({
         name: '',
         final_salary: '',
@@ -18,8 +19,9 @@ export default function CrreateUser() {
         role: '',
         phone: '',
         hire_date: '',
-        offdayestype:'',
-        must_change_password: false
+        offdayestype: '',
+        must_change_password: false,
+        roles: []
     });
 
     const handleSubmit = (e) => {
@@ -32,7 +34,13 @@ export default function CrreateUser() {
             }
         );
     };
-
+ const handleRolesChange = (e) => {
+        const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+        setData((prevData) => ({
+            ...prevData,
+            roles: selected
+        }));
+    };
     const handleSalaryChange = (final) => {
         if (!isNaN(final)) {
             setData((prevData) => ({
@@ -100,37 +108,17 @@ export default function CrreateUser() {
                     </div>
                     <div>
                         <InputLabel htmlFor="role" value=" role" />
-                        <select
-                            className="border rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full"
-                            value={data.role}
-                            onChange={(e) => setData('role', e.target.value)}
+                        <select multiple value={data.roles} onChange={handleRolesChange}
+                            className="w-1/2 border rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block "
                         >
-
-                            <option value="">اختر </option>
-                            
-                            <option value='employee'>
-                                فنى
-                            </option>
-                            <option value='acc'>
-                                حسابات
-                            </option>
-                            <option value='hr'>
-                                شئون عاملين
-                            </option>
-
-                            <option value="tech">مكتب فنى </option>
-                            <option value='proj'>
-                                مدير مشروعات
-                            </option>
-                            <option value='managment'>
-                               ادارى
-                            </option>
-                            <option value='admin'>
-                                ادمن
-                            </option>
-
+                            {roles && roles.map((role) => (
+                                <option key={role.id} value={role.id}>
+                                    {role.name}
+                                </option>
+                            ))}
                         </select>
-                        <InputError message={errors.role} className="mt-2" />
+
+                        <InputError message={errors.roles} className="mt-2" />
                     </div>
                     <div>
                         <InputLabel htmlFor="password" value="  الباسورد" />
@@ -143,6 +131,10 @@ export default function CrreateUser() {
                         />
                         <InputError message={errors.password} className="mt-2" />
                     </div>
+                      {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role))
+                      &&
+                      <>
+                      
                     <div>
                         <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
                         <TextInput
@@ -180,16 +172,19 @@ export default function CrreateUser() {
                         />
                         <InputError message={errors.base_salary} className="mt-2" />
                     </div>
+                      </>
+}
                     <div className="mt-4">
                         <label className="flex items-center">
                             <select value={data.offdayestype}
+                            required
                                 onChange={(e) => setData("offdayestype", e.target.value)}
                                 className="w-full"
                             >
                                 <option value="" disabled selected>ايام الاجازات</option>
                                 <option value="1" > جمعه</option>
                                 <option value="2" > جمعه + سبت</option>
-                          </select>
+                            </select>
                         </label>
                     </div>
                     <div className="mt-4">
@@ -202,7 +197,7 @@ export default function CrreateUser() {
                             <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
                         </label>
                     </div>
-                   
+
                     <div>
                         <PrimaryButton className="w-full justify-center" disabled={processing}>
                             انشاء الموظف

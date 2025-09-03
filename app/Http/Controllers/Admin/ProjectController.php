@@ -8,6 +8,8 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Mail\ProjectCreatedForPricing;
+use App\Mail\ProjectCreatedMail;
+use App\Mail\ProjectEditedMail;
 use Illuminate\Support\Facades\Mail;
 use App\Services\TaskAssignmentService;
 class ProjectController extends Controller
@@ -15,14 +17,18 @@ class ProjectController extends Controller
     public function create()
     {
         // جلب جميع الموظفين
-        $users = User::where('role', 'employee')->where('status' , 1)->get();
+        $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'employee'); 
+            })->get();
         return Inertia::render('Projects/Create', compact('users'));
     }
 
     public function edit($id)
     {
         // جلب جميع الموظفين
-        $users = User::where('role', 'employee')->where('status' , 1)->get();
+        $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'employee'); 
+            })->get();
         $project = Project::with('tasks' , 'tasks.users', 'users')->find($id);
        
         $userIds = $project->users->pluck('id');
@@ -58,7 +64,7 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'project_code' => 'nullable|string',
             'customer_name' => 'nullable|string',
-            'customer_email' => 'nullable|email|string',
+            'customer_email' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date',
             'user_ids' => 'nullable|array',
@@ -86,13 +92,21 @@ class ProjectController extends Controller
         
         if (config('app.env') === 'production') {
             $emails = explode(',', \App\Models\Setting::where('key', 'pricing_notify')->value('value'));
+            //$customer = explode(',', $project->customer_email);
             if (!empty($emails)) {
-                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+                 $emailsArray =  array_filter(array_map('trim', $emails));
             
                 if (!empty($emailsArray)) {
-                    Mail::to($emails)->send(new ProjectCreatedForPricing($project));
+                    Mail::to($emailsArray)->send(new ProjectCreatedForPricing($project));
                 }
             }
+           /*   if (!empty($customer)) {
+                 $customerEmailsArray =  array_filter(array_map('trim', $customer));
+            
+                if (!empty($customerEmailsArray)) {
+                    Mail::to($customer)->send(new ProjectCreatedMail($project));
+                }
+            } */
         }     
         // ربط الموظفين بالمشروع
         $project->users()->attach($request->user_ids);
@@ -138,7 +152,7 @@ class ProjectController extends Controller
        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'customer_email' => 'nullable|email|string',
+            'customer_email' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date',
             'user_ids' => 'nullable|array',
@@ -163,6 +177,7 @@ class ProjectController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
             'project_code' => $request->project_code,
             'advance_payment' => $request->advance_payment,
             'customer_name' => $request->customer_name,
@@ -240,7 +255,17 @@ class ProjectController extends Controller
         
     
         // Sync the user (attach if not already)
-      
+      if($request->send_email){
+         $emails = explode(',', $project->customer_email);
+            if (!empty($emails)) {
+                 $emailsArray =  array_filter(array_map('trim', $emails));
+            
+                if (!empty($emailsArray)) {
+                    Mail::to($emailsArray)->send(new ProjectCreatedMail($project));
+                }
+            }
+
+      }
     
         return redirect()->route('admin.dashboard')->with('message', 'تم تحديث المشروع بنجاح!');
     }
@@ -250,7 +275,9 @@ class ProjectController extends Controller
         $project = Project::with('tasks', 'users')->findOrFail($projectId);
         $tasks = Task::where('project_id' , $projectId)->with('users')->get(); // جلب جميع المهام المتاحة
         //dd($project->tasks);
-        $users = User::where('role' , 'employee')->where('status' , 1)->get(); // جلب جميع الموظفين
+        $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'employee'); 
+            })->get(); // جلب جميع الموظفين
     
         // إرسال البيانات إلى React عبر Inertia
         return Inertia::render('Projects/AssignTasks', [

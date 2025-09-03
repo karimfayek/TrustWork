@@ -41,7 +41,7 @@ class ProjectCreatedForPricing extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.project.created',
+            markdown: 'emails.project.pricing',
         );
     }
 

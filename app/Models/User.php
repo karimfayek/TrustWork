@@ -117,5 +117,19 @@ public function taskProgress()
 {
     return $this->hasMany(TaskProgress::class);
 }
+public function roles()
+{
+    return $this->belongsToMany(Role::class);
+}
+
+public function hasRole($role)
+{
+    return $this->roles()->where('name', $role)->exists();
+}
+
+public function hasAnyRole(array $roles)
+{
+    return $this->roles()->whereIn('name', $roles)->exists();
+}
     
 }

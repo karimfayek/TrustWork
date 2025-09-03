@@ -13,6 +13,7 @@ import Leaves from '../Admin/Users/Partials/Leaves';
 export default function Edit() {
     const { advances, expenses, totalAdvance, totalExpense, remaining, activeProjects, finalSalary, leaves, loans } = usePage().props;
     const user = usePage().props.auth.user;
+    console.log(user , 'user')
     const [showAdvances, setShowAdvances] = useState(false)
     const [showExpenses, setShowExpenses] = useState(false)
     const [showLeaves, setShowLeaves] = useState(false)
@@ -64,7 +65,7 @@ export default function Edit() {
                     <SalaryCalculator user={user} forUser={true} />
                 }
             </div>
-            {user.rewards.length > 0 &&
+            {user.rewards?.length > 0 &&
 
                 <div className="md:grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-10">
 

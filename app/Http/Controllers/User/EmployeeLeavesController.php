@@ -35,10 +35,10 @@ class EmployeeLeavesController extends Controller
             'leave_date' => $leaveDate,
             'reason' => $request->reason,
         ]);
-         if (config('app.env') === 'production') {
+
             $emails = explode(',', \App\Models\Setting::where('key', 'leave_request_notify')->value('value'));
             if (!empty($emails)) {
-                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+                $emailsArray = array_filter(array_map('trim', $emails));
             
                 if (!empty($emailsArray)) {
                     Mail::to($emails)->send(new LeaveRequestNotification(
@@ -50,7 +50,7 @@ class EmployeeLeavesController extends Controller
                 }
             }
            
-        } 
+       
        /*  if (config('app.env') !== 'production') {
             Mail::to('kariem.pro@gmail.com')->send(new LeaveRequestNotification(
                 auth()->user()->name,

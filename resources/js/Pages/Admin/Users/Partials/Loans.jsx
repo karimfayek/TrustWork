@@ -1,7 +1,9 @@
 import DeleteButton from "@/Components/DeleteButton";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 
 export default function Loans({totalExpense , loans , children , role}) {
+     const user = usePage().props.auth.user;
+            const userRoles = user?.rolesnames ?? [];
     const handleStatusLoan = (id, status) => {
 
         router.post(
@@ -40,7 +42,7 @@ export default function Loans({totalExpense , loans , children , role}) {
                                 loan.admin_status
                             }
                             </div>
-                            {(role === 'hr' || role === 'acc' || role==='admin') &&
+                            {['admin' , 'acc' , 'hr'].some(role => userRoles?.includes(role)) &&
                                 <>
                                 
                                <DeleteButton id={loan.id} routeName={'loan.delete'} />

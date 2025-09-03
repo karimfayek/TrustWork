@@ -9,8 +9,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function EditProject({ users, project, userIds }) {
    
-    const user = usePage().props.auth.user;
-    const role = user?.role;
+       const user = usePage().props.auth.user;
+    const userRoles = user?.rolesnames ?? [];
     const [initialTasks, setTasks] = useState(
         project.tasks.map(task => ({
             id: task.id,
@@ -39,6 +39,7 @@ export default function EditProject({ users, project, userIds }) {
         tasks: initialTasks || [],
         tasksnew: [],
         projectId: project.id,
+        send_email: false,
     });
     const applyUserToAllTasks= (e) => {
         e.preventDefault()
@@ -179,7 +180,7 @@ export default function EditProject({ users, project, userIds }) {
                             <InputError message={errors.customer_name} className="mt-2" />
                         </div>
                         <div>
-                            <InputLabel htmlFor="customer_name" value="ايميل العميل" />
+                            <InputLabel htmlFor="customer_email" value="ايميل العميل" />
                             <TextInput
                                 id="name"
                                 type="text"
@@ -189,6 +190,18 @@ export default function EditProject({ users, project, userIds }) {
                                 
                             />
                             <InputError message={errors.customer_email} className="mt-2" />
+                        </div>
+                         <div className={'border p-2'}>
+                            <InputLabel htmlFor="send_email" value=" ارسال اشعار" />
+                            <TextInput
+                                id="name"
+                                type="checkbox"
+                                value={data.send_email}
+                                className="mt-1 block"
+                                onChange={(e) => setData('send_email', e.target.value)}
+                                
+                            />
+                            <InputError message={errors.send_email} className="mt-2" />
                         </div>
                         <div>
                             <InputLabel htmlFor="project_code" value="كود المشروع " />
@@ -214,7 +227,7 @@ export default function EditProject({ users, project, userIds }) {
                         />
                         <InputError message={errors.description} className="mt-2" />
                     </div>
-                    {(role === 'admin' || role === 'acc') &&
+                    {['admin' , 'acc'].some(role => userRoles?.includes(role)) &&
                     
                     <div>
                         <InputLabel htmlFor="advance_payment" value="دفعه مقدمه " />
@@ -228,7 +241,7 @@ export default function EditProject({ users, project, userIds }) {
                         <InputError message={errors.advance_payment} className="mt-2" />
                     </div>
                     }
-                    {role !== 'tech' &&
+                    {!userRoles.includes('tech') &&
 
                         <><div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -302,7 +315,7 @@ export default function EditProject({ users, project, userIds }) {
                             handleCheckboxChange={handleCheckboxChange}
                             users={users}
                             userIds = {data.user_ids}
-                            role={role}
+                            userRoles={userRoles}
                         />
                         {data.tasksnew.map((task, index) => (
                             <div key={index} className="p-4 mb-4 bg-gray-50 rounded border space-y-3 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -370,7 +383,7 @@ export default function EditProject({ users, project, userIds }) {
                                     </select>
                                     <InputError message={errors.tasks?.[index]?.unit} className="mt-1" />
                                 </div>
-                                {(role === 'acc' || role === 'admin') && (
+                               {['admin' ,'acc'].some(role => userRoles?.includes(role)) && (
 
 <><div>
     <InputLabel value="سعر الوحدة " />
@@ -395,7 +408,7 @@ export default function EditProject({ users, project, userIds }) {
     </div>
 </>)
 }
-                                {(role === 'proj' || role === 'admin') &&
+                                {['admin' ,'proj'].some(role => userRoles?.includes(role)) &&
                                     <>
                                     <div>
                                         <InputLabel value="تاريخ البداية" />

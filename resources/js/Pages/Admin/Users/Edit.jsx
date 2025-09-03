@@ -31,8 +31,8 @@ export default function EditUser({ user }) {
         totalExpense,
         remaining,
         deductions,
+        roles
     } = usePage().props;
-
     const [attData, setAttData] = useState({});
     const [month, setMonth] = useState(null);
     const absenceScore =
@@ -197,7 +197,7 @@ export default function EditUser({ user }) {
 
                 {showSection === 'userform' &&
 
-                    <UserForm user={user} />
+                    <UserForm user={user} allRoles={roles}  />
                 }
                 <hr />
                 <h1 className="text-2xl font-bold text-gray-800 mb-6 ">

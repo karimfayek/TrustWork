@@ -33,7 +33,7 @@ class RewardController extends Controller
             ];
         })
         ->values();
-        $users = User::where('status' , 1)->get();
+        $users = User::all();
 
     return Inertia::render('Admin/Rewards/Index', [
         'rewards' => $rewards,

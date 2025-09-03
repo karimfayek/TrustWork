@@ -1,10 +1,12 @@
-import InputLabel from '@/Components/InputLabel';
+
+import { usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
 export default function SalaryCalculator({ user, forUser=false, totalAdvance, totalExpense, remaining }) {
     const [attData, setAttData] = useState({});
     const [month, setMonth] = useState(null);
-    
+      const admin = usePage().props.auth.user;
+        const userRoles = admin?.rolesnames ?? [];
     // const absenceScore = Number(attData?.absenceDays) * Number(Number(user.salary?.base_salary) * 0.1)  ; Number(attData?.taskScore) +
      const absenceScore = Number(attData?.absenceDays) * (Number(Number(user.salary?.final_salary) / 30)  );
 
@@ -59,7 +61,7 @@ export default function SalaryCalculator({ user, forUser=false, totalAdvance, to
                 }
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {!forUser &&
+                {!forUser &&   ['admin' , 'acc' ].some(role => userRoles?.includes(role)) &&
                     <>
                     <EarningsSection user={user} attData={attData} />
                     <DeductionsSection attData={attData} absenceScore={absenceScore} />

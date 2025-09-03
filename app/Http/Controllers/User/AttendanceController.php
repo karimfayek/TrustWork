@@ -41,13 +41,21 @@ class AttendanceController extends Controller
             $visits = Visit::where('user_id', $user)->get()->load('user', 'customer');
         }
         $role = auth()->user()->role ;
-        //dd($role);
-        if($role === 'proj'){
-            $users = User::where('role' , 'employee')->get(); 
-        }else{
 
+         $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
+          if (array_intersect($currentUserRoles, ['admin', 'acc' , 'hr'])) {
+
+           //dd( $currentUserRoles );
             $users = User::all();
+
         }
+        else {
+            $users = User::whereHas('roles', function ($query) {
+                $query->where('name', 'employee'); 
+            })->get();
+           
+        }
+
         $customers = \App\Models\Customer::all(); 
         $projects = Project::all();
         return Inertia::render('User/AttList', [
@@ -317,13 +325,13 @@ class AttendanceController extends Controller
         ]);
          $user = $request->user_id;
          
-         $role = User::find(auth()->id())->role ;
+          $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
          //dd($role);
-        if($role !== 'admin' && $role !== 'proj'  && $role !== 'acc' ){
-            $request->validate([
+         if (!array_intersect($currentUserRoles, ['admin', 'acc' , 'hr'])) {
+   $request->validate([
                 'location' => 'required',
             ]); 
-        }
+}
          $project = $request->project;
          $customer_id = $request->customer_id;
          $inOut = $request->inOut;

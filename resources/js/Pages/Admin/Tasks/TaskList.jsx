@@ -4,10 +4,11 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import { router, useForm } from '@inertiajs/react';
 
-const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheckboxChange, role, userIds }) => {
+const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheckboxChange, userRoles, userIds }) => {
   
     const [qtyDone, setQtyDone] = useState({task:'' , qty:''});
     const [userId, setUserId] = useState("");
+    const [assignShow, setAssignShow] = useState("");
     const [progressData, setProgressData] = useState({});
     const {
         post,
@@ -91,7 +92,13 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
             }
         );
     };
-    
+    const handleAssignShow = (id) => {
+        if(assignShow === id){
+            setAssignShow("")
+        }else{
+            setAssignShow(id)
+        }
+    }
     return (
         <>
 
@@ -162,7 +169,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                             </select>
                             <InputError message={errors.tasks?.[index]?.unit} className="mt-1" />
                         </div>
-                        {(role === 'acc' || role === 'admin') &&
+                         {['admin' , 'acc'].some(role => userRoles?.includes(role)) &&
                             <><div>
                                 <InputLabel value="سعر الوحدة " />
                                 <TextInput
@@ -184,7 +191,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                                         className="mt-1 block w-full" />
                                     <InputError message={errors.tasks?.[index]?.tp} className="mt-1" />
                                 </div></>}
-                        {(role === 'proj' || role === 'admin') &&
+                        {['admin' , 'proj'].some(role => userRoles?.includes(role)) &&
                             <>
                                 <div>
                                     <InputLabel value="تاريخ البداية" />
@@ -207,11 +214,13 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                                 </div>
                                 <div>
                                     <InputLabel className='mb-2'>
-                                        <p className='inline'>اسناد المهام</p>
+                                        <p className='cursor-pointer inline underline' onClick={(e) => handleAssignShow(task.id)}>اسناد المهام</p>
                                         <button className='inline mr-2 text-blue-500 text-sm underline' onClick={(e) => copyTeamWork(e, index)}>
                                             نسخ فريق عمل المشروع
                                         </button>
                                     </InputLabel>
+                                    {assignShow === task.id &&
+                                    
                                     <div className="bg-white border gap-2 grid grid-cols-2 mt-1 p-1.5">
 
                                         {users?.map(user => (
@@ -227,6 +236,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                                             </label>
                                         ))}
                                     </div>
+                                    }
 
                                 </div>
 
@@ -239,7 +249,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                         <div>
                             <button onClick={(e) => handleDeleteOldTask(e, task.id)} className='active:bg-gray-900 bg-red-800 border border-transparent duration-150 ease-in-out focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 font-semibold hover:bg-gray-700 mt-7 py-2 rounded-md text-white text-xs tracking-widest transition w-full'>حذف</button>
                         </div>
-                        {(role === 'admin' || role === 'proj') && task.remaining > 0 &&
+                         {['admin' , 'proj'].some(role => userRoles?.includes(role)) && task.remaining > 0 &&
 
                             <div
 

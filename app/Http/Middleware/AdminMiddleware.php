@@ -19,13 +19,17 @@ class AdminMiddleware
         if (!auth()->check()) {
             return redirect()->route('login');
         }
+
         $user = auth()->user();
-       
+       /* 
         if ($user && in_array($user->role, $roles)) {
             return $next($request);
            
-        }
-        $redirectTo = match ($user->role) {
+        } */
+       if ($user && $user->hasAnyRole($roles)) {
+    return $next($request);
+}
+       /*  $redirectTo = match ($user->role) {
             'admin' => 'admin.dashboard',
             'acc' => 'admin.dashboard',
             'proj' => 'admin.dashboard',
@@ -34,8 +38,21 @@ class AdminMiddleware
             'managment' => 'employee.att.index',
             'hr' => 'users.index',
             default => 'profile.edit',
-        }; 
+        };  */
         //dd($redirectTo);
+        $redirectTo = match (true) {
+            $user->hasRole('admin'), 
+            $user->hasRole('acc'),
+            $user->hasRole('proj'),
+            $user->hasRole('tech') => 'admin.dashboard',
+
+            $user->hasRole('employee') => 'profile.edit',
+
+            $user->hasRole('managment') => 'employee.att.index',
+            $user->hasRole('hr') => 'users.index',
+
+            default => 'profile.edit',
+        };
         return redirect()->intended(route( $redirectTo, absolute: false));
     
        //return redirect()->route('dashboard')->with('error', 'ليس لديك صلاحية الدخول هنا.');

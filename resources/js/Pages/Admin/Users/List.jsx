@@ -1,5 +1,5 @@
 import React from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import DropdownMenu from '@/Components/DropdownMenu';
 import { handleDelete } from '@/Functions/HandelDelete';
@@ -7,6 +7,8 @@ import DeleteButton from '@/Components/DeleteButton';
 
 export default function Dashboard({ users }) {
    
+      
+    const logedinUser = usePage().props.auth.user
     return (
         <AuthenticatedLayout>
             <Head title="Admin Dashboard" />
@@ -28,9 +30,14 @@ export default function Dashboard({ users }) {
                             <tr className='text-right'>
                                 <th className="px-6 py-3 ">اسم الموظف</th>
                                 <th className="px-6 py-3 "> رقم التليفون</th>
+                                {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
+                                
+                                <>
                                 <th className="px-6 py-3 ">المرتب الاساسي</th>
                                 <th className="px-6 py-3 ">المرتب المتغير</th>
                                 <th className="px-6 py-3 ">المرتب النهائي</th>
+                                </>
+                                }
                                 <th className="px-6 py-3 ">الخيارات</th>
                             </tr>
                         </thead>
@@ -39,9 +46,14 @@ export default function Dashboard({ users }) {
                                 <tr key={user.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{user.name}</td>
                                     <td className="px-6 py-4">{user.phone}</td>
+                                    {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
+                                
+                                <>
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.base_salary}</td>
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.final_salary - user.salary?.base_salary}</td>
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.final_salary}</td>
+                                      </>
+                                }
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                        
                                         
