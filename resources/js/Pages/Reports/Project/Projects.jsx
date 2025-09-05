@@ -11,6 +11,7 @@ export default function Projects ({tasks ,className , projects, title}){
         <h2 className={"mb-2 mt-2 text-xl " + className}>
            {title}
         </h2>
+       
         <table className="min-w-full border border-gray-300 text-sm">
                 <thead className="bg-gray-100">
                     <tr>

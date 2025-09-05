@@ -58,7 +58,7 @@ class ProjectController extends Controller
     }
     public function store(Request $request)
     {
-        //dd($request->tasks);
+       //dd($request->tasks);
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',

@@ -1,15 +1,27 @@
-import { Fragment } from 'react';
-import { Head } from "@inertiajs/react";
+import { Fragment, useState } from 'react';
 import ReportLayout from "./ReportLayout";
-import Projects from "./Project/Projects";
-import Tasks from "./Project/Tasks";
 
 export default function EmployeeReport({ projects }) {
-console.log(projects , 'proj report')
+
+    const [selectedProjectId, setSelectedProjectId] = useState('all');
     return (
         <ReportLayout>
         <div className="space-y-8">
-            {projects.map((proj, index) => (
+            <div className="mb-4 print:hidden">
+                <label htmlFor="projectFilter" className="mr-2 font-semibold">فلترة حسب المشروع:</label>
+                <select
+                    id="projectFilter"
+                    value={selectedProjectId}
+                    onChange={(e) => setSelectedProjectId(e.target.value)}
+                    className="border px-2 py-1 rounded"
+                >
+                    <option value="all">الكل</option>
+                    {projects.map((project) => (
+                        <option key={project.id} value={project.id}>{project.name}</option>
+                    ))}
+                </select>
+            </div>
+            {projects.filter(project => selectedProjectId === 'all' || project.id == selectedProjectId).map((proj, index) => (
                 <Fragment key={index}>
                     <div className="bg-white shadow rounded-lg p-4 border border-gray-200">
                         <h2 className="text-lg font-semibold text-blue-800 border-b pb-2 mb-2">
