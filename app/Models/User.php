@@ -30,7 +30,7 @@ class User extends Authenticatable
         'deleted_at',
         'phone',
         'hire_date',
-        'offdayestype'
+        'offdayestype',
     ];
 
     /**

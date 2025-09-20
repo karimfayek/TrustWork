@@ -13,7 +13,15 @@ import {
 } from "flowbite-react";
 import axios from 'axios';
 export default function ExtractionList({ project }) {
-
+  const extractionTypes = {
+    partial: 'جاري ',
+    final: ' ختامي',
+    supply: ' جارى تشوينات',
+    delevery: '  اذن تسليم',
+    ir: ' IR',
+    mir: ' MIR',
+    qs: ' QS',
+  };
     const [showPicModal, setShowPicModal] = useState(false);
     const [showMdal, setHandleShowModal] = useState(false);
     const [extraction, setExtraction] = useState('');
@@ -103,14 +111,14 @@ const onToggle = (newValue , id) => {
                         <>
                             {picSrc.endsWith('.pdf') ? (
                             <iframe
-                                src={`/storage/${picSrc}`}
+                                src={`/private-storage/${picSrc}`}
                                 width="100%"
                                 height="500px"
                                 className="border rounded"
                             ></iframe>
                             ) : (
                             <img
-                                src={`/storage/${picSrc}`}
+                                src={`/private-storage/${picSrc}`}
                                 alt="preview"
                                 className="max-w-full h-auto rounded shadow"
                             />
@@ -162,7 +170,7 @@ const onToggle = (newValue , id) => {
                         <tbody className="divide-y divide-gray-200">
                             {project.extractions?.map((extraction) => (
                                 <tr key={extraction.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">{extraction.type === 'partial' && 'جزئي'} {extraction.type === 'final' && 'ختامى'}</td>
+                                    <td className="px-6 py-4">{ extractionTypes[extraction.type] }</td>
                                     <td className="px-6 py-4">{extraction.partial_number}</td>
                                     <td className="px-6 py-4 text-gray-600">{extraction.date}</td>
                                     <td className="px-6 py-4 text-gray-600">{extraction.net_total}</td>

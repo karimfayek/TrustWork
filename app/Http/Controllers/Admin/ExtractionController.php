@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\Project;
 use App\Models\Extraction;
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 class ExtractionController extends Controller
 {
     public function list(Project $project)
@@ -28,11 +31,15 @@ class ExtractionController extends Controller
             ['key' => 'previous_payments', 'label' => ' ما سبق صرفة'],
         ];
        
-        $numExtractions = $project->extractions()->count();
+        $numExtractions = $project->extractions()
+        ->where('supply' , 0)
+        ->where('type' , '!=' ,'mir')->where('type' , '!=' ,'ir')->where('type' , '!=' ,'qs')->where('type' , '!=' ,'delevery')
+        ->count();
         $projectId = $project->id;
 
         // 1. نجيب كل المستخلصات السابقة (بدون المستخلص الحالي لو فيه)
         $previousExtractionIds = Extraction::where('project_id', $projectId)->where('supply' , 0)
+        ->where('type' , '!=' ,'mir')->where('type' , '!=' ,'ir')->where('type' , '!=' ,'qs')->where('type' , '!=' ,'delevery')
             ->pluck('id');
         
         // 2. نجيب مجموع المنصرف لكل task من البنود السابقة
@@ -71,7 +78,7 @@ class ExtractionController extends Controller
     {
       //dd($request->all());
         $validated = $request->validate([
-            'type' => 'required|in:partial,final',
+            'type' => 'required|in:partial,final,delevery,mir,ir,qs',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
             'netTotal'=>'required|numeric',
@@ -100,8 +107,8 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=>  $request->netTotal,
-            'partial_number' => $project->extractions()->where('type' , 'partial')->count() +1,
+            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ? 0 : $request->netTotal,
+            'partial_number' =>  $request->num,
         ]);
         foreach ($validated['items'] as $itemData) {
             //dd($itemData);
@@ -113,7 +120,7 @@ class ExtractionController extends Controller
     {
       //dd($request->all());
         $validated = $request->validate([
-            'type' => 'required|in:partial,final',
+           'type' => 'required|in:partial,final,delevery,mir,ir,qs',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
             'netTotal'=>'required|numeric',
@@ -143,7 +150,7 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=>  $request->netTotal,
+            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ? 0 : $request->netTotal,
            
         ]);
         $sentTaskIds = collect($validated['items'])->pluck('task_id')->toArray();
@@ -184,6 +191,7 @@ foreach ($validated['items'] as $itemData) {
         $projectId = $project->id;
         $previousExtractionIds = Extraction::where('project_id', $projectId)
         ->where('supply', 0)
+        ->where('type' , '!=' ,'mir')->where('type' , '!=' ,'ir')->where('type' , '!=' ,'qs')->where('type' , '!=' ,'delevery')
         ->where('id', '!=', $extraction->id) // استثناء المستخلص الحالي
         ->pluck('id');
 
@@ -224,11 +232,12 @@ foreach ($validated['items'] as $itemData) {
         ]);
 
         if ($request->hasFile('file')) {            
-            $path = $request->file('file')->store('extractions', 'public');
-            $file = public_path('\\storage\\' . $extraction->file);
-            
+            $path = $request->file('file')->store('extractions', 'private');
+            $file = storage_path('app/private/' . $extraction->file);
+            //dd($file);
             if (file_exists($file)) {
-                unlink($file);
+                
+                @unlink($file);
             }
             $extraction->file = $path;
         }
@@ -260,5 +269,22 @@ foreach ($validated['items'] as $itemData) {
         return back()->with('message' , 'تم الحذف');
     }
 
+
+    public function showPrivateFile($filename)
+    {
+         $path = storage_path('app\\private\\' . $filename);
+        //dd($path);
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        // تحديد الـ mime type الصحيح
+        $mime = mime_content_type($path);
+
+        return Response::make(file_get_contents($path), 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="'.$filename.'"'
+        ]);
+    }
 
 }

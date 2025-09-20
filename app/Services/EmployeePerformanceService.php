@@ -64,24 +64,39 @@ class EmployeePerformanceService
         ];
     }
 
-    private function countWorkingDays($type,$start, $end)
-    {
-        $days = 0;
-        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            if ($type == 1) {
-                // استثناء الجمعة فقط
-                if ($date->dayOfWeek !== Carbon::FRIDAY) {
-                    $days++;
-                }
-            } else {
-                // استثناء الجمعة والسبت
-                if (!in_array($date->dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
-                    $days++;
-                }
-            }
+  private function countWorkingDays($type, $start, $end)
+{
+    // جلب جميع تواريخ الإجازات الرسمية في الفترة
+    $holidayDates = \App\Models\Holiday::whereBetween('date', [$start->toDateString(), $end->toDateString()])
+        ->pluck('date')
+        ->map(fn($d) => Carbon::parse($d)->toDateString())
+        ->toArray();
+
+    $days = 0;
+
+    for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+        $dayOfWeek = $date->dayOfWeek;      // رقم اليوم (0=Sunday .. 6=Saturday)
+        $dayString = $date->toDateString(); // YYYY-MM-DD
+
+        // استثناء أيام العطلة الأسبوعية
+        if ($type == 1 && $dayOfWeek === Carbon::FRIDAY) {
+            continue;
         }
-        return $days;
+        if ($type != 1 && in_array($dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
+            continue;
+        }
+
+        // استثناء الإجازات الرسمية
+        if (in_array($dayString, $holidayDates)) {
+            continue;
+        }
+
+        // يوم عمل فعلي
+        $days++;
     }
+
+    return $days;
+}
 
     private function countWorkingDaysUntilToday($type, $start, $end, $month)
 {
@@ -109,6 +124,11 @@ class EmployeePerformanceService
     private function getAttendanceData($userId, $start, $today)
     {
         $user= User::find($userId);
+          $holidayDates = \App\Models\Holiday::whereBetween('date', [$start->toDateString(), $today->toDateString()])
+        ->pluck('date')
+        ->map(fn($d) => Carbon::parse($d)->toDateString())
+        ->toArray();
+        
         $offDays = [];
 
         if ($user->offdayestype == '1') {
@@ -117,16 +137,19 @@ class EmployeePerformanceService
             $offDays = ['Friday', 'Saturday'];
         }
 
-        $attendanceDays = Attendance::where('user_id', $userId)
+   $attendanceDays = Attendance::where('user_id', $userId)
     ->whereDate('check_in_time', '>=', $start)
     ->whereDate('check_in_time', '<=', $today)
     ->get()
     ->groupBy(function($attendance) {
-        return Carbon::parse($attendance->check_in_time)->toDateString(); // Group by date only
+        return \Carbon\Carbon::parse($attendance->check_in_time)->toDateString(); // Group by date
     })
-    ->filter(function ($attendancesOnDay) use ($offDays) {
-        $dayName = Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
-        return !in_array($dayName, $offDays); // Exclude if it's an off day
+    ->filter(function ($attendancesOnDay) use ($offDays, $holidayDates) {
+        $date = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->toDateString();
+        $dayName = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
+
+        // ✅ استبعاد إذا كان يوم عطلة أسبوعية أو إجازة رسمية
+        return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
     })
     ->count();
     $leaves = $user->leaves()->where('status' , 'approved')->count();
@@ -135,16 +158,16 @@ class EmployeePerformanceService
             ->where('is_late', true)
             ->count();
 
-//dd($user);
-//dd($this->countWorkingDays($user->offdayestype,$start, $today));
+            $visits = Visit::where('user_id', $userId)
+                ->whereBetween('created_at', [$start, $today])
+                ->get();
+               // dd($visits);
         return [
             'present_days' => $attendanceDays ,
             'late_days' => $lateAttendances ,
             'leaves' => $leaves ,
             'percentage' => ($attendanceDays ) / max(1, $this->countWorkingDays($user->offdayestype,$start, $today)) * 100,
-            'visits' => Visit::where('user_id', $userId)
-                ->whereBetween('check_in', [$start, $today])
-                ->get()
+            'visits' => $visits
         ];
     }
 
@@ -236,6 +259,7 @@ class EmployeePerformanceService
 
     private function calculateTransportFees($visits)
     {
+        //dd($visits);
         return $visits->sum(fn($visit) => $visit->customer->transport_fees ?? 0);
     }
 

@@ -7,6 +7,7 @@ export  const handleDelete = (e ,id , routeName) => {
 
     if (!confirmed) return; // المستخدم رفض
 
+    console.log("Deleted item with ID:", id);
     router.post(
         route(routeName),
         { id }, {

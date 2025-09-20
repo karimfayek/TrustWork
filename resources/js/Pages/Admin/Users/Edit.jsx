@@ -9,6 +9,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import DeleteButton from "@/Components/DeleteButton";
 import Loans from "./Partials/Loans";
 import Leaves from "./Partials/Leaves";
+import LoanRequestForm from "./Partials/LoanRequestForm";
 
 export default function EditUser({ user }) {
     useEffect(() => {
@@ -173,6 +174,7 @@ export default function EditUser({ user }) {
         amount: "",
         note: "",
         type: "",
+        deducted_at:'',
         user_id: user?.id,
     });
     const [showSection, setShowSection] = useState('')
@@ -307,12 +309,11 @@ export default function EditUser({ user }) {
                                             <li key={index} className="border-b py-2">
 
                                                 <div className="flex items-center justify-between">
-
                                                     <div>
                                                         <div>📅 {d.deducted_at}</div>
                                                         <div>💸 {d.amount} ج</div>
                                                         <div>📝 {d.note}</div>
-                                                        <div>📝 {d.type}</div>
+                                                        <div>📝 {d.type ==='basic' ? 'استقطاع' : d.type === 'deduction' ? 'جزاء' : ''}</div>
                                                     </div>
 
                                                     <div>
@@ -478,18 +479,28 @@ export default function EditUser({ user }) {
                                                 {deductionErrors.amount}
                                             </div>
                                         )}
-                                        <input
-                                            type="text"
-                                            placeholder="type"
-                                            value={deductionData.type}
-                                            onChange={(e) => setDeductionData("type", e.target.value)}
-                                            className="w-full border p-2 mb-2"
-                                            required />
+                                       
+                                        <select className="w-full border p-2 mb-2"  value={deductionData.type}
+                                         onChange={(e) => setDeductionData("type", e.target.value)} required
+                                        >
+                                            <option value="">نوع الاستقطاع</option> 
+                                            <option value="basic">اساسى</option>                                            
+                                            <option value="deduction">جزاء</option>
+                                        </select>
+                                       
                                         {deductionErrors.type && (
                                             <div className="text-red-600">
                                                 {deductionErrors.type}
                                             </div>
                                         )}
+                                         {deductionData.type === 'deduction' &&
+                                        
+                                        <input type="date" name="deducted_at"  id="deducted_at" className="w-full border mb-2"
+                                        value={deductionData.deducted_at}
+                                          onChange={(e) => setDeductionData("deducted_at", e.target.value)}
+                                       required
+                                          />
+                                        }
                                         <input
                                             type="text"
                                             placeholder="الوصف"
@@ -524,6 +535,10 @@ export default function EditUser({ user }) {
                    
                 <Loans totalExpense={totalExpense} loans={user.loans} role={role} />
                 }
+                <LoanRequestForm maxAmount ={ user.salary.final_salary * 0.25}
+                 routeName={'/admin/loans/store/'+ user.id}
+                 title={'اضافه سلفه'}
+                 />
                 <hr />
                 <h1 className="text-2xl font-bold text-gray-800 p-6 ">
                    الاجازات

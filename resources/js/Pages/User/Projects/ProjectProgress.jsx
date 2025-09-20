@@ -1,7 +1,7 @@
-
-
+import DeleteButton from '@/Components/DeleteButton';
+import { usePage } from '@inertiajs/react';
 export default function ProjectProgress ({task}) {
-  
+   const logedinUser = usePage().props.auth.user
     return (
 <>
 
@@ -32,6 +32,11 @@ export default function ProjectProgress ({task}) {
                                 day: 'numeric',
                             })}
                         </span>
+                          {['admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
+                        <span>
+                            <DeleteButton id={entry.id} routeName={'admin.task.progress.delete'}  title="حذف هذا الإنجاز"  />
+                        </span>
+}
                     </div>
                 </li>
             ))}

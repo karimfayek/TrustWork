@@ -22,10 +22,10 @@ class EmployeeAdvanceController extends Controller
         $expenses = $user->expenses()->get()->load('by', 'advance' , 'advance.project');
 
         $totalAdvance = $user->advances()->accepted()->sum('amount');
-      // dd($totalAdvance);
-       $userProjects = $user->projects();
-       $activeProjects = $userProjects->whereDate('end_date', '>=', now()->toDateString())
-       ->get();
+    // Get active projects where is_completed() returns false
+    $activeProjects = $user->projects->filter(function ($project) {
+        return !$project->is_completed;
+    })->values();
       //dd($activeProjects);
         $totalExpense = $expenses->sum('amount');
         $remaining = $totalAdvance - $totalExpense;

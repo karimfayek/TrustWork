@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TaskProgress extends Model
 {
+    protected $table = 'task_progress';
     protected $fillable = [
         'task_id',
         'user_id',

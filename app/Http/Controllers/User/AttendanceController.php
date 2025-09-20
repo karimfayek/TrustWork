@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Visit;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Holiday;
 
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -80,14 +81,19 @@ class AttendanceController extends Controller
         $report = collect();
         $period = CarbonPeriod::create($from, $to);
     
+        // جلب تواريخ الإجازات الرسمية في الفترة
+        $holidayDates = Holiday::whereBetween('date', [$from->toDateString(), $to->toDateString()])
+            ->pluck('date')
+            ->map(fn($d) => Carbon::parse($d)->toDateString())
+            ->toArray();
+    
         if ($request->user_id !== null) {
-            // حالة: مستخدم محدد
             $user = User::findOrFail($request->user_id);
     
             foreach ($period as $current) {
                 $attendances = Attendance::whereDate('check_in_time', $current)
                     ->where('user_id', $user->id)
-                    ->with(['project', 'visit.customer', 'user']) // تحميل العلاقات دفعة واحدة
+                    ->with(['project', 'visit.customer', 'user'])
                     ->get();
     
                     if ($attendances->isEmpty()) {
@@ -107,7 +113,17 @@ class AttendanceController extends Controller
                         ->whereDate('leave_date', $current->toDateString())
                         ->first();
                     
-                        if ($hasLeave) {
+                        // تحقق هل اليوم إجازة رسمية
+                        if (in_array($current->toDateString(), $holidayDates)) {
+                            $report->push([
+                                'date' => $current->toDateString(),
+                                'type' => 'holiday',
+                                'name' => 'إجازة رسمية',
+                                'check_in' => null,
+                                'check_out' => null,
+                                'user_name' => $user->name,
+                            ]);
+                        } elseif ($hasLeave) {
                             $leaveName = $hasLeave->type === 'regular' ? 'إجازة اعتيادية' : 'إجازة عارضة';
                             $report->push([
                                 'date' => $current->toDateString(),

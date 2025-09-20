@@ -42,7 +42,12 @@ const totalCost = items.reduce((acc, task) => {
     partial: 'جاري ',
     final: ' ختامي',
     supply: ' جارى تشوينات',
+    delevery: '  اذن تسليم',
+    ir: ' IR',
+    mir: ' MIR',
+    qs: ' QS',
   };
+  console.log(type !=='delevery' , 'type')
   const isError = () => {
     const parse = (val) => Number(String(val).replace(/,/g, ''));
 
@@ -56,7 +61,7 @@ const totalCost = items.reduce((acc, task) => {
       parse(otherTax) -
       parse(netTotal);
       
-  console.log(diff  , 'dif')
+      
     return type === 'final' && Math.abs(diff) > 0.1; // هامش خطأ صغير
   };
   return (
@@ -73,7 +78,12 @@ const totalCost = items.reduce((acc, task) => {
         <p><strong>اسم المشروع:</strong> {project.name}</p>
         <p><strong>اسم العميل:</strong> {customer}</p>
         <p><strong>كود المشروع:</strong> {projectCode}</p>
+           {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
         <p><strong> مستخلص:</strong>  {extractionTypes[type]} <i>{num}</i> {   extraction.supply ===1 &&  <i>تشوينات</i> } </p>
+          }
+            {type==='delevery' &&
+             <p className='text-center text-xl'><strong> اذن تسليم</strong>   </p>
+}
         <p><strong>تاريخ الطلب:</strong> {date}</p>
       </div>
       <div className="mb-[100px]">
@@ -86,17 +96,31 @@ const totalCost = items.reduce((acc, task) => {
               <th className="p-2 border" rowSpan="2">بيان الأعمال</th>
               <th className="p-2 border" rowSpan="2">الوحــدة</th>
               <th className="p-2 border" rowSpan="2">كمية العقد</th>
-              <th className="p-2 border" colSpan="3">الكمية</th>
-              <th className="p-2 border" rowSpan="2">الفئة</th>
-              <th className="p-2 border" rowSpan="2">نسبة الصرف</th>
-              <th className="p-2 border" rowSpan="2">إجمالي المبلغ</th>
+                {(type === 'delevery' || type === 'mir') &&
+                  <>
+                  <th className="p-2 border" colSpan="3">
+                    {type === 'delevery' && <>كميه التسليم</>}
+                    {type === 'mir' && <>كميه الفحص</>}
+                  </th>
+                  </>
+                }
+                {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' && 
+               <>               
+              <th className="p-2 border" colSpan="3">الكمية</th>               
+               <th className="p-2 border" rowSpan="2">الفئة</th>
+               <th className="p-2 border" rowSpan="2">نسبة الصرف</th>
+               <th className="p-2 border" rowSpan="2">إجمالي المبلغ</th>
+               </>
+               }
 
             </tr>
+              {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
             <tr>
               <th className="p-2 border"> السابق</th>
               <th className="p-2 border"> الحالي</th>
               <th className="p-2 border"> الإجمالي</th>
             </tr>
+}
           </thead>
           <tbody>
             {items?.map(
@@ -113,17 +137,27 @@ const totalCost = items.reduce((acc, task) => {
                       ? "LS"
                       : task.unit
                   }</td>
-                  <td className="p-2 border text-center">{task.quantity}</td>
-                  <td className="p-2 border text-center"> {task.previous_done}</td>
-                  <td className="p-2 border text-center">{task.current_done}</td>
-                  <td className="p-2 border text-center">{task.total_done}</td>
-                  <td className="p-2 border text-center">{task.unit_price}</td>
-                  <td className="p-2 border text-center"> {task.progress_percentage} %</td>
-                  <td className="p-2 border text-center">{task.total}</td>
-
+                  <td className="p-2 border text-center">{Number(task.quantity).toFixed(0)}</td>
+                   {(type === 'delevery' || type === 'mir') &&
+                        <td className="p-2 border text-center">{task.current_done}</td>
+                        }
+                    {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
+                   <>
+                   
+                   <td className="p-2 border text-center"> {task.previous_done}</td>
+                   <td className="p-2 border text-center">{task.current_done}</td>
+                   <td className="p-2 border text-center">{task.total_done}</td>
+                   <td className="p-2 border text-center">{task.unit_price}</td>
+                   <td className="p-2 border text-center"> {task.progress_percentage} %</td>
+                   <td className="p-2 border text-center">{task.total}</td>
+                   </>
+}
                 </tr>
               )
             )}
+              {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
+             <React.Fragment>
+
              <tr>
               <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
               <td className="p-2 border text-center">{totalCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
@@ -191,17 +225,44 @@ const totalCost = items.reduce((acc, task) => {
               }
               </td>
             </tr>
+             </React.Fragment>
+}
 
-            {project.notes &&
+          
                           
                           <tr>
-                          <td colSpan={1} className="p-2 border text-center"> ملاحظات </td>
-                          <td colSpan={9} className="p-2 border text-center">   {project.notes}  </td>
+                            
+                          <td colSpan={4} className="p-2 border text-right min-h-7"> ملاحظات :</td>
                           </tr>
-                        }
+                       
 
           </tbody>
         </table>
+          {type ==='delevery' &&
+
+
+        <div className='mt-10'>
+          <p className='tet-center'>
+            تم تسليم واستلام البضاعه وفقا لما هو موضح عالية بالمواصافت والكميات  المذكورة  
+          </p>
+          <div className='flex flex-row justify-between'>
+            <div className='mt-9'>
+              <p>التسليم (شركة تراست)</p>
+              <p>الإسم : .....................</p>
+              <p>الوظيفة : .....................</p>
+              <p>التوقيع : .....................</p>
+            </div>
+             <div className='mt-9'>
+              <p>المستلم ({customer} )</p>
+              <p>الإسم : .....................</p>
+              <p>الوظيفة : .....................</p>
+              <p>التوقيع : .....................</p>
+            </div>
+          </div>
+        </div>
+         }
+
+
       </div>
 
 

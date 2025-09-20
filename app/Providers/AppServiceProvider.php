@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureRateLimiting();
         Route::middleware('web')
         ->group(function () {
             // تسجيل ميدل وير مخصص باسم admin
@@ -31,4 +34,16 @@ class AppServiceProvider extends ServiceProvider
         });
         Vite::prefetch(concurrency: 3);
     }
+    
+protected function configureRateLimiting()
+{
+    RateLimiter::for('login', function (Request $request) {
+        return Limit::perMinute(5)->by($request->ip());
+    });
+
+    // مثال: limiter عام للـ API
+    RateLimiter::for('api', function (Request $request) {
+        return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+    });
+}
 }

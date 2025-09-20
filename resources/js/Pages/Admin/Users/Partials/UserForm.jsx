@@ -3,6 +3,7 @@ import TextInput from "@/Components/TextInput";
 import PrimaryButton from "@/Components/PrimaryButton";
 import InputError from "@/Components/InputError";
 import { useForm, usePage } from '@inertiajs/react';
+import React, { useState } from "react";
 
 export default function UserForm({ user, allRoles }) {
     const basicSalary = user?.salary?.final_salary * .65 || ''
@@ -14,6 +15,7 @@ export default function UserForm({ user, allRoles }) {
         email: user?.email || "",
         password: "",
         phone: user?.phone || '',
+        status: user?.status ,
         hire_date: user?.hire_date || '',
         offdayestype: user?.offdayestype || '',
         must_change_password: user.must_change_password,
@@ -45,7 +47,11 @@ export default function UserForm({ user, allRoles }) {
         e.preventDefault();
         post(route("admin.user.update", user.id));
     };
-
+const [showSalary , setShowSalray] = useState(false)
+const handleShowSalary = (e) => {
+    e.preventDefault()
+    setShowSalray(!showSalary)
+}
     return (
         <form onSubmit={handleSubmit} className="space-y-6 mb-8">
             <div>
@@ -121,47 +127,46 @@ export default function UserForm({ user, allRoles }) {
                 />
                 <InputError message={errors.password} className="mt-2" />
             </div>
+            <button onClick={(e )=> (handleShowSalary(e))} className="underline cursor-pointer">المرتب</button>
             {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role))
                 &&
-                <>
+                <React.Fragment>
+                    {showSalary && 
+                    <>
                     <div>
-                        <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
-                        <TextInput
-                            id="final_salary"
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            value={data.final_salary}
-                            className="mt-1 block w-full"
-                            onChange={(e) => handleSalaryChange(e.target.value)}
-                        />
-                        <InputError message={errors.final_salary} className="mt-2" />
-                    </div>
-                    <div>
-                        <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
-                        <TextInput
-                            id="base_salary"
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            value={data.base_salary}
-                            className="mt-1 block w-full"
-                            onChange={(e) => setData("base_salary", e.target.value)}
-                            readOnly
-                        />
-                        <InputError message={errors.base_salary} className="mt-2" />
-                    </div>
-                    <div>
-                        <InputLabel htmlFor="base_salary" value=" المتغير" />
-                        <TextInput
-                            id="base_salary"
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            value={Number(data.final_salary) - Number(data.base_salary)}
-                            className="mt-1 block w-full"
-                            readOnly
-                        />
-                        <InputError message={errors.base_salary} className="mt-2" />
-                    </div>
-                </>
+                            <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
+                            <TextInput
+                                id="final_salary"
+                                type="number"
+                                onWheel={(e) => e.target.blur()}
+                                value={data.final_salary}
+                                className="mt-1 block w-full"
+                                onChange={(e) => handleSalaryChange(e.target.value)} />
+                            <InputError message={errors.final_salary} className="mt-2" />
+                        </div><div>
+                                <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
+                                <TextInput
+                                    id="base_salary"
+                                    type="number"
+                                    onWheel={(e) => e.target.blur()}
+                                    value={data.base_salary}
+                                    className="mt-1 block w-full"
+                                    onChange={(e) => setData("base_salary", e.target.value)}
+                                    readOnly />
+                                <InputError message={errors.base_salary} className="mt-2" />
+                            </div><div>
+                                <InputLabel htmlFor="base_salary" value=" المتغير" />
+                                <TextInput
+                                    id="base_salary"
+                                    type="number"
+                                    onWheel={(e) => e.target.blur()}
+                                    value={Number(data.final_salary) - Number(data.base_salary)}
+                                    className="mt-1 block w-full"
+                                    readOnly />
+                                <InputError message={errors.base_salary} className="mt-2" />
+                            </div></>
+                    }
+                </React.Fragment>
             }
 
             <div className="mt-4">
@@ -185,6 +190,17 @@ export default function UserForm({ user, allRoles }) {
                         onChange={(e) => setData("must_change_password", e.target.checked)}
                     />
                     <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
+                </label>
+            </div>
+
+              <div className="mt-4">
+                <label className="flex items-center">
+                    <input
+                        type="checkbox"
+                        checked={data.status}
+                        onChange={(e) => setData("status", e.target.checked)}
+                    />
+                    <span className="mr-2 text-sm text-gray-600">   نشط ؟  </span>
                 </label>
             </div>
 

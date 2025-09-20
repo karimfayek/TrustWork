@@ -192,4 +192,19 @@ class TaskProgressController extends Controller
             'type' => 'success'
         ]);
     }
+    public function deleteAdmin(Request $request)
+    {
+       // dd($request->all());
+        $data = $request->validate([
+            'id' => 'required|exists:task_progress,id',
+        ]);
+        
+        $progress = TaskProgress::findOrFail($data['id']);
+        $progress->delete();
+
+        return back()->with([
+            'message'=> 'تم الحذف بنجاح.',
+            'type' => 'success'
+        ]);
+    }
 }

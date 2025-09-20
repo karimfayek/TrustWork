@@ -46,6 +46,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
     type: 'partial',
     num: extractionsCount +1,
     supply: supply,
+    subject: '',
     isnotinclusive : isNotInclusive ,
     customer_name: project.customer_name || '',
     project_code: project.project_code || '',
@@ -164,6 +165,8 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
    
    
   };
+  
+  
   const handleInclusiveChange = (e) => {
     const { name, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: checked }));
@@ -233,6 +236,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
     const payload = {
       type: form.type,
       supply: form.supply,
+      num:form.num,
       isnotinclusive: form.isnotinclusive,
       date: form.date,
       customer_name: form.customer_name,
@@ -277,10 +281,24 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
               <label className="block text-sm font-medium">نوع المستخلص</label>
               <div className='grid grid-cols-2'>
               <select name="type" value={form.type} onChange={handleChange} className="w-full p-2 border rounded">
+                  
+                  <option value="delevery"> أذن تسليم</option>
+                  <option value="mir"> MIR</option>
+                  <option value="ir"> IR</option>
+                  <option value="qs"> QS</option>
                   <option value="partial">جاري  </option>
                   <option value="final"> ختامي</option>
               </select>
-              <input type="number" name="num" value={form.num} readOnly className="w-full p-2 border rounded" />
+ {(form.type === 'partial' ||  form.type === 'final' ||  form.type === 'mir' ) &&
+              <input type="number" name="num" value={form.num} onChange={handleChange}  className="w-full p-2 border rounded" />
+ }
+
+              {form.type === 'ir' &&
+                <div>
+                <label className="block text-sm font-medium">subject </label>
+                <input type="text" name="subject" value={form.subject} onChange={handleChange} className="w-full p-2 border rounded" />
+                </div>
+              }
               {form.type === 'partial' &&
               
               <>
@@ -296,6 +314,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
                     <span className="mr-2 text-sm text-gray-600">   تشوينات  </span>
                 </label>
             </div>
+             
              
               </>
               }
@@ -365,9 +384,12 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
             طباعة
           </button>
       </form>
+      { form.type !== 'ir' &&
+
       <Items items={items} handleItemChange={handleItemChange}  handleDeleteItem = {handleDeleteItem}/>
+      }
       
-      <ExtractionPreview deductions = {form.deductions}  project={project} 
+      <ExtractionPreview delevery={form.type}subject={form.subject} deductions = {form.deductions}  project={project}  
       items= {items} type={(form.supply && form.type === 'partial') ? 'supply' : form.type} 
       date={form.date} customer = {form.customer_name}
       projectCode={form.project_code} 

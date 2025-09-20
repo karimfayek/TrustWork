@@ -195,6 +195,7 @@ class AdminUserController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'hire_date' => $request->hire_date,
+            'status' => $request->status,
             'offdayestype'=> $request->offdayestype,
             'must_change_password' => $request->must_change_password,
         ]);

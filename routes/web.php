@@ -24,6 +24,7 @@ use App\Http\Controllers\User\AttendanceController;
 use App\Http\Controllers\User\VisitsController;
 use App\Http\Controllers\Admin\AdminVisitsController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\AdminHolidayController;
 use App\Http\Controllers\User\EmployeeAdvanceController;
 use App\Http\Controllers\User\IssueController;
 use App\Http\Controllers\User\TaskProgressController;
@@ -82,11 +83,13 @@ Route::post('/admin/recycle-bin/delete/user/{id}', [RecycleController::class, 'f
     Route::post('/admin/att/delete', [AttendanceController::class, 'delete'])->name('admin.att.delete');
     Route::get('/reports/attendance', [ReportController::class, 'attReport'])->name('reports.attendance');
     Route::get('/reports/salaries', [ReportController::class, 'salariesReport'])->name('reports.salaries');
+     Route::get('/reports/salaries/all', [ReportController::class, 'salariesReportAll'])->name('reports.salaries.all');
     Route::get('/reports/tools', [ReportController::class, 'toolsReport'])->name('reports.tools');
     //settings
     Route::get('/settings', [SettingController::class, 'show'])->name('settings');
     Route::get('/admin/settings', [SettingController::class, 'index'])->name('settings.get');
     Route::post('/admin/settings', [SettingController::class, 'store'])->name('settings.post');
+   
 });
 //admin,acc
 Route::middleware(['auth', 'role:admin,acc'])->group(function () {
@@ -97,11 +100,12 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     
  
      //extractions 
-     Route::get('/project/extractions/list/{project}', [ExtractionController::class, 'list'])->name('project.extractions.list');//create new
-     Route::get('/project/extractions/new/{project}', [ExtractionController::class, 'index'])->name('project.extractions.new');//create new
+     Route::get('/project/extractions/list/{project}', [ExtractionController::class, 'list'])->name('project.extractions.list');
+     Route::get('/project/extractions/new/{project}', [ExtractionController::class, 'index'])->name('project.extractions.new');
      Route::post('/projects/{project}/extraction', [ExtractionController::class, 'store'])->name('project.extractions.store');
      Route::post('/extraction/update/{extraction}', [ExtractionController::class, 'update'])->name('project.extractions.update');
      Route::get('/projects/{project}/extractions/{extraction}/preview', [ExtractionController::class, 'preview'])->name('extractions.preview');
+     Route::get('/private-storage/{path}', [ExtractionController::class, 'showPrivateFile']) ->where('path', '.*')->name('private.storage');
      Route::get('/projects/{project}/extractions/{extraction}/edit', [ExtractionController::class, 'edit'])->name('extractions.edit');
      Route::post('/extraction/delete', [ExtractionController::class, 'delete'])->name('extraction.delete');
      Route::post('/extraction/file/upload/{id}', [ExtractionController::class, 'UploadFIle'])->name('extraction.file.upload');
@@ -156,10 +160,13 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
    //loans
    
    Route::post('/admin/loans/status', [LoanController::class, 'changeStatus'])->name('admin.loan.status');
+   Route::post('/admin/loans/store/{id}', [LoanController::class, 'AdminStore'])->name('admin.loan.store');
    Route::post('/admin/loans/delete', [LoanController::class, 'delete'])->name('loan.delete');
 
     Route::post('/admin/employee/reward/', [RewardController::class, 'delete'])->name('employee.reward.delete');
-    
+    //holidays
+     Route::resource('holidays', AdminHolidayController::class);
+     Route::post('holidays/delete/post', [AdminHolidayController::class, 'delete'])->name('holidays.delete');
 });
 //employee,admin,acc
 Route::middleware(['auth' ,  'role:employee,admin,acc,managment,hr'])->group(function () {
@@ -236,6 +243,7 @@ Route::middleware(['auth', 'role:admin,proj,tech'])->group(function () {
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {
     Route::get('/project/{projectId}', [ProjectController::class, 'show'])->name('project.show');
     Route::post('/task-progress/admin', [TaskProgressController::class, 'storeAdmin'])->name('admin.task.progress.store');
+    Route::post('/task-progress/delete', [TaskProgressController::class, 'deleteAdmin'])->name('admin.task.progress.delete');
     Route::get('/task/{taskId}', [TaskController::class, 'show'])->name('task.show');
     Route::get('/projects/{projectId}/assign-tasks', [ProjectController::class, 'assignTasks'])->name('projects.assignTasks');
     Route::post('/projects/{projectId}/save-tasks', [ProjectController::class, 'saveTasks'])->name('projects.saveTasks');

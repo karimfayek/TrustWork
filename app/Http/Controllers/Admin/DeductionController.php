@@ -15,9 +15,13 @@ class DeductionController extends Controller
             'user_id' => 'required|exists:users,id',
             'type' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
+            'deducted_at'  => 'nullable|date|min:0',
             'note' => 'nullable|string',
         ]);
-        $validated['deducted_at'] =  now();
+        if( $validated['type'] == 'basic'){
+
+            $validated['deducted_at'] =  now();
+        }
         Deduction::create($validated);
 
         return redirect()->back()->with('success', 'تمت إضافة الاستقطاع بنجاح.');

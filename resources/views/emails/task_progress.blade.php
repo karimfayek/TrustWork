@@ -55,7 +55,8 @@
         <div class="details">
             <p><span class="label">المشروع:</span> {{ $projectName }}</p>
             <p><span class="label">البند:</span> {{ $task->title }}</p>
-            <p><span class="label">الكميه المنجزة:</span> {{ $qty_done }}</p>            
+            <p><span class="label">الكميه المنجزة:</span> {{ $qty_done }}</p>  
+            <p><span class="label">اجمالى ما تم  انجازة:</span> {{ $task->total_done }}</p>           
             <p><span class="label">الكميه الكلية للبند:</span> {{ $task->quantity }}</p>
             <p><span class="label">المتبقى:</span> {{ $task->remaining }}</p>
             <p><span class="label">

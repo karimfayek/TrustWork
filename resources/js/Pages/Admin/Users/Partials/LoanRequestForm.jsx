@@ -1,7 +1,7 @@
 import { useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function LoanRequestForm({ maxAmount }) {
+export default function LoanRequestForm({ maxAmount  , routeName="/loans/request" , title='طلب سلفه'}) {
   const { data, setData, post, processing,reset, errors, setError } = useForm({
     amount: '',
     reason: '',
@@ -23,7 +23,7 @@ export default function LoanRequestForm({ maxAmount }) {
       setError('amount', 'لا يمكنك طلب السلفة إلا بعد يوم 15 من الشهر.');
       return;
     }
-    post('/loans/request', {
+    post(routeName, {
       preserveScroll: true,
       onSuccess: () =>{
         setDone(true)
@@ -35,7 +35,7 @@ export default function LoanRequestForm({ maxAmount }) {
 
   return (
     <form onSubmit={submit} className=" bg-white p-4  shadow">
-      <h2 className="text-xl font-bold mb-4">طلب سلفة</h2>
+      <h2 className="text-xl font-bold mb-4"> {title}</h2>
       {!todayValid && (
         <div className="text-red-600 font-medium mb-4">
           لا يمكنك طلب السلفة قبل يوم 15 من الشهر.

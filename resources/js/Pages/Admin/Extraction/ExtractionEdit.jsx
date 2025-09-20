@@ -31,7 +31,7 @@ export default function ExtractionEdit({ project, extraction, previousQuantities
     };
   });
  return (
-  <ExtractionForm 
+  <ExtractionForm type={extraction.type}
   project={project} deductionsList={deductionsList} extractionsCount={ extraction.partial_number -1} 
   prevPay={extraction.deductions_json.previous_payments}
    previousQuantities={previousQuantities} edit={true} extractionId={extraction.id} defaultDeductions={extraction.deductions_json}
