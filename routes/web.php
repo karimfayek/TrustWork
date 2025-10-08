@@ -135,7 +135,7 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     Route::post('/customer/create', [CustomerController::class, 'store'])->name('admin.customer.store');
     Route::get('/admin/customer/edit/{id}', [CustomerController::class, 'edit'])->name('admin.customer.edit');
     Route::post('/admin/customer/update/{id}', [CustomerController::class, 'update'])->name('admin.customer.update');
-    //rewards
+    //rewards .....
     Route::get('/admin/rewards', [RewardController::class, 'index'])->name('rewards.index');
     Route::post('/admin/rewards', [RewardController::class, 'store'])->name('rewards.store');
     Route::post('/admin/reward/spent/{id}', [RewardController::class, 'spent'])->name('admin.rewards.spent');
