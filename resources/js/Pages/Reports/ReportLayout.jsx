@@ -11,6 +11,7 @@ export default function ReportLayout({ children }) {
           <li><Link href="/reports/employees" className="block text-blue-600 hover:underline">  الموظفين / المشاريع</Link></li>
           <li><Link href="/reports/finance" className="block text-blue-600 hover:underline">العهد المالية / المشاريع</Link></li>
           <li><Link href="/reports/projects" className="block text-blue-600 hover:underline"> المشاريع / المهام</Link></li>
+          <li><Link href="/reports/insurance" className="block text-blue-600 hover:underline"> المستخلصات - تأمينات </Link></li>
           <li><Link href="/reports/salaries" className="block text-blue-600 hover:underline"> المرتبات</Link></li>
           <li><Link href="/reports/salaries/all" className="block text-blue-600 hover:underline"> المرتبات -مجمع</Link></li>
           <li><Link href="/reports/attendance" className="block text-blue-600 hover:underline">الحضور والانصراف</Link></li>

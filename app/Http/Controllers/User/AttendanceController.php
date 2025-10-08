@@ -47,11 +47,11 @@ class AttendanceController extends Controller
           if (array_intersect($currentUserRoles, ['admin', 'acc' , 'hr'])) {
 
            //dd( $currentUserRoles );
-            $users = User::all();
+            $users = User::where('status' , 1)->get();
 
         }
         else {
-            $users = User::whereHas('roles', function ($query) {
+            $users = User::where('status' , 1)->whereHas('roles', function ($query) {
                 $query->where('name', 'employee'); 
             })->get();
            
@@ -182,7 +182,7 @@ class AttendanceController extends Controller
     
         } else {
             // حالة: كل المستخدمين
-            $users = User::all();
+            $users = User::where('status' , 1)->get();
     
             foreach ($period as $current) {
                 foreach ($users as $u) {

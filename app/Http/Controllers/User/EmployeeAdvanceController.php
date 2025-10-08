@@ -14,6 +14,17 @@ use Inertia\Inertia;
 use App\Models\Setting;
 class EmployeeAdvanceController extends Controller
 {
+    public function list()
+    {
+        $pendingAdvances = Advance::where('status' , 'pending')->with('project' , 'user')->get();
+        //dd($pendingAdvances);
+        $users = User::with('advances' ,'advances.project' )->get();
+        return Inertia::render('Employee/Advances/List', [
+            'pendingAdvances' => $pendingAdvances,
+            'users' => $users,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -107,7 +118,7 @@ class EmployeeAdvanceController extends Controller
         $user->advances()->create([
             'amount' => $request->amount,
             'note' => $request->note,
-            'project_id' => $request->project_id,
+            'project_id' => $request->project_id == 'null' ? null : $request->project_id,
             'given_at' => now(),
             'status' =>  'accepted',
             'given_by' =>  auth()->user()->id,
@@ -145,9 +156,10 @@ class EmployeeAdvanceController extends Controller
     
     public function settlementAdvanceAdmin(Request $request)
     {
-    // dd($request->all());
+    //dd($request->all());
         $request->validate([
             'user_id' => 'required',
+            'advance_id' => 'required',
             'amount' => 'required|numeric|min:1',
         ]);
         // dd($request->all());
@@ -158,6 +170,7 @@ class EmployeeAdvanceController extends Controller
         'amount' => $request->amount,
         'description' => 'تسوية',
         'spent_at' => now(),
+        'advance_id' =>$request->advance_id,
         'stored_by'=> auth()->user()->id ,
         'asa'=> 'settle'
     ]);

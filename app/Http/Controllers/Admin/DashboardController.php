@@ -9,12 +9,20 @@ use App\Models\Project;
 
 class DashboardController extends Controller
 {
-     public function index()
+     public function index(Request $request)
     {
-        $projects = Project::withCount('users')->latest()->get();
+         $query = Project::query();
+
+    if ($request->search) {
+        $query->where('name', 'like', '%' . $request->search . '%')
+        ->orWhere('customer_name', 'like', '%' . $request->search . '%')
+        ->orWhere('project_code', 'like', '%' . $request->search . '%');
+    }
+        $projects =$query->paginate(10)->withQueryString();
 
         return Inertia::render('Admin/Dashboard', [
-            'projects' => $projects
+            'projects' => $projects,
+             'filters' => $request->only('search'),
         ]);
     }
 }

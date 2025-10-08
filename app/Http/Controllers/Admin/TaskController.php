@@ -11,15 +11,28 @@ use Inertia\Inertia;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::with('project')->with('users')->get();
+      $query = Task::with('project');
+
+        if ($request->search) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                ->orWhereHas('project', function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('project_code', 'like', '%' . $request->search . '%')
+                    ->orWhere('customer_name', 'like', '%' . $request->search . '%');
+                });
+        }
+
+        $tasks = $query->paginate(10)->withQueryString();
         $projects = Project::with('tasks')->get();
 
         return Inertia::render('Admin/Tasks/Tasks', [
             'tasks' => $tasks,
             'projects' => $projects,
+            'filters' => $request->only('search'),
         ]);
+
     }
     public function indexEmployee()
     {

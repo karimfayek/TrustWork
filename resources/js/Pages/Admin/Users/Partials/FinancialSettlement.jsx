@@ -1,8 +1,8 @@
 import { useState } from "react"
 
 import {  router} from "@inertiajs/react";
-export default function FinancialSettlement({amountOrig, user_id }) {
-
+export default function FinancialSettlement({amountOrig, user_id , advances }) {
+console.log(advances , 'advances')
     const [showModal , setShowModal]= useState(false)
     const [amount , setAmount]= useState(amountOrig)
     const [advanceId , setAdvanceID]= useState('')
@@ -52,6 +52,13 @@ export default function FinancialSettlement({amountOrig, user_id }) {
             max={amountOrig}
             onChange={(e) => setAmount(e.target.value)}
            />
+           <select className="w-full p-2 border rounded mb-4" name="advance_id" id="advance_id" value={advanceId} onChange={(e) => setAdvanceID(e.target.value)}>
+                <option value="">اختر العهدة</option>
+                {advances.map((adv) => (
+                    <option value={adv.id} key={adv.id}>{adv.amount}- {adv.note} - {adv.project?.name || 'اخرى'}</option>
+                ))
+            }
+           </select>
            
             <div className="flex justify-end gap-2">
                 <button onClick={() => setShowModal(false)} className="bg-gray-200 px-4 py-2 rounded">إلغاء</button>

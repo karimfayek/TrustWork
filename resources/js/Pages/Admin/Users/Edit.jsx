@@ -34,22 +34,8 @@ export default function EditUser({ user }) {
         deductions,
         roles
     } = usePage().props;
-    const [attData, setAttData] = useState({});
-    const [month, setMonth] = useState(null);
-    const absenceScore =
-        Number(attData?.absenceDays) *
-        Number(Number(user.salary?.base_salary) * 0.1);
-    const deserved = Number(
-        Number(user.salary?.base_salary) +
-        Number(attData?.taskScore) +
-        Number(attData?.rewards) -
-        absenceScore -
-        Number(attData?.lateScore) +
-        Number(attData?.transportaionFees) -
-        Number(attData.lostCostThisMonth) -
-        Number(attData.deductions) -
-        Number(attData.remaining)
-    ).toFixed(2);
+    
+  
 
 
 
@@ -219,13 +205,14 @@ export default function EditUser({ user }) {
                 }
                 <hr />
                 <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">العهدة المالية
+                    <h1 className="text-2xl font-bold mb-4"> العهد والمصروفات
                     <button onClick={() => handleShowSection('advances')}>
                         <p className='border p-1 border-black text-sm'>  {showSection === 'advances' ? 'اخفاء' : 'عرض'}</p>
                     </button>
                     </h1>
                     {showSection === 'advances' &&
-                    <><div className="mb-6">
+                    <>
+                    <div className="mb-6">
                             <p>
                                 <strong>إجمالي العهدة:</strong> {totalAdvance} ج
                             </p>
@@ -236,9 +223,10 @@ export default function EditUser({ user }) {
                                 <strong>المتبقي:</strong> {remaining} ج
                                 {remaining > 0 &&
 
-                                    <FinancialSettlement user_id={user.id} amountOrig={remaining} />}
+                                    <FinancialSettlement user_id={user.id} amountOrig={remaining} advances = {acceptedAdvances} />}
                             </p>
-                        </div><div className="md:grid grid-cols-3 gap-6" id="advances">
+                        </div>
+                        <div className="md:grid grid-cols-3 gap-6" id="advances">
                                 <AdvancesList
                                     advances={pendingAdvances}
                                     type="pending"
@@ -265,7 +253,7 @@ export default function EditUser({ user }) {
                                                         <div>💵 {a.amount} ج.م</div>
                                                         <div>💸 {a.method} </div>
                                                         <div>📝 {a.note}</div>
-                                                        <div>📝 {a.project?.name}</div>
+                                                        <div>📝 {a.project?.name || 'اخرى'}</div>
                                                     </div>
 
                                                     <div>
@@ -324,7 +312,8 @@ export default function EditUser({ user }) {
                                         ))}
                                     </ul>
                                 </div>
-                            </div><div className="mt-10 md:grid grid-cols-3 gap-6">
+                            </div>
+                            <div className="mt-10 md:grid grid-cols-3 gap-6">
                                 {/* نموذج العهدة */}
                                 <div className="bg-white p-4 rounded shadow">
                                     <h3 className="font-semibold mb-2">
@@ -375,6 +364,7 @@ export default function EditUser({ user }) {
                                                     <option value={project.id} key={project.id}>{project.name}</option>
                                                 )
                                             )}
+                                            <option value="null">اخرى</option>
                                         </select>
                                         <select
                                             required
@@ -535,10 +525,6 @@ export default function EditUser({ user }) {
                    
                 <Loans totalExpense={totalExpense} loans={user.loans} role={role} />
                 }
-                <LoanRequestForm maxAmount ={ user.salary.final_salary * 0.25}
-                 routeName={'/admin/loans/store/'+ user.id}
-                 title={'اضافه سلفه'}
-                 />
                 <hr />
                 <h1 className="text-2xl font-bold text-gray-800 p-6 ">
                    الاجازات

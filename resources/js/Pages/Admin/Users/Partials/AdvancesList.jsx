@@ -1,10 +1,13 @@
+import React from "react";
+
 export default function AdvancesList({ 
     advances, 
     type, 
     onDelete, 
     onApprove, 
     onReject,
-    onUpdate 
+    onUpdate ,
+    admin = false
 }) {
     if (advances.length === 0) return null;
 
@@ -16,6 +19,10 @@ export default function AdvancesList({
 
             <ul className="bg-white p-4 rounded shadow">
             {Array.isArray(advances) && advances.length > 0 && advances.map((advance, index) => (
+                <React.Fragment>
+                    {admin && 
+                    <h1>{advance.user.name}</h1>
+                    }
                     <li key={index} className="border-b py-2">
                         <div>📅 {advance.given_at || ".بانتظار الموافقة"}</div>
                         <div>
@@ -76,6 +83,7 @@ export default function AdvancesList({
                             </button>
                         )}
                     </li>
+                </React.Fragment>
                 ))}
             </ul>
         </div>

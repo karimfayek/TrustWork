@@ -4,9 +4,11 @@ import React, { useRef } from 'react';
 import html2pdf from 'html2pdf.js';
 import Items from './Items';
 import CategoryCheckboxes from './CategoryCheckboxes';
+import { usePage } from '@inertiajs/react';
 
 export default function ExtractionPreview({ delevery, subject , deductions, project, items, type, num, date, customer, projectCode, supply, notes, isNotInclusive }) {
   const pdfRef = useRef();
+  const logedinUser = usePage().props.auth.user
   const handleExportPDF = () => {
     const element = pdfRef.current;
     const elementWidth = element.offsetWidth;
@@ -43,7 +45,7 @@ export default function ExtractionPreview({ delevery, subject , deductions, proj
   const totalCost = items.reduce((acc, task) => {
     return acc + parseFloat(task.total);
   }, 0);
-  console.log(delevery, 'delevery')
+  
   const totalWithoutVat =
     isNotInclusive
       ? totalCost
@@ -67,6 +69,7 @@ export default function ExtractionPreview({ delevery, subject , deductions, proj
     final: ' ختامي',
     supply: ' جارى تشوينات',
     delevery: '  اذن تسليم',
+    report: '  محضر تسليم',
     ir: ' IR',
     mir: ' MIR',
     qs: ' QS',
@@ -84,19 +87,22 @@ export default function ExtractionPreview({ delevery, subject , deductions, proj
         <p><strong>اسم المشروع:</strong> {project.name}</p>
         <p><strong>اسم العميل:</strong> {customer}</p>
         <p><strong>كود المشروع:</strong> {projectCode}</p>
-        {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
+        {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' && delevery !== 'report' &&
 
           <p><strong> مستخلص:</strong>  {extractionTypes[type]}  {num > 0 && <i>{num}</i>} </p>
         }
         {delevery === 'delevery' &&
           <p className='text-center text-xl'><strong> اذن تسليم</strong>   </p>
         }
+        {delevery === 'report' &&
+          <p className='text-center text-xl'><strong> محضر تسليم</strong>   </p>
+        }
         {(delevery === 'mir' || delevery === 'ir') &&
           <>
             <p><strong>Contractor :</strong> {'Trust Technology Solutions'}</p>
             <p><strong>Ref :</strong> {'Trust Technology/' + projectCode + '/Elec/MIR'}</p>
             <p className='text-center text-xl'><strong> {delevery === 'mir' ? 'Material Inspection Request (MIR)' : 'Inspection Request (IR)'}  </strong>
-              {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && 
+              {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'report' && 
               num > 0 && <i>{num}</i>
               } 
                 </p>
@@ -114,26 +120,31 @@ export default function ExtractionPreview({ delevery, subject , deductions, proj
                 <th className="p-2 border" rowSpan="2">بيان الأعمال</th>
                 <th className="p-2 border" rowSpan="2">الوحدة</th>
                 <th className="p-2 border" rowSpan="2">كمية العقد</th>
-                {(delevery === 'delevery' || delevery === 'mir') &&
+                {(delevery === 'delevery' || delevery === 'report'|| delevery === 'mir') &&
                   <>
                   <th className="p-2 border" colSpan="3">
-                    {delevery === 'delevery' && <>كميه التسليم</>}
+                    {(delevery === 'delevery' || delevery === 'report' )&& <>كميه التسليم</>}
                     {delevery === 'mir' && <>كميه الفحص</>}
                   </th>
                   </>
                 }
                   
-                {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
+                {delevery !== 'delevery' && delevery !== 'report' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
 
                   <>
                   <th className="p-2 border" colSpan="3">الكمية</th>
+                   {logedinUser.email !== 'sherok@trustits.net' &&
                     <th className="p-2 border" rowSpan="2">الفئة</th>
+                   }
                     <th className="p-2 border" rowSpan="2">نسبة الصرف</th>
+                     {logedinUser.email !== 'sherok@trustits.net' &&
                     <th className="p-2 border" rowSpan="2">إجمالي المبلغ</th>
-                    </>}
+                     }
+                    </>
+                    }
 
               </tr>
-              {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
+              {delevery !== 'delevery' && delevery !== 'report' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
                 <tr>
                   <th className="p-2 border"> السابق</th>
                   <th className="p-2 border"> الحالي</th>
@@ -154,75 +165,81 @@ export default function ExtractionPreview({ delevery, subject , deductions, proj
                           ? "LS"
                           : task.unit}</td>
                     <td className="p-2 border text-center">{task.quantity}</td>
-                     {(delevery === 'delevery' || delevery === 'mir') &&
+                     {(delevery === 'delevery'||  delevery === 'report' || delevery === 'mir') &&
                         <td className="p-2 border text-center">{task.current_done}</td>
                         }
-                    {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
+                    {delevery !== 'delevery' && delevery !== 'report'&& delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
                       <><td className="p-2 border text-center"> {task.previous_done}</td>
                       
                      
                       <td className="p-2 border text-center">{task.current_done}</td>
                         <td className="p-2 border text-center">{task.total_done}</td>
+                         {logedinUser.email !== 'sherok@trustits.net' &&
                         <td className="p-2 border text-center">{task.unit_price}</td>
+                         }
                         <td className="p-2 border text-center"> {task.progress_percentage} %</td>
+                         {logedinUser.email !== 'sherok@trustits.net' &&
                         <td className="p-2 border text-center">{task.total}</td>
+                         }
                       </>}
 
                   </tr>
                 )
               )}
-              {delevery !== 'delevery' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
+              {delevery !== 'delevery' && delevery !== 'report' && delevery !== 'qs' && delevery !== 'ir' && delevery !== 'mir' &&
                 <React.Fragment>
-
+ {logedinUser.email !== 'sherok@trustits.net' &&
                   <tr>
                     <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
                     <td className="p-2 border text-center">{totalCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   </tr>
-                  {(isNotInclusive == true && VatValue > 0) &&
+}
+                  {(isNotInclusive == true && VatValue > 0 && logedinUser.email !== 'sherok@trustits.net' ) &&
                     <tr>
                       <td colSpan={9} className="p-2 border text-center">ضريبه القيمه المضافة </td>
                       <td className="p-2 border text-center">{VatValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
 
-                  {!supply && !isNotInclusive && deductions.vat > 0 &&
+                  {!supply && !isNotInclusive && deductions.vat > 0 && logedinUser.email !== 'sherok@trustits.net' &&
 
                     <tr>
                       <td colSpan={9} className="p-2 border text-center"> الاجمالي بدون الضريبة المضافة {deductions.vat}% </td>
                       <td className="p-2 border text-center">{totalWithoutVat.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
 
-                  {deductions.profit_tax > 0 &&
+                  {deductions.profit_tax > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
                     <tr>
                       <td colSpan={9} className="p-2 border text-center">  {addOrMinus} {deductions.profit_tax} % ضريبة   </td>
                       <td className="p-2 border text-center">{profitTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
 
-                  {deductions.social_insurance > 0 &&
+                  {deductions.social_insurance > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
                     <tr>
                       <td colSpan={9} className="p-2 border text-center"> تعليه التأمينات الاجتماعيه </td>
                       <td className="p-2 border text-center">{socialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
-                  {deductions.advance_payment > 0 &&
+                  {deductions.advance_payment > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
 
                     <tr>
                       <td colSpan={9} className="p-2 border text-center">خصم دفعة مقدمة    </td>
                       <td className="p-2 border text-center">{deductions.advance_payment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
-                  {initialInsurance > 0 &&
+                  {initialInsurance > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
                     <tr>
                       <td colSpan={9} className="p-2 border text-center">{addOrMinus} {deductions.initial_insurance} % تامين اعمال </td>
                       <td className="p-2 border text-center">{initialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
-                  {previousPayment > 0 &&
+                  {previousPayment > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
                     <tr>
                       <td colSpan={9} className="p-2 border text-center">خصم ما سبق صرفه</td>
                       <td className="p-2 border text-center">{previousPayment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
-                  {otherTax > 0 &&
+                  {otherTax > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
                     <tr>
                       <td colSpan={9} className="p-2 border text-center">  ضرائب {deductions.other_tax} %  </td>
                       <td className="p-2 border text-center">{otherTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>}
+                    { logedinUser.email !== 'sherok@trustits.net'  &&
                   <tr>
                     <td colSpan={9} className="p-2 border text-center"> صافي المستخلص  </td>
 
@@ -230,6 +247,7 @@ export default function ExtractionPreview({ delevery, subject , deductions, proj
 
                     </td>
                   </tr>
+                    }
 
                 </React.Fragment>
                 }
@@ -250,7 +268,7 @@ export default function ExtractionPreview({ delevery, subject , deductions, proj
           <CategoryCheckboxes delevery={delevery} subject={subject} notes={notes}/>
 
         }
-        {delevery === 'delevery' &&
+        {(delevery === 'delevery' || delevery === 'report') &&
 
 
           <div className='mt-10'>

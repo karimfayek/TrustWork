@@ -3,32 +3,32 @@ import { Head, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import DeleteButton from '@/Components/DeleteButton';
 
-export default function RewardIndex({ rewards, users }) {
+export default function LoanIndex({ loans, users }) {
     const [showForm, setShowForm] = useState(false);
 
     const { data, setData, post, reset, errors } = useForm({
         user_id: '',
-        reward_date: '',
-        type: '',
+        loan_date: '',
+        status: '',
         reason: '',
         points: 1,
         amount: '',
     });
 
    const handelSpent = (e , id) => {
-  router.post(route("admin.rewards.spent", { id }));
+  router.post(route("admin.loans.spent", { id }));
    }
     return (
         <AuthenticatedLayout>
-            <Head title="نظام المكافآت" />
+            <Head title="نظام السلف" />
             <div className="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md ">
                 <div className='bg-white flex items-center justify-between mb-4 p-2 sticky top-0'>
-                    <h1 className="text-2xl font-bold  text-center">نظام مكافآت الموظفين</h1>
+                    <h1 className="text-2xl font-bold  text-center">سلف  الموظفين</h1>
                     <button
                         onClick={() => setShowForm(!showForm)}
                         className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                     >
-                        {showForm ? 'إغلاق النموذج' : 'إضافة مكافأة'}
+                        {showForm ? 'إغلاق النموذج' : 'إضافة سلفة'}
                     </button>
                 </div>
                 <hr className='mb-12' />
@@ -36,13 +36,13 @@ export default function RewardIndex({ rewards, users }) {
 
                     <React.Fragment>
  {
-                    (rewards.length === 0) ?
+                    (loans.length === 0) ?
                         (
-                            <p className="text-center text-gray-500">لا توجد مكافآت حتى الآن.</p>
+                            <p className="text-center text-gray-500">لا توجد سلف حتى الآن.</p>
                         ) 
                         :
                         (
-                            rewards.map((user, index) => (
+                            loans.map((user, index) => (
                                 <div key={index} className="mb-8 border-b pb-4">
                                     <h2 className="text-xl font-semibold text-indigo-600">
                                         {user.user}
@@ -54,6 +54,8 @@ export default function RewardIndex({ rewards, users }) {
                                                 <th className="p-2 border">التاريخ</th>
                                                 <th className="p-2 border">السبب</th>
                                                 <th className="p-2 border">القيمة</th>
+                                                <th className="p-2 border">الحاله</th>
+                                                <th className="p-2 border">الموافقه</th>
                                                 <th className="p-2 border">-</th>
                                             </tr>
                                         </thead>
@@ -63,8 +65,10 @@ export default function RewardIndex({ rewards, users }) {
                                                     <td className="p-2 border">{r.date}</td>
                                                     <td className="p-2 border">{r.reason}</td>
                                                     <td className="p-2 border">{r.amount}</td>
+                                                    <td className="p-2 border">{r.status}</td>
+                                                    <td className="p-2 border">{r.admin_status}</td>
                                                     <td className="p-2 border">
-                                                        {r.type !== 'spent' &&
+                                                        {r.status !== 'paid' &&
                                                         
                                                           <button
                                                                 onClick={(e) => handelSpent(e, r.id)}
@@ -73,7 +77,7 @@ export default function RewardIndex({ rewards, users }) {
                                                             صرف
                                                             </button>
                                                         }
-                                                        <DeleteButton id={r.id} routeName='employee.reward.delete' />
+                                                        <DeleteButton id={r.id} routeName='loan.delete' />
                                                         </td>
                                                 </tr>
                                             ))}
@@ -94,7 +98,7 @@ export default function RewardIndex({ rewards, users }) {
                 <form
                     onSubmit={e => {
                         e.preventDefault();
-                        post(route('rewards.store'), {
+                        post(route('admin.loan.store'), {
                             onSuccess: () => {
                                 reset();
                                 setShowForm(false);
@@ -103,7 +107,7 @@ export default function RewardIndex({ rewards, users }) {
                     }}
                     className="mb-8 bg-gray-50 p-6 rounded-md shadow"
                 >
-                    <h3 className="text-lg font-bold mb-4 text-gray-700">إضافة مكافأة جديدة</h3>
+                    <h3 className="text-lg font-bold mb-4 text-gray-700">إضافة سلفة جديدة</h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -128,12 +132,12 @@ export default function RewardIndex({ rewards, users }) {
                             <label className="block mb-1">التاريخ</label>
                             <input
                                 type="date"
-                                value={data.reward_date}
-                                onChange={e => setData('reward_date', e.target.value)}
+                                value={data.loan_date}
+                                onChange={e => setData('loan_date', e.target.value)}
                                 className="w-full border rounded px-3 py-2"
                                 required
                             />
-                            {errors.reward_date && <p className="text-red-500 text-sm">{errors.reward_date}</p>}
+                            {errors.loan_date && <p className="text-red-500 text-sm">{errors.loan_date}</p>}
                         </div>
 
                         <div>
@@ -163,9 +167,9 @@ export default function RewardIndex({ rewards, users }) {
                     <div className="mt-4 text-end">
                         <button
                             type="submit"
-                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                         >
-                            حفظ المكافأة
+                            حفظ السلفه
                         </button>
                     </div>
                 </form>

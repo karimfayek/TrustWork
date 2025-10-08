@@ -78,10 +78,11 @@ class ExtractionController extends Controller
     {
       //dd($request->all());
         $validated = $request->validate([
-            'type' => 'required|in:partial,final,delevery,mir,ir,qs',
+            'type' => 'required|in:partial,final,delevery,mir,ir,qs,report',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
             'netTotal'=>'required|numeric',
+            'total'=>'required|numeric',
             'project_code' => 'nullable|string',
             'notes' => 'nullable|string',
             'items' => 'required|array',
@@ -107,7 +108,8 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ? 0 : $request->netTotal,
+            'total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->total,
+            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->netTotal,
             'partial_number' =>  $request->num,
         ]);
         foreach ($validated['items'] as $itemData) {
@@ -120,10 +122,11 @@ class ExtractionController extends Controller
     {
       //dd($request->all());
         $validated = $request->validate([
-           'type' => 'required|in:partial,final,delevery,mir,ir,qs',
+           'type' => 'required|in:partial,final,delevery,mir,ir,qs,report',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
             'netTotal'=>'required|numeric',
+            'total'=>'required|numeric',
             'project_code' => 'nullable|string',
             'notes' => 'nullable|string',
             'items' => 'required|array',
@@ -150,7 +153,9 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ? 0 : $request->netTotal,
+            'total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->total,
+
+            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->netTotal,
            
         ]);
         $sentTaskIds = collect($validated['items'])->pluck('task_id')->toArray();
@@ -272,8 +277,8 @@ foreach ($validated['items'] as $itemData) {
 
     public function showPrivateFile($filename)
     {
-         $path = storage_path('app\\private\\' . $filename);
-        //dd($path);
+         $path = storage_path('app/private/' . $filename);
+       //dd($path);
         if (!file_exists($path)) {
             abort(404);
         }

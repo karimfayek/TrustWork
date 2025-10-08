@@ -128,7 +128,7 @@ const handleShowSalary = (e) => {
                 <InputError message={errors.password} className="mt-2" />
             </div>
             <button onClick={(e )=> (handleShowSalary(e))} className="underline cursor-pointer">المرتب</button>
-            {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role))
+            {[ 'admin'].some(role => logedinUser?.rolesnames?.includes(role))
                 &&
                 <React.Fragment>
                     {showSalary && 

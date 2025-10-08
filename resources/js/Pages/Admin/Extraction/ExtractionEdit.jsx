@@ -1,13 +1,8 @@
-import { CalcItemsExtraction } from '@/Functions/Utils/CalcItemsExtraction';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { router } from '@inertiajs/react';
-import React, { useEffect, useState } from 'react';
+
 import ExtractionForm from './ExtractionForm';
-import ExtractionPreview from './ExtractionPreview';
-import Items from './Items';
 
 export default function ExtractionEdit({ project, extraction, previousQuantities, deductionsList }) {
-  console.log(extraction.deductions_json , 'extraction.deductions_json')
+  console.log(extraction , 'extraction')
   const progressPercentage = extraction.deductions_json?.progress_percentage;
   const initialItems = extraction.items.map(item => {
     const quantity = Number(item.quantity);

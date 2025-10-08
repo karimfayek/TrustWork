@@ -133,7 +133,7 @@ const CategoryCheckboxes = ({delevery , subject , notes}) => {
             <div className='border-4 border-black p-2 border-b-0  text-left flex justify-around'>
                 
                  {columnsAtt.map((columnsA, colIndex) => (
-                    <React.Fragment>
+                    <React.Fragment key={colIndex}>
 
                         {columnsA.map((label, index) => (
                            

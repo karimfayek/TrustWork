@@ -5,6 +5,7 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
 
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 export default function EditCustomer({customer}) {
     const { data, setData, post, processing, errors } = useForm({
         name: customer.name || '',
@@ -13,6 +14,7 @@ export default function EditCustomer({customer}) {
         info:customer.info ||  '',
         email:customer.email ||  '',
         transport_fees: customer.transport_fees || '',
+        visits_nu: customer.visits_nu || '',
     });
 
     const handleSubmit = (e) => {
@@ -25,7 +27,8 @@ export default function EditCustomer({customer}) {
 
 
     return (
-        <>
+       
+        <AuthenticatedLayout>
             <Head title="انشاء عميل جديد " />
 
             <div className=" px-6 py-8 bg-white rounded shadow">
@@ -64,9 +67,19 @@ export default function EditCustomer({customer}) {
                             className="mt-1 block w-full"
                             onChange={(e) => setData('address', e.target.value)}
                         />
-                        <InputError message={errors.name} className="mt-2" />
+                        <InputError message={errors.address} className="mt-2" />
                     </div>
-
+ <div>
+                        <InputLabel htmlFor="visits_nu" value="  عدد الزيارات" />
+                        <TextInput
+                            id="visits_nu"
+                            type="text"
+                            value={data.visits_nu}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setData('visits_nu', e.target.value)}
+                        />
+                        <InputError message={errors.visits_nu} className="mt-2" />
+                    </div>
                     <div>
                         <InputLabel htmlFor="transport_fees" value="  مصاريف الانتقالات " />
                         <TextInput
@@ -106,6 +119,7 @@ export default function EditCustomer({customer}) {
                 </form>
                 
             </div>
-        </>
+       
+        </AuthenticatedLayout>
     );
 }

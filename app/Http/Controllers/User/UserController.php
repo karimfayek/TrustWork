@@ -33,8 +33,15 @@ class UserController extends Controller
     $t = TaskUser::where('project_id' ,$id)->get();
     //dd($t);
     $project = Project::find($id)->load('users');
-    $tasks = TaskUser::where('user_id' , auth()->id())->where('project_id' ,$project->id)->with('task')->get();
-    
+$tasks = TaskUser::where('task_user.user_id', auth()->id())
+    ->where('task_user.project_id', $project->id)
+    ->with('task.progress') // مهم عشان تجيب الداتا المستخدمة في accessors
+    ->get()
+    ->sortBy([
+        fn ($a, $b) => ($a->task->remaining > 0 ? 0 : 1) <=> ($b->task->remaining > 0 ? 0 : 1),
+        fn ($a, $b) => $b->task->created_at <=> $a->task->created_at,
+    ])
+    ->values();
     $tasks->load('task.progress.user');
     $user = auth()->user();
     $attendances = Attendance::where('user_id', $user->id)->where('project_id',$project->id )

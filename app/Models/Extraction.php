@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Extraction extends Model
 {
     protected $fillable = [
-        'project_id', 'type', 'date', 'deductions', 'customer_name', 
+        'project_id', 'type', 'date', 'deductions', 'customer_name', 'total',
         'notes','project_code','partial_number','deductions_json','net_total','supply','file','is_collected','isnotinclusive'
     ];
     protected $casts = [

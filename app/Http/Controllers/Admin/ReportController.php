@@ -124,6 +124,31 @@ class ReportController extends Controller
             'projects' => $projects->toArray(),
         ]);
     }
+    public function insuranceRefundsReport()
+{
+    $projects = Project::whereHas('extractions', function ($q) {
+        $q->where('type', 'final'); // المستخلصات الختامية
+    })->with(['extractions' => function ($q) {
+        $q->where('type', 'final')->latest();
+    }])->get();
+
+    $report = $projects->map(function ($project) {
+        $final = $project->extractions->first(); // المستخلص الختامي الأحدث
+       
+        return [
+            'project_name' => $project->name,
+            'final_invoice_number' => $final->number,
+            'final_invoice_date' => $final->date,
+            'insurance_value' => ($final->total / 100 )* $final->deductions_json['initial_insurance'], // خصم تأمين الأعمال
+            'due_date' => \Carbon\Carbon::parse($final->date)->addYear()->toDateString(),
+        ];
+    });
+    
+    return Inertia::render('Reports/Project/InsuranceRefunds', [
+        'reports' => $report,
+    ]);
+}
+
   
        
     public function salariesReport()

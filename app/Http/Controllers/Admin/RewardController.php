@@ -33,7 +33,7 @@ class RewardController extends Controller
             ];
         })
         ->values();
-        $users = User::all();
+        $users = User::where('status' , 1)->get();
 
     return Inertia::render('Admin/Rewards/Index', [
         'rewards' => $rewards,
@@ -54,6 +54,14 @@ public function store(Request $request)
     Reward::create($validated);
 
     return redirect()->route('rewards.index')->with('message', 'تمت إضافة المكافأة بنجاح');
+}
+public function spent(Request $request , $id)
+{
+    $reward = Reward::find($id);
+    $reward->update(['type' => 'spent']);
+    return back()->with('message' , 'تم بنجاح');
+  
+
 }
 
 public function delete(Request $request )

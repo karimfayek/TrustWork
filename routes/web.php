@@ -76,11 +76,11 @@ Route::post('/admin/recycle-bin/delete/user/{id}', [RecycleController::class, 'f
    //reports
    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/employees', [ReportController::class, 'employeeReport'])->name('reports.employees');
+    Route::get('/reports/insurance', [ReportController::class, 'insuranceRefundsReport'])->name('reports.insurance');
     Route::get('/reports/finance', [ReportController::class, 'financeReport'])->name('finance.employees');
     Route::get('/reports/projects', [ReportController::class, 'projectsReport'])->name('projects.employees');
     Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])->name('admin.user.delete');
     Route::post('/admin/visit/delete', [AdminVisitsController::class, 'delete'])->name('admin.visit.delete');
-    Route::post('/admin/att/delete', [AttendanceController::class, 'delete'])->name('admin.att.delete');
     Route::get('/reports/attendance', [ReportController::class, 'attReport'])->name('reports.attendance');
     Route::get('/reports/salaries', [ReportController::class, 'salariesReport'])->name('reports.salaries');
      Route::get('/reports/salaries/all', [ReportController::class, 'salariesReportAll'])->name('reports.salaries.all');
@@ -93,6 +93,8 @@ Route::post('/admin/recycle-bin/delete/user/{id}', [RecycleController::class, 'f
 });
 //admin,acc
 Route::middleware(['auth', 'role:admin,acc'])->group(function () {
+    
+    Route::get('/admin/user/salary/{id}', [AdminUserController::class, 'salary'])->name('admin.user.salary');
      //pricing 
     
      Route::get('/pricing/{id}', [PricingController::class, 'pricing'])->name('acc.pricing');
@@ -111,6 +113,9 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
      Route::post('/extraction/file/upload/{id}', [ExtractionController::class, 'UploadFIle'])->name('extraction.file.upload');
      Route::post('/extraction/set/collected/{id}', [ExtractionController::class, 'SetCollected'])->name('extraction.collected.set');
 });
+    Route::middleware(['auth', 'role:admin,hr'])->group(function () {
+        Route::post('/admin/att/delete', [AttendanceController::class, 'delete'])->name('admin.att.delete');
+        });
 Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     //users
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('users.index');
@@ -118,7 +123,6 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     Route::get('/admin/user/create', [AdminUserController::class, 'create'])->name('admin.user.create');
     Route::post('/admin/user/create', [AdminUserController::class, 'store'])->name('admin.user.store');
     Route::get('/admin/user/edit/{id}', [AdminUserController::class, 'edit'])->name('admin.user.edit');
-    Route::get('/admin/user/salary/{id}', [AdminUserController::class, 'salary'])->name('admin.user.salary');
     Route::post('/admin/user/update/{id}', [AdminUserController::class, 'update'])->name('admin.user.update');
     //deductions
     Route::post('/admin/employee/deduction', [DeductionController::class, 'store'])->name('admin.deduction.store');
@@ -134,6 +138,7 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     //rewards
     Route::get('/admin/rewards', [RewardController::class, 'index'])->name('rewards.index');
     Route::post('/admin/rewards', [RewardController::class, 'store'])->name('rewards.store');
+    Route::post('/admin/reward/spent/{id}', [RewardController::class, 'spent'])->name('admin.rewards.spent');
     //tools assign
     Route::post('/admin/tools/assign', [ToolAssignmentController::class, 'assignTool'])->name('tools.assign');
     Route::post('/admin/tools/{id}/lost', [ToolAssignmentController::class, 'markAsLost'])->name('tools.lost');
@@ -149,6 +154,7 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     //advances
     Route::post('/admin/advance/delete', [EmployeeAdvanceController::class, 'deleteAdvance'])->name('admin.advance.delete');
     Route::post('/admin/advance', [EmployeeAdvanceController::class, 'storeAdvanceAdmin'])->name('admin.advance.store');
+    Route::get('/admin/advance/list', [EmployeeAdvanceController::class, 'list'])->name('admin.advance.list');
     Route::post('/admin/advance/status', [EmployeeAdvanceController::class, 'statusAdvanceAdmin'])->name('admin.advance.status');
     Route::post('/admin/advance/settlement', [EmployeeAdvanceController::class, 'settlementAdvanceAdmin'])->name('admin.advance.settlement');
 
@@ -159,8 +165,10 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
    
    //loans
    
+   Route::get('/admin/loans/list', [LoanController::class, 'index'])->name('admin.loans.index');
+   Route::post('/admin/loans/spent/{id}', [LoanController::class, 'spent'])->name('admin.loans.spent');
    Route::post('/admin/loans/status', [LoanController::class, 'changeStatus'])->name('admin.loan.status');
-   Route::post('/admin/loans/store/{id}', [LoanController::class, 'AdminStore'])->name('admin.loan.store');
+   Route::post('/admin/loans/store', [LoanController::class, 'AdminStore'])->name('admin.loan.store');
    Route::post('/admin/loans/delete', [LoanController::class, 'delete'])->name('loan.delete');
 
     Route::post('/admin/employee/reward/', [RewardController::class, 'delete'])->name('employee.reward.delete');

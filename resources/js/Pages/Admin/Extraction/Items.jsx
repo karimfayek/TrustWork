@@ -1,4 +1,4 @@
-export default function Items({ items, handleItemChange, handleDeleteItem }) {
+export default function Items({ items, handleItemChange, handleDeleteItem ,logedinUser}) {
     return (
 
         <>
@@ -15,9 +15,13 @@ export default function Items({ items, handleItemChange, handleDeleteItem }) {
                             <th className="p-2 border" rowSpan="2">الوحدة</th>
                             <th className="p-2 border" rowSpan="2">كمية العقد</th>
                             <th className="p-2 border" colSpan="3">الكمية</th>
+                            {logedinUser.email !== 'sherok@trustits.net' &&
                             <th className="p-2 border" rowSpan="2">الفئة</th>
+                            }
                             <th className="p-2 border" rowSpan="2">نسبة الصرف</th>
+                             {logedinUser.email !== 'sherok@trustits.net' &&
                             <th className="p-2 border" rowSpan="2">إجمالي المبلغ</th>
+                             }
 
                         </tr>
                         <tr>
@@ -49,7 +53,9 @@ export default function Items({ items, handleItemChange, handleDeleteItem }) {
                                             onChange={(e) => handleItemChange(index, 'current_done', e.target.value)}
                                         /></td>
                                     <td className="p-2 border text-center">{task.total_done}</td>
+                                      {logedinUser.email !== 'sherok@trustits.net' &&
                                     <td className="p-2 border text-center">{task.unit_price}</td>
+                                      }
                                     <td className="p-2 border text-center">
                                         <input
                                             onWheel={(e) => e.target.blur()}
@@ -60,7 +66,9 @@ export default function Items({ items, handleItemChange, handleDeleteItem }) {
                                         />
 
                                     </td>
+                                      {logedinUser.email !== 'sherok@trustits.net' &&
                                     <td className="p-2 border text-center">{task.total}</td>
+                                      }
                                     <td className="p-2 border text-center">
                                         <button
                                             onClick={() => handleDeleteItem(index)}

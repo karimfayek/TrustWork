@@ -1,13 +1,13 @@
 import { CalcItemsExtraction } from '@/Functions/Utils/CalcItemsExtraction';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import React, { useEffect, useRef, useState } from 'react';
 import ExtractionPreview from './ExtractionPreview';
 import Items from './Items';
 
-export default function ExtractionForm({ project, deductionsList, extractionsCount, prevPay, previousQuantities , 
+export default function ExtractionForm({type="delevery", project, deductionsList, extractionsCount, prevPay, previousQuantities , 
   edit=false, extractionId=null , defaultDeductions=null , date=null , supply=false ,extraction=null , DefaultProgressPercentage=null, isNotInclusive=false }) {
-    console.log('previousQuantities',previousQuantities )
+const logedinUser = usePage().props.auth.user
     const [items, setItems] = useState([]);
     const [lang, setLang] = useState('en');
 
@@ -43,7 +43,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       "other_tax" :"0"
   }
   const [form, setForm] = useState({
-    type: 'partial',
+    type: type,
     num: extractionsCount +1,
     supply: supply,
     subject: '',
@@ -62,9 +62,11 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) {
+      console.log('first render')
       // أول ريندر فقط
       isFirstRender.current = false;
     if(extraction !== null){
+      console.log('extraction not null')
       const initialItemss =   extraction.items.map(item => {
         const quantity = Number(item.quantity);
         const  previous_done =  item.previous_done;
@@ -90,13 +92,19 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       return; 
     }// إيقاف هنا لأننا لا نحتاج نحدث العناصر في التعديل
     }else{
+      
+      console.log('not first render')
       if(extraction !== null){
+        
+      console.log('extraction not null in not first render')
         const initialItemss =   extraction.items.map(item => {
           const quantity = Number(item.quantity);
           const  previous_done =  item.previous_done;
           const current_done = item.current_done ;
           const total_done = item.total_done;
-          const Total = Number( item.total).toFixed(2)
+          const progress_percentage = form.deductions?.progress_percentage || 0;
+          //const Total = Number( item.total).toFixed(2)
+            const Total = Number(((total_done * item.unit_price ) /100) * progress_percentage).toFixed(2)
       
           return {
             task_id: item.task_id,
@@ -118,8 +126,9 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
 
     }
     if(extraction === null){
+      
+      console.log('extraction is null')
     const initialItemss = project.tasks.map(task => {
-      console.log(previousQuantities[task.id] , 'prev')
       const quantity = Number(task.quantity);
       const  previous_done =  Number(previousQuantities[task.id]) > 0  ? Number(previousQuantities[task.id]) :  0;
       const current_done =  previous_done < quantity  ? quantity- previous_done : 0 ;
@@ -155,6 +164,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
 
 
   const handleChange = (e) => {
+
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
    
@@ -227,7 +237,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
   };
   
   const result = CalcItemsExtraction(items, form.deductions , form.isnotinclusive , form.supply);
-  console.log(form.isnotinclusive , 'form')
+
   const handleSave = (e) => {
     if(form.date === ''){
       return
@@ -243,6 +253,7 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
       project_code: form.project_code,
       deductions: form.deductions,
       notes: form.notes,
+      total:result.totalCost,
       netTotal: result.netTotal,
       netotherTotal: result.netTotalOther,
       items: items, // جدول البنود بكل القيم
@@ -283,11 +294,19 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
               <select name="type" value={form.type} onChange={handleChange} className="w-full p-2 border rounded">
                   
                   <option value="delevery"> أذن تسليم</option>
-                  <option value="mir"> MIR</option>
-                  <option value="ir"> IR</option>
-                  <option value="qs"> QS</option>
-                  <option value="partial">جاري  </option>
-                  <option value="final"> ختامي</option>
+                  <option value="report"> محضر تسليم</option>
+                  
+                <option value="mir"> MIR</option>
+                <option value="ir"> IR</option>
+                <option value="qs"> QS</option>
+                   {logedinUser.email !== 'sherok@trustits.net'
+                &&
+                <>
+                
+                <option value="partial">جاري  </option>
+                <option value="final"> ختامي</option>
+                </>
+                   }
               </select>
  {(form.type === 'partial' ||  form.type === 'final' ||  form.type === 'mir' ) &&
               <input type="number" name="num" value={form.num} onChange={handleChange}  className="w-full p-2 border rounded" />
@@ -384,9 +403,9 @@ export default function ExtractionForm({ project, deductionsList, extractionsCou
             طباعة
           </button>
       </form>
-      { form.type !== 'ir' &&
+      { form.type !== 'ir' && 
 
-      <Items items={items} handleItemChange={handleItemChange}  handleDeleteItem = {handleDeleteItem}/>
+      <Items items={items} handleItemChange={handleItemChange}  handleDeleteItem = {handleDeleteItem} logedinUser={logedinUser}/>
       }
       
       <ExtractionPreview delevery={form.type}subject={form.subject} deductions = {form.deductions}  project={project}  

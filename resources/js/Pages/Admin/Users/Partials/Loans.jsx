@@ -32,6 +32,7 @@ export default function Loans({totalExpense , loans , children , role}) {
             <ul className="bg-white p-4 rounded shadow">
             {Array.isArray(loans) && loans.length > 0 && loans.map((loan, index) => (
                     <li key={index} className="border-b py-2">
+                        <div>📅 {loan.loan_date}</div>
                         <div>💸 {loan.amount} ج</div>
                         <div>📝 {loan.reason}</div>
                         <div>

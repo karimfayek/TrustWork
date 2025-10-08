@@ -24,9 +24,8 @@ export default function Dashboard({ customers }) {
                         <thead className="bg-gray-100 text-gray-700">
                             <tr className='text-right'>
                                 <th className="px-6 py-3 ">اسم العميل</th>
-                                <th className="px-6 py-3 ">العنوان</th>
-                                <th className="px-6 py-3 ">الوصف</th>
-                                <th className="px-6 py-3 ">معلومات </th>
+                                <th className="px-6 py-3 ">عدد الزيارات</th>
+                                <th className="px-6 py-3 "> عدد ما تم زيارات هذا لشهر</th>
                                 <th className="px-6 py-3 ">- </th>
                             </tr>
                         </thead>
@@ -34,9 +33,8 @@ export default function Dashboard({ customers }) {
                             {customers.map((customer) => (
                                 <tr key={customer.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{customer.name}</td>
-                                    <td className="px-6 py-4 text-gray-600">{customer.address}</td>
-                                    <td className="px-6 py-4">{customer.description}</td>
-                                    <td className="px-6 py-4">{customer.info}</td>
+                                    <td className="px-6 py-4">{customer.visits_nu}</td>
+                                    <td className="px-6 py-4">{customer.visits.length}</td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                        
                                         <Link

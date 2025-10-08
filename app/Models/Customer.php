@@ -8,7 +8,10 @@ class Customer extends Model
 {
     protected $fillable = [
         'name','info', 'description','transport_fees',
-        'address','email'
+        'address','email','type' ,'visits_nu'
         
     ];
+      public function visits() {
+        return $this->hasMany(Visit::class);
+    }
 }

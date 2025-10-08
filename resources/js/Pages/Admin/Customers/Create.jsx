@@ -5,6 +5,7 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
 
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 export default function CreateCustomer() {
    
    
@@ -15,6 +16,7 @@ export default function CreateCustomer() {
         info: '',
         email: '',
         transport_fees: '',
+        visits_nu: '',
     });
 
     const handleSubmit = (e) => {
@@ -27,7 +29,7 @@ export default function CreateCustomer() {
 
 
     return (
-        <>
+        <AuthenticatedLayout>
             <Head title="انشاء عميل جديد " />
 
             <div className=" px-6 py-8 bg-white rounded shadow">
@@ -68,7 +70,17 @@ export default function CreateCustomer() {
                         />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
-
+ <div>
+                        <InputLabel htmlFor="visits_nu" value="  عدد الزيارات" />
+                        <TextInput
+                            id="visits_nu"
+                            type="text"
+                            value={data.visits_nu}
+                            className="mt-1 block w-full"
+                            onChange={(e) => setData('visits_nu', e.target.value)}
+                        />
+                        <InputError message={errors.name} className="mt-2" />
+                    </div>
                     <div>
                         <InputLabel htmlFor="transport_fees" value="  مصاريف الانتقالات " />
                         <TextInput
@@ -108,6 +120,6 @@ export default function CreateCustomer() {
                 </form>
                 
             </div>
-        </>
+        </AuthenticatedLayout>
     );
 }

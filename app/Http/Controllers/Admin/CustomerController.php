@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Customer;
-
+use Carbon\Carbon;
 class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = Customer::all();
+      $customers = Customer::with(['visits' => function ($q) {
+    $q->whereMonth('created_at', Carbon::now()->month)
+      ->whereYear('created_at', Carbon::now()->year);
+}])->get();
 
         return Inertia::render('Admin/Customers/List', [
             'customers' => $customers
@@ -42,6 +45,7 @@ class CustomerController extends Controller
             'description' => 'nullable|string',
             'info' => 'nullable|string',
             'email' => 'nullable|email',
+            'visits_nu' => 'nullable|numeric',
         ]);
         Customer::create($validated);
 
@@ -57,6 +61,7 @@ class CustomerController extends Controller
             'description' => 'nullable|string',
             'info' => 'nullable|string',
             'email' => 'nullable|email',
+            'visits_nu' => 'nullable|numeric',
         ]);
         $customer = Customer::find($id);
         $customer->update($validated);

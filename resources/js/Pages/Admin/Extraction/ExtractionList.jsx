@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import DeleteButton from '@/Components/DeleteButton';
 import {
@@ -13,6 +13,7 @@ import {
 } from "flowbite-react";
 import axios from 'axios';
 export default function ExtractionList({ project }) {
+    const logedinUser = usePage().props.auth.user
   const extractionTypes = {
     partial: 'جاري ',
     final: ' ختامي',
@@ -161,8 +162,14 @@ const onToggle = (newValue , id) => {
                                 <th className="px-6 py-3 "> النوع</th>
                                 <th className="px-6 py-3 ">رقم</th>
                                 <th className="px-6 py-3 ">التاريخ</th>
+                                  {logedinUser.email !== 'sherok@trustits.net' &&
+                                  <>
+                                 
                                 <th className="px-6 py-3 ">صافى المستخلص</th>
+                                 </>
+                                  }
                                 <th className="px-6 py-3 "> تم التحصيل ؟</th>
+                                
                                 <th className="px-6 py-3 "> مرفق</th>
                                 <th className="px-6 py-3 ">- </th>
                             </tr>
@@ -173,7 +180,9 @@ const onToggle = (newValue , id) => {
                                     <td className="px-6 py-4">{ extractionTypes[extraction.type] }</td>
                                     <td className="px-6 py-4">{extraction.partial_number}</td>
                                     <td className="px-6 py-4 text-gray-600">{extraction.date}</td>
+                                       {logedinUser.email !== 'sherok@trustits.net' &&
                                     <td className="px-6 py-4 text-gray-600">{extraction.net_total}</td>
+                                       }
                                     {extraction.is_collected ? 
                                     <td className="px-6 py-4 text-green-600">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="green" className="size-6">

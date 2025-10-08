@@ -8,8 +8,11 @@ export default function SalaryCalculator({ user, forUser=false, totalAdvance, to
       const admin = usePage().props.auth.user;
         const userRoles = admin?.rolesnames ?? [];
     // const absenceScore = Number(attData?.absenceDays) * Number(Number(user.salary?.base_salary) * 0.1)  ; Number(attData?.taskScore) +
-     const absenceScore = Number(attData?.absenceDays) * (Number(Number(user.salary?.final_salary) / 30)  );
-
+     const absenceScoreold = Number(attData?.absenceDays) * (Number(Number(user.salary?.final_salary) / 30)  );
+     const realAttDayes = attData?.month_days - attData?.absenceDays;
+    const attDayesSalary = (Number(user.salary?.final_salary ?? 0) / attData?.month_days) *  Number(realAttDayes ?? 0) ;
+  const absenceScore = (Number(user.salary?.final_salary ?? 0)  - attDayesSalary )  ;
+  console.log(realAttDayes , 'realAttDayes')
     const deserved = Number(
         Number(user.salary?.final_salary) +        
         Number(attData?.rewards) -
@@ -17,6 +20,8 @@ export default function SalaryCalculator({ user, forUser=false, totalAdvance, to
         Number(attData?.transportaionFees) -
         Number(attData.lostCostThisMonth) -
         Number(attData.deductions) -
+        Number(attData.basics) -
+        Number(attData.loans) -
         Number(attData.remaining)
     ).toFixed(2);
 
@@ -61,7 +66,7 @@ export default function SalaryCalculator({ user, forUser=false, totalAdvance, to
                 }
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {!forUser &&   ['admin' , 'acc' ].some(role => userRoles?.includes(role)) &&
+                {!forUser &&   ['admin' , 'acc' ].some(role => userRoles?.includes(role)) && admin.email !=="sherok@trustits.net" &&
                     <>
                     <EarningsSection user={user} attData={attData} />
                     <DeductionsSection attData={attData} absenceScore={absenceScore} />
@@ -156,7 +161,10 @@ const DeductionsSection = ({ attData, absenceScore }) => (
             <b>استقطاعات اساسيه من الراتب</b>
             <p className="text-red-800">{Number(attData?.deductions).toFixed(2)}</p>
         </div>
-        
+         <div>
+            <b>   جزاءات</b>
+            <p className="text-red-800">{Number(attData?.basics).toFixed(2)}</p>
+        </div>
         <div>
             <b>غياب</b>
             <p className="text-red-800"><span>{absenceScore}</span></p>
@@ -168,6 +176,10 @@ const DeductionsSection = ({ attData, absenceScore }) => (
         <div>
             <b>عهد - مصروفات</b>
             <p className="text-red-800">{attData?.remaining}</p>
+        </div>
+         <div>
+            <b> سلف</b>
+            <p className="text-red-800">{attData?.loans}</p>
         </div>
     </div>
 );

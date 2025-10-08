@@ -30,7 +30,7 @@ export default function Dashboard({ users }) {
                             <tr className='text-right'>
                                 <th className="px-6 py-3 ">اسم الموظف</th>
                                 <th className="px-6 py-3 "> رقم التليفون</th>
-                                {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
+                                {['admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
                                 
                                 <>
                                 <th className="px-6 py-3 ">المرتب الاساسي</th>
@@ -46,7 +46,7 @@ export default function Dashboard({ users }) {
                                 <tr key={user.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{user.name}</td>
                                     <td className="px-6 py-4">{user.phone}</td>
-                                    {['acc', 'admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
+                                    {['admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
                                 
                                 <>
                                     <td className="px-6 py-4 text-gray-600">{user.salary?.base_salary}</td>
@@ -56,13 +56,22 @@ export default function Dashboard({ users }) {
                                 }
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                        
-                                        
-                                        
-                                        <DropdownMenu options={[
+                                         {['admin'].some(role => logedinUser?.rolesnames?.includes(role)) ?
+<DropdownMenu options={[
                                             { label: ' عرض' , type:'link' , href:route('admin.user.edit', user.id) },
+                                           
                                             { label: 'طباعة راتب', type:'link', href:route('admin.user.salary', user.id)},
+                                            
                                             { label: ' مسح', onClick: (e) => handleDelete(e, user.id ,'admin.user.delete'), type:'button' },
                                         ]} />
+                                        :
+                                        <DropdownMenu options={[
+                                            { label: ' عرض' , type:'link' , href:route('admin.user.edit', user.id) },
+                                           
+                                             ]} />
+                                            }
+                                        
+                                        
                                         
                                     </td>
                                 </tr>

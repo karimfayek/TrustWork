@@ -51,8 +51,9 @@ export default function AuthenticatedLayout({ header, children }) {
                 { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc', 'hr'] },
                 { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc', 'proj', 'hr'] },
                 { label: 'الأجازات الرسمية', routeName: 'holidays.index', roles: ['admin', 'acc', 'hr'] },
-         
+                 { label: 'العهد ', routeName: 'admin.advance.list', roles: ['admin', 'acc'] },
                 { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'] }, 
+                { label: 'السلف', routeName: 'admin.loans.index', roles: ['admin', 'acc', 'hr'] },
                 
             ],
         },

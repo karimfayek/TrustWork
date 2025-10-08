@@ -1,10 +1,10 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import React from 'react';
 
 export default function ExtractionPreview({  project, extraction}) {
-
+const logedinUser = usePage().props.auth.user
 const type = extraction.type
 const supply = extraction.supply
 const isNotInclusive = extraction.isnotinclusive
@@ -78,12 +78,19 @@ const totalCost = items.reduce((acc, task) => {
         <p><strong>اسم المشروع:</strong> {project.name}</p>
         <p><strong>اسم العميل:</strong> {customer}</p>
         <p><strong>كود المشروع:</strong> {projectCode}</p>
-           {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
+        {type === 'delevery' && 
+        
+        <p><strong> سيريال:</strong> {extraction.id}</p>
+        }
+           {type !=='delevery' && type !=='report' && type !=='qs' && type !=='ir' && type !=='mir' &&
         <p><strong> مستخلص:</strong>  {extractionTypes[type]} <i>{num}</i> {   extraction.supply ===1 &&  <i>تشوينات</i> } </p>
           }
             {type==='delevery' &&
              <p className='text-center text-xl'><strong> اذن تسليم</strong>   </p>
-}
+            }
+{type ==='report'&&
+             <p className='text-center text-xl'><strong> محضر تسليم</strong>   </p>
+            }
         <p><strong>تاريخ الطلب:</strong> {date}</p>
       </div>
       <div className="mb-[100px]">
@@ -96,25 +103,29 @@ const totalCost = items.reduce((acc, task) => {
               <th className="p-2 border" rowSpan="2">بيان الأعمال</th>
               <th className="p-2 border" rowSpan="2">الوحــدة</th>
               <th className="p-2 border" rowSpan="2">كمية العقد</th>
-                {(type === 'delevery' || type === 'mir') &&
+                {(type === 'delevery' || type === 'report' || type === 'mir') &&
                   <>
                   <th className="p-2 border" colSpan="3">
-                    {type === 'delevery' && <>كميه التسليم</>}
+                    {(type === 'delevery' || type === 'report' )&& <>كميه التسليم</>}
                     {type === 'mir' && <>كميه الفحص</>}
                   </th>
                   </>
                 }
-                {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' && 
+                {type !=='delevery' && type !=='report' && type !=='qs' && type !=='ir' && type !=='mir' && 
                <>               
-              <th className="p-2 border" colSpan="3">الكمية</th>               
+              <th className="p-2 border" colSpan="3">الكمية</th> 
+                {logedinUser.email !== 'sherok@trustits.net'  &&              
                <th className="p-2 border" rowSpan="2">الفئة</th>
+                }
                <th className="p-2 border" rowSpan="2">نسبة الصرف</th>
+                 {logedinUser.email !== 'sherok@trustits.net'  &&
                <th className="p-2 border" rowSpan="2">إجمالي المبلغ</th>
+                 }
                </>
                }
 
             </tr>
-              {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
+              {type !=='delevery'&& type !=='report' && type !=='qs' && type !=='ir' && type !=='mir' &&
             <tr>
               <th className="p-2 border"> السابق</th>
               <th className="p-2 border"> الحالي</th>
@@ -138,37 +149,44 @@ const totalCost = items.reduce((acc, task) => {
                       : task.unit
                   }</td>
                   <td className="p-2 border text-center">{Number(task.quantity).toFixed(0)}</td>
-                   {(type === 'delevery' || type === 'mir') &&
+                   {(type === 'delevery' || type === 'report' ||  type === 'mir') &&
                         <td className="p-2 border text-center">{task.current_done}</td>
                         }
-                    {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
+                    {type !=='delevery' && type !=='report' && type !=='qs' && type !=='ir' && type !=='mir' &&
                    <>
                    
                    <td className="p-2 border text-center"> {task.previous_done}</td>
                    <td className="p-2 border text-center">{task.current_done}</td>
                    <td className="p-2 border text-center">{task.total_done}</td>
+                   { logedinUser.email !== 'sherok@trustits.net'  &&
+                   
                    <td className="p-2 border text-center">{task.unit_price}</td>
+                   }
                    <td className="p-2 border text-center"> {task.progress_percentage} %</td>
-                   <td className="p-2 border text-center">{task.total}</td>
+                   {logedinUser.email !== 'sherok@trustits.net'  &&
+                       <td className="p-2 border text-center">{task.total}</td>
+                   }
+                 
                    </>
 }
                 </tr>
               )
             )}
-              {type !=='delevery' && type !=='qs' && type !=='ir' && type !=='mir' &&
+              {type !=='delevery' && type !=='report' && type !=='qs' && type !=='ir' && type !=='mir' &&
              <React.Fragment>
-
+  {logedinUser.email !== 'sherok@trustits.net'  &&
              <tr>
               <td colSpan={9} className="p-2 border text-center">الإجمالى </td>
               <td className="p-2 border text-center">{totalCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
-            {(isNotInclusive == true && VatValue > 0) && 
+}
+            {(isNotInclusive == true && VatValue > 0 && logedinUser.email !== 'sherok@trustits.net' ) && 
             <tr>
               <td colSpan={9} className="p-2 border text-center">ضريبه القيمه المضافة </td>
               <td className="p-2 border text-center">{VatValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
 }
-        {!supply &&  !isNotInclusive && deductions.vat > 0 &&
+        {!supply &&  !isNotInclusive && deductions.vat > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
             
             <tr>
               <td colSpan={9} className="p-2 border text-center"> الاجمالي بدون الضريبة المضافة {deductions.vat}% </td>
@@ -176,55 +194,54 @@ const totalCost = items.reduce((acc, task) => {
             </tr>
             }
 
-            {deductions.profit_tax > 0 &&
+            {deductions.profit_tax > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
             <tr>
               <td colSpan={9} className="p-2 border text-center">   {addOrMinus} {deductions.profit_tax} % ضريبة   </td>
               <td className="p-2 border text-center">{profitTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
              }
    
-            {deductions.social_insurance > 0 &&
+            {deductions.social_insurance > 0 &&  logedinUser.email !== 'sherok@trustits.net'  &&
             <tr>
               <td colSpan={9} className="p-2 border text-center"> تعليه التأمينات الاجتماعيه </td>
               <td className="p-2 border text-center">{socialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           }
-            {deductions.advance_payment > 0 &&
+            {deductions.advance_payment > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
 
               <tr>
                 <td colSpan={9} className="p-2 border text-center">خصم دفعة مقدمة    </td>
                 <td className="p-2 border text-center">{deductions.advance_payment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
-            {initialInsurance > 0 &&
+            {initialInsurance > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
               <tr>
                 <td colSpan={9} className="p-2 border text-center"> {addOrMinus} {deductions.initial_insurance} % تامين اعمال </td>
                 <td className="p-2 border text-center">{initialInsurance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
-            {previousPayment > 0 &&
+            {previousPayment > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
               <tr>
                 <td colSpan={9} className="p-2 border text-center">خصم ما سبق صرفه</td>
                 <td className="p-2 border text-center">{previousPayment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
-             {otherTax > 0 &&
+             {otherTax > 0 && logedinUser.email !== 'sherok@trustits.net'  &&
               <tr>
                 <td colSpan={9} className="p-2 border text-center"> ضرائب  {deductions.other_tax} %  </td>
                 <td className="p-2 border text-center">{otherTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             }
+            { logedinUser.email !== 'sherok@trustits.net'  &&
+            
             <tr>
               <td colSpan={9} className="p-2 border text-center"> صافي المستخلص  </td>
              
             <td className="p-2 border text-center">{netTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              {isError() &&
-              <p className='text-red-600 print:hidden'>
-                صافى المستخلص غير دقيق
-              </p>
-              }
+            
               </td>
             </tr>
+            }
              </React.Fragment>
 }
 
@@ -232,13 +249,15 @@ const totalCost = items.reduce((acc, task) => {
                           
                           <tr>
                             
-                          <td colSpan={4} className="p-2 border text-right min-h-7"> ملاحظات :</td>
+                          <td colSpan={4} className="p-2 border text-right min-h-7"> ملاحظات :
+                            {extraction.notes}
+                          </td>
                           </tr>
                        
 
           </tbody>
         </table>
-          {type ==='delevery' &&
+          {(type ==='delevery' || type ==='report') &&
 
 
         <div className='mt-10'>

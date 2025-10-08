@@ -25,7 +25,8 @@ class AdminUserController extends Controller
         if (in_array('admin', $currentUserRoles)) {
         $roles = \App\Models\Role::Select('id', 'name')->get();
         }else{
-            $roles = \App\Models\Role::Select('id', 'name')->where('name', '!=', 'admin')->get();
+            $roles = \App\Models\Role::Select('id', 'name')->where('name', '=', 'employee')
+            ->get();
         }
          
 
@@ -52,7 +53,7 @@ class AdminUserController extends Controller
         if (in_array('admin', $currentUserRoles)) {
         $roles = \App\Models\Role::Select('id', 'name')->get();
         }else{
-            $roles = \App\Models\Role::Select('id', 'name')->where('name', '!=', 'admin')->get();
+            $roles = \App\Models\Role::Select('id', 'name')->where('name', '=', 'employee')->get();
         }
 
         
@@ -208,7 +209,10 @@ class AdminUserController extends Controller
         
         return back()->withErrors(['message' => 'غير مسموح لك بإعطاء صلاحية admin']);
     }
+     if (in_array('admin', $currentUserRoles) ){
+         
          $user->roles()->sync($validated['roles']);
+     }
 
        /*  if($isAdmin && auth()->user()->id !== $user->id ){
            $user->roles()->sync($validated['roles']);

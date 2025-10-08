@@ -1,10 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Pagination from '../../Components/Pagination';
 
 export default function Dashboard({ projects }) {
         const logedinUser = usePage().props.auth.user
+ const { posts, filters } = usePage().props;
+console.log(projects , 'projects')
 
+    const [search, setSearch] = useState(filters.search || '');
+    const page = search !== '' ? 1 : projects.current_page
+     useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+        router.get(route('admin.dashboard'), 
+            { 
+                search, 
+                page:page || 1 // نحافظ على الصفحة الحالية
+            }, 
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    }, 900);
+
+    return () => clearTimeout(delayDebounce);
+}, [search]);
     const handleDeleteProject = (e, id) => {
         e.preventDefault();
     
@@ -22,19 +43,30 @@ export default function Dashboard({ projects }) {
             <Head title="Admin Dashboard" />
 
             <div className="max-w-7xl mx-auto p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold text-gray-800">
-                        المشاريع  </h1>
-                    {!logedinUser?.rolesnames?.includes('tech') &&
-                    
-                    <Link
-                        href={route('admin.projects.create')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow"
-                    >
-                        + إنشاء مشروع جديد
-                    </Link>
-                    }
-                </div>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+        المشاريع
+    </h1>
+
+    {!logedinUser?.rolesnames?.includes('tech') && (
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 w-full md:w-auto">
+            <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="ابحث .. اسم المشروع او الكود او اسم العميل"
+                className="px-4 py-2 border rounded w-full md:w-64"
+            />
+            <Link
+                href={route('admin.projects.create')}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow text-center"
+            >
+                + إنشاء مشروع جديد
+            </Link>
+        </div>
+    )}
+</div>
+
 
                 <div className="overflow-x-auto bg-white rounded-lg shadow">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -48,7 +80,7 @@ export default function Dashboard({ projects }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {projects.map((project) => (
+                            {projects.data.map((project) => (
                                 <tr key={project.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">{project.name}</td>
                                     <td className="px-6 py-4 text-gray-600 max-w-[200px] truncate whitespace-nowrap overflow-hidden">
@@ -122,6 +154,7 @@ export default function Dashboard({ projects }) {
                             ))}
                         </tbody>
                     </table>
+                    <Pagination links={projects.links} />
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -5,12 +5,16 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use Mail;
+use App\Mail\VisitStartNotification;
 use App\Models\User;
 use App\Models\Customer;
 use App\Models\Attendance;
 use App\Models\Visit;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Models\Setting;
+
 class VisitsController extends Controller
 {
     public function index(Request $request)
@@ -83,6 +87,32 @@ class VisitsController extends Controller
             'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
         ]);
        // return redirect()->back()->with(['visit' => $visit]);
+       try{
+          if (config('app.env') === 'production' || true) {
+            $emails =  Setting::where('key', 'visit_request_notify')->value('value');
+            if (!empty($emails)) {
+                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+            
+                if (!empty($emailsArray)) {
+                    $customer = \App\Models\Customer::find( $request->customer_id);
+                    $visitsCountThisMonth = $customer->visits()
+                        ->whereBetween('created_at', [
+                            now()->startOfMonth(),
+                            now()->endOfMonth()
+                        ])
+                        ->count();
+                      Mail::to($emails)->send(new VisitStartNotification(
+                        $request->user()->name,
+                        $customer->name,
+                        $visitsCountThisMonth,
+                    ));
+                }
+            }
+       
+    }
+       } catch (error $e){
+         return response()->json(['visit' => $visit]);
+       }
         return response()->json(['visit' => $visit]);
     }
 
