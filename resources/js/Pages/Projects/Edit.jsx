@@ -15,6 +15,7 @@ export default function EditProject({ users, project, userIds }) {
         project.tasks.map(task => ({
             id: task.id,
             title: task.title || '',
+            task_number: task.task_number || '',
             description: task.description || '',
             start_date: task.start_date || '',
             end_date: task.end_date || '',

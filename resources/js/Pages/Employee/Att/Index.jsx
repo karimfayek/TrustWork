@@ -34,7 +34,7 @@ export default function AttFrom({ userId ,atts }) {
     });
     const handleManual = async (e, inOut) => {
         e.preventDefault();
-        setIsLoading(true)
+        setIsLoading(false)
         if (!navigator.geolocation) {
             setIsLoading(false)
             alert('المتصفح لا يدعم تحديد الموقع');
@@ -43,6 +43,7 @@ export default function AttFrom({ userId ,atts }) {
         }
         // عمل نسخة معدلة محليًا من البيانات
         const currentLocation = await getLocation();
+        console.log(currentLocation)
         const payload = {
             ...manuals,
             customer: manuals.type !== 'external' ? '' : manuals.customer,

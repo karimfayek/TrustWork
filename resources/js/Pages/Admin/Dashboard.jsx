@@ -128,12 +128,14 @@ console.log(projects , 'projects')
                                             >
                                                 مستخلص
                                             </Link>
+                                            {logedinUser.email !=="sherok@trustits.net" &&
                                             <Link
                                                 href={route('acc.pricing', project.id)}
                                                 className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                             >
                                                     تسعير
                                                 </Link>
+                                            }
                                                 </>
                                         }
                                           {['admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&

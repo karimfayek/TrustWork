@@ -25,6 +25,10 @@ use App\Http\Controllers\User\VisitsController;
 use App\Http\Controllers\Admin\AdminVisitsController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AdminHolidayController;
+
+use App\Http\Controllers\Admin\ItemController;
+use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Admin\ItemsDashboardController;
 use App\Http\Controllers\User\EmployeeAdvanceController;
 use App\Http\Controllers\User\IssueController;
 use App\Http\Controllers\User\TaskProgressController;
@@ -93,7 +97,12 @@ Route::post('/admin/recycle-bin/delete/user/{id}', [RecycleController::class, 'f
 });
 //admin,acc
 Route::middleware(['auth', 'role:admin,acc'])->group(function () {
-    
+    //store
+     Route::resource('items', ItemController::class)->except(['show']);
+
+Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+Route::get('/items/dashboard', [ItemsDashboardController::class, 'index'])->name('items.dashboard');
+
     Route::get('/admin/user/salary/{id}', [AdminUserController::class, 'salary'])->name('admin.user.salary');
      //pricing 
     

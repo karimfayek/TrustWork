@@ -16,11 +16,14 @@ export default function useGeolocation() {
    * دالة getLocation(): عندما تستدعيها، تبدأ محاولة الحصول على الإحداثيات
    */
   const getLocation = useCallback(() => {
+      console.log('starting')
     return new Promise((resolve, reject) => {
       setLoading(true);
       setError(null);
+      console.log('strat promise')
   
       if (!navigator.geolocation) {
+        console.log('navigator error')
         const msg = 'Geolocation not supported by this browser.';
         setError(msg);
         setLoading(false);
@@ -28,14 +31,17 @@ export default function useGeolocation() {
       }
   
       navigator.geolocation.getCurrentPosition(
+        
         (position) => {
           const { latitude, longitude } = position.coords;
           const loc = { latitude, longitude };
+          console.log('loc' , loc)
           setLocation(loc);
           setLoading(false);
           resolve(loc);
         },
         (err) => {
+            console.log('Error getting position', err);
           setError(err.message);
           setLoading(false);
           reject(err.message);

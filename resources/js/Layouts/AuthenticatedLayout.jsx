@@ -13,10 +13,13 @@ export default function AuthenticatedLayout({ header, children }) {
         { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc', 'hr'] },
         { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc', 'proj', 'hr'] },
         { label: 'الأجازات الرسمية', routeName: 'holidays.index', roles: ['admin', 'acc', 'hr'] },
+        { label: 'العهد ', routeName: 'admin.advance.list', roles: ['admin', 'acc'] },
+        { label: 'السلف ', routeName: 'admin.loans.index', roles: ['admin', 'acc'] },
         { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'] },
         { label: 'الادوات', routeName: 'tools.index', roles: ['admin', 'acc', 'hr'] },
         { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc', 'hr'] },
         { label: 'العملاء', routeName: 'customers.index', roles: ['admin', 'acc', 'hr'] },
+        { label: 'المخزن', routeName: 'items.index', roles: ['admin', 'acc'] },
         { label: 'التقارير', routeName: 'reports.index', roles: ['admin'] },
         { label: 'سلة المحذوفات', routeName: 'admin.recyclebin', roles: ['admin'] },
     ];
@@ -56,6 +59,15 @@ export default function AuthenticatedLayout({ header, children }) {
                 { label: 'السلف', routeName: 'admin.loans.index', roles: ['admin', 'acc', 'hr'] },
                 
             ],
+        },
+          
+        
+        {
+        label: 'المخزن',
+        items:[
+            { label: 'داش بورد', routeName: 'items.dashboard', roles: ['admin' , 'acc'] },     
+            { label: 'الاصناف', routeName: 'items.index', roles: ['admin' , 'acc'] },
+        ],
         },
     ];
 
@@ -195,7 +207,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
-                                            الملف الشخصى
+                                           . الملف الشخصى
                                         </Dropdown.Link>
 
                                         {['admin'].some(role => userRoles?.includes(role)) &&

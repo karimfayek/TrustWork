@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -10,7 +10,10 @@ import TaskList from '../Admin/Tasks/TaskList';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function Pricing({ project }) {
-
+    const logedinUser = usePage().props.auth.user;
+if( logedinUser.email === "sherok@trustits.net" ){
+    return null
+}
     const user = usePage().props.auth.user;
     const role = user?.role;
     const [initialTasks, setTasks] = useState(

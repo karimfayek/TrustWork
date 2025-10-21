@@ -11,7 +11,7 @@ class Task extends Model
         'project_id', 'user_id' , 'title','description','is_completed','due_date','start_date',
         'end_date',
         'quantity',
-        'unit','tp', 'unit_price'
+        'unit','tp', 'unit_price','task_number'
     ];
     public function getDailyQuantityAttribute()
    {

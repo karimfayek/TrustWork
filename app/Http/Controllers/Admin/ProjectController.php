@@ -112,9 +112,10 @@ class ProjectController extends Controller
         $project->users()->attach($request->user_ids);
 
         // إضافة المهام للمشروع
-        foreach ($request->tasks as $taskData) {
+        foreach ($request->tasks as $index => $taskData) {
             $task = Task::create([
                 'title' => $taskData['title'],
+                 'task_number' => $index + 1,
                 'description' => $taskData['description'],
                 'start_date' => $taskData['start_date'],
                 'end_date' => $taskData['end_date'],
@@ -148,7 +149,7 @@ class ProjectController extends Controller
     public function update(Request $request)
     {
         $taskService = new TaskAssignmentService();
-      //dd($request->all());
+   // dd($request->all());
        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -186,11 +187,12 @@ class ProjectController extends Controller
         ]);
        // dd($request->tasksnew);
         $project->users()->sync($request->user_ids);
-        // Update the task
-        foreach ($request->tasksnew as $taskDataNew) {
-           //dd( $taskDataNew['up']);
+       $taskscount= $project->tasks()->count();
+        foreach ($request->tasksnew as $index => $taskDataNew) {
+          // dd($project->tasks()->count());
             $task = Task::create([
                  'title' => $taskDataNew['title'],
+                 'task_number' => $taskscount + 1,
                  'description' => $taskDataNew['description'],
                  'start_date' => $taskDataNew['start_date'],
                  'end_date' => $taskDataNew['end_date'],
@@ -199,7 +201,8 @@ class ProjectController extends Controller
                  'unit_price' =>  (float)$taskDataNew['up'],
                  'tp' => bcmul((string)$taskDataNew['up'], (string) $taskDataNew['quantity'], 2),
                  'project_id' => $project->id,
-             ]);          
+             ]);     
+            $taskscount++;     
           // dd($taskDataNew);
                 $taskService->assignUsersToTask(
                     $task,
@@ -210,12 +213,13 @@ class ProjectController extends Controller
                     false // attach للمهام الجديدة
                 );
          }
-         foreach ($request->tasks as $taskData) {
-           // dd($taskData);
+         foreach ($request->tasks as $index => $taskData) {
+          //dd($taskData);
             $task = Task::find($taskData['id']);
        // dd( bcmul((string) $taskData['up'], (string) $taskData['quantity'], 2) );
             $task->update([
                 'title' => $taskData['title'],
+                 'task_number' => $index + 1,
                 'description' => $taskData['description'],
                 'start_date' => $taskData['start_date'],
                 'end_date' => $taskData['end_date'],

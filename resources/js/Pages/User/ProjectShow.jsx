@@ -191,6 +191,7 @@ export default function ProjectShow({ project, tasks, attendances }) {
             <ul className="space-y-4">
                 {tasks.map((task) => (
                     <li key={task.id} className="border p-4 rounded shadow">
+                        <p className="font-bold">بند رقم {task.task.task_number}</p>
                         <h3 className="font-semibold">{task.task.title}</h3>
                         <p className="mb-2">{task.task.description}</p>
                         <h4 className="mb-2">
@@ -305,7 +306,6 @@ export default function ProjectShow({ project, tasks, attendances }) {
                                                     })
                                                   }
                                                 min={1}
-                                                max={task.task.remaining}
                                                 required
                                             />
                                             {Progresserrors.quantity_done && (

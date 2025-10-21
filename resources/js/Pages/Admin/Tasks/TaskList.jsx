@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
-import { router, useForm } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 
 const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheckboxChange, userRoles, userIds }) => {
-  
+  const loggedInUser = usePage().props.auth.user;
     const [qtyDone, setQtyDone] = useState({task:'' , qty:''});
     const [userId, setUserId] = useState("");
     const [assignShow, setAssignShow] = useState("");
@@ -104,7 +104,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
 
             {taskList && taskList.map((task, index) => (
                 <>
-                    <p className="font-bold">بند رقم {index + 1}</p>
+                    <p className="font-bold">بند رقم {task.task_number}</p>
                     <div key={index} className="p-4 mb-4 bg-gray-50 rounded border space-y-3 grid grid-cols-1 md:grid-cols-4 gap-4">
 
 
@@ -169,8 +169,9 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
                             </select>
                             <InputError message={errors.tasks?.[index]?.unit} className="mt-1" />
                         </div>
-                         {['admin' , 'acc'].some(role => userRoles?.includes(role)) &&
-                            <><div>
+                         {['admin' , 'acc'].some(role => userRoles?.includes(role)) && loggedInUser.email !== 'sherok@trustits.net' &&
+                            <>
+                            <div>
                                 <InputLabel value="سعر الوحدة " />
                                 <TextInput
                                     type="number"

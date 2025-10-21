@@ -6,5 +6,5 @@
             "ziggy-js": ["./vendor/tightenco/ziggy"]
         }
     },
-    "exclude": ["node_modules", "public"]
+    "exclude": ["node_modules", "public", "vendor" ,"storage" ,"bootstrap/cache", "resources/js/vendor","app","routes"]
 }
