@@ -263,7 +263,7 @@ const TaskList = ({ tasks, setData, errors, handleTaskChange, users, handleCheck
             value={progressData[task.id]?.qty || ""}
             onChange={(e) => handleProgressQtyChange(e.target.value, task.id)}
             min={1}
-            max={task.remaining}
+            
             
         />
 
