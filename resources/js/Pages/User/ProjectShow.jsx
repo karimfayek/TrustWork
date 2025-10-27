@@ -264,16 +264,15 @@ export default function ProjectShow({ project, tasks, attendances }) {
                             </strong>
                         </p>
                         <div className="mt-2 space-x-2">
-                            {task.task.remaining < 1 ? (
+                            {task.task.remaining < 1 && (
                                 <button
                                     disabled
                                     className=" bg-green-500  px-3 py-1 rounded text-white"
                                 >
                                     مكتمله
                                 </button>
-                            ) : (
-                                <>
-                                    <hr className="my-3" />
+                            ) }
+                             <hr className="my-3" />
                                     <h2 className="text-lg font-bold mb-4">
                                         تسجيل تقدم في المهمة: {task.task.title}
                                     </h2>
@@ -330,8 +329,6 @@ export default function ProjectShow({ project, tasks, attendances }) {
                                             حفظ
                                         </button>
                                     </form>
-                                </>
-                            )}
 
                             {!task.task.remaining < 1 && (
                                 <button
