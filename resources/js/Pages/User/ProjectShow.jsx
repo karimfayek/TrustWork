@@ -264,15 +264,16 @@ export default function ProjectShow({ project, tasks, attendances }) {
                             </strong>
                         </p>
                         <div className="mt-2 space-x-2">
-                            {task.task.remaining < 1 && (
+                            {task.task.remaining < 1 ? (
                                 <button
                                     disabled
                                     className=" bg-green-500  px-3 py-1 rounded text-white"
                                 >
                                     مكتمله
                                 </button>
-                            ) }
-                             <hr className="my-3" />
+                            ) : (
+                                <>
+                                    <hr className="my-3" />
                                     <h2 className="text-lg font-bold mb-4">
                                         تسجيل تقدم في المهمة: {task.task.title}
                                     </h2>
@@ -329,6 +330,69 @@ export default function ProjectShow({ project, tasks, attendances }) {
                                             حفظ
                                         </button>
                                     </form>
+                                </>
+                            )}
+                            {(project.id === 42 && task.task.remaining < 1) &&
+  <>
+                                    <hr className="my-3" />
+                                    <h2 className="text-lg font-bold mb-4">
+                                        تسجيل تقدم في المهمة: {task.task.title}
+                                    </h2>
+                                    <form
+                                        onSubmit={(e) =>
+                                            handleSubmitProgress(
+                                                e,
+                                                task.task.id
+                                            )
+                                        }
+                                        className="space-y-4"
+                                    >
+                                        <div>
+                                            <input
+                                                type="hidden"
+                                                name="task_id"
+                                                value={task.task.id}
+                                            />
+                                            <label className="block mb-1">
+                                                الكمية المنجزة اليوم
+                                            </label>
+                                            <input
+                                                type="number"
+                                                className="w-full border rounded px-3 py-2"
+                                                value={qtyDoneMap[task.task.id] || ""}
+                                                onChange={(e) =>
+                                                    setQtyDoneMap({
+                                                      ...qtyDoneMap,
+                                                      [task.task.id]: e.target.value,
+                                                    })
+                                                  }
+                                                min={1}
+                                                required
+                                            />
+                                            {Progresserrors.quantity_done && (
+                                                <div className="text-red-600">
+                                                    {
+                                                        Progresserrors.quantity_done
+                                                    }
+                                                </div>
+                                            )}
+                                            {Progresserrors.task_id && (
+                                                <div className="text-red-600">
+                                                    {Progresserrors.task_id}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            className=" bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+                                            disabled={processing}
+                                        >
+                                            حفظ
+                                        </button>
+                                    </form>
+                                </>
+                            }
 
                             {!task.task.remaining < 1 && (
                                 <button
