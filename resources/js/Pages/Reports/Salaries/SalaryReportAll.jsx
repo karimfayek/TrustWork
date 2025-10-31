@@ -40,17 +40,18 @@ function SalaryRow({ user, filters, setLoading, onCalculated }) {
 
   const absenceScoreold = (Number(user.salary?.final_salary ?? 0) / 30) * Number(attData?.absenceDays ?? 0);
 
-  const realAttDayes = attData?.month_days - attData?.absenceDays;
-  const attDayesSalary = (Number(user.salary?.final_salary ?? 0) / attData?.month_days) * Number(realAttDayes ?? 0);
-  const absenceScore = (Number(user.salary?.final_salary ?? 0) - attDayesSalary);
+  const realAttDayes = attData?.month_days - attData?.absenceDays;//31-24 =7
+  const att_days = attData?.absenceDays < 7 ? realAttDayes : attData.att_days
+  const attDayesSalary = (Number(user.salary?.final_salary ?? 0) / attData?.month_days) * Number(att_days ?? 0);//12500/31*7 = 2822
+  const absenceScore = (Number(user.salary?.final_salary ?? 0) - attDayesSalary);//7000-1580.65=5419.35
 
   console.log(absenceScore, 'absencosnr')
 
 
   const deserved = Number(
-    Number(user.salary?.final_salary ?? 0) +
-    Number(attData?.rewards ?? 0) -
-    absenceScore +
+    Number(user.salary?.final_salary ?? 0) +//7000 + 0 - 1129.03 = 5870.97
+    Number(attData?.rewards ?? 0) -//0
+    absenceScore +//1129.03
     Number(attData?.transportaionFees ?? 0) -
     Number(attData?.lostCostThisMonth ?? 0) -
     Number(attData?.deductions ?? 0) -
