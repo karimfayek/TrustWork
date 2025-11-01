@@ -265,7 +265,7 @@ class EmployeePerformanceService
         $advances = $user->advances->whereBetween('given_at', [$start, $end])->where('status', 'accepted')->sum('amount');
         $expenses = $user->expenses->whereBetween('spent_at', [$start, $end])->sum('amount');
         $basics = $user->deductions->where('type', 'basic')->sum('amount');
-        $deductions = $user->deductions->where('type', 'deduction')->sum('amount');
+        $deductions = $user->deductions->whereBetween('deducted_at', [$start, $end])->where('type', 'deduction')->sum('amount');
 
         // dd($expenses);
         return [
