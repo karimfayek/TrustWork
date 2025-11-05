@@ -4,7 +4,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import AttFrom from "../Employee/Att/AttForm";
 import DeleteButton from "@/Components/DeleteButton";
 
-export default function AttList({ atts, visits, users, projects ,showManual = true , customers}) {
+export default function AttList({ atts, users, projects ,showManual = true , customers}) {
     const user = usePage().props.auth.user;
     const role = user?.role;
     const [filters, setFilters] = useState({

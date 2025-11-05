@@ -34,12 +34,20 @@ class AttendanceController extends Controller
     public function attList($user=null)
     {
         if($user == null){
-            $atts = Attendance::with('user' , 'project')->get()->load('user', 'project', 'visit' ,'visit.customer');
-            $visits = Visit::all()->load('user', 'customer'); 
+          $atts = Attendance::with([
+            'user:id,name',
+            'project:id,name',
+            'visit:id,customer_id',
+            'visit.customer:id,name'
+        ])
+        ->select('check_in_time', 'check_out_time', 'id', 'type', 'visit_id', 'project_id', 'customer', 'user_id')
+        ->latest()
+        ->limit(100)
+        ->get();
+
         }else{
 
             $atts = Attendance::where('user_id', $user)->get()->load('user', 'project', 'visit','visit.customer');
-            $visits = Visit::where('user_id', $user)->get()->load('user', 'customer');
         }
         $role = auth()->user()->role ;
 
@@ -47,21 +55,20 @@ class AttendanceController extends Controller
           if (array_intersect($currentUserRoles, ['admin', 'acc' , 'hr'])) {
 
            //dd( $currentUserRoles );
-            $users = User::where('status' , 1)->get();
+            $users = User::where('status' , 1)->select('id' , 'name')->get();
 
         }
         else {
             $users = User::where('status' , 1)->whereHas('roles', function ($query) {
                 $query->where('name', 'employee'); 
-            })->get();
+            })->select('id' , 'name')->get();
            
         }
 
-        $customers = \App\Models\Customer::all(); 
+        $customers = \App\Models\Customer::select('id' , 'name')->get(); 
         $projects = Project::all();
         return Inertia::render('User/AttList', [
             'atts' => $atts,
-            'visits' => $visits,
             'users' => $users,
             'projects' => $projects,
             'customers' => $customers,
