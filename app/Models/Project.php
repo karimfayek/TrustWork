@@ -39,6 +39,30 @@ public function getTotalDoneAttribute()
 {
     return $this->tasks->sum('total_done');
 }
+public function getTotalMeterDoneAttribute()
+{
+   return $this->tasks
+        ->where('unit', 'meter')
+        ->sum(function ($task) {
+            return $task->total_done; 
+        });
+}
+public function getTotalNumberDoneAttribute()
+{
+   return $this->tasks
+        ->where('unit', 'number')
+        ->sum(function ($task) {
+            return $task->total_done; 
+        });
+}
+public function getTotalLsDoneAttribute()
+{
+   return $this->tasks
+        ->where('unit', 'ls')
+        ->sum(function ($task) {
+            return $task->total_done; 
+        });
+}
 public function getTotalRemainingAttribute()
 {
     return $this->tasks->sum('remaining');

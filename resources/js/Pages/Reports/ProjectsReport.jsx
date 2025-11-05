@@ -120,6 +120,7 @@ export default function EmployeeReport({ projects }) {
                             </td>
                           </tr>
                         )}
+                       
                       </Fragment>
                     ))}
 
@@ -144,6 +145,40 @@ export default function EmployeeReport({ projects }) {
                   )}
                 </ul>
               </div>
+                 {proj.total_done  > 0 && (
+                  <table className='min-w-full text-sm text-right border border-gray-300'>
+                        <tr className="bg-white border-b">
+                            <td colSpan="6" className="p-2">
+                              <div className="mt-2 bg-gray-50 p-2 rounded-lg border text-sm">
+                                <h3 className="font-semibold text-gray-700 mb-2"> اجمالى الكميات المنجزة:</h3>
+                                <table className="min-w-full text-sm border border-gray-300">
+                                  <thead className="bg-gray-100">
+                                    <tr>
+                                      <th className="p-2 border">متر</th>
+                                      <th className="p-2 border">عدد</th>
+                                      <th className="p-2 border"> LS</th>
+                                      <th className="p-2 border"> إجمالى</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                   
+                                      <tr className="hover:bg-gray-50">
+                                        <td className="p-2 border text-gray-700">{proj.meter_done || '0'}</td>
+                                        <td className="p-2 border text-gray-600">{proj.number_done  || '0'}</td>
+                                        <td className="p-2 border text-gray-600">{proj.ls_done  || '0'}</td>
+                                        <td className="p-2 border text-center text-blue-600 font-medium">
+                                          {proj.total_done}
+                                        </td>
+                                      </tr>
+                                  
+                                  </tbody>
+                                </table>
+                              </div>
+                            </td>
+                          </tr>
+                          </table>
+                          )
+                        }
 
 
             </div>

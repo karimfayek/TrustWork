@@ -114,9 +114,14 @@ class ReportController extends Controller
         $projects = Project::all()->load('tasks' , 'users' , 'tasks.users' ,'tasks.progress.user');
         foreach($projects as $project){
             foreach($project->tasks as $task){
+                //dd($task);
                 $task['quantity_done'] = $task->progress->sum('quantity_done') ;
             }
-            
+           // dd($project->total_meter_done);
+            $project['meter_done'] = $project->total_meter_done ;
+            $project['number_done'] = $project->total_number_done ;
+            $project['ls_done'] = $project->total_ls_done ;
+            $project['total_done'] = $project->total_done ;
         }
 //dd($projects);
         return Inertia::render('Reports/ProjectsReport', [
