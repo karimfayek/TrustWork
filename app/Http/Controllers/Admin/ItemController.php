@@ -10,15 +10,7 @@ class ItemController extends Controller
 {
     public function index()
     {
-        $old = \App\Models\Item::all();
-        foreach($old as $index => $i)(
-            Item::create([
-                'name' => $i->name,
-                'code' => $index +1,
-                'unit' => $i->unit,
-                'minimum_stock' => $i->alert_quantity,
-            ])
-            );
+      
        
         $items = Item::orderBy('name')->get();
 
