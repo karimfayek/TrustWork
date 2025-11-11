@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Item;
+use App\Models\Product as Item;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -10,7 +10,7 @@ class ItemController extends Controller
 {
     public function index()
     {
-        $items = Item::with('transactions')->orderBy('name')->get();
+        $items = Item::orderBy('name')->get();
 
         return Inertia::render('Items/Index', [
             'items' => $items
@@ -24,14 +24,14 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
-            'unit' => 'required|string|max:50',
-            'quantity' => 'required|numeric|min:0',
-            'alert_quantity' => 'nullable|numeric|min:0',
+'code' => 'required|string|unique:products,code',
+'unit' => 'required|string|max:50',
+'minimum_stock' => 'nullable|numeric|min:0',
         ]);
 
-        Item::create($request->all());
+        Item::create($data);
 
         return redirect()->route('items.index')->with('success', 'تم إضافة الصنف بنجاح');
     }

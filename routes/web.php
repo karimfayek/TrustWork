@@ -27,6 +27,8 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AdminHolidayController;
 
 use App\Http\Controllers\Admin\ItemController;
+use App\Http\Controllers\Admin\StockController;
+use App\Http\Controllers\Admin\StockMovementController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ItemsDashboardController;
 use App\Http\Controllers\User\EmployeeAdvanceController;
@@ -102,6 +104,17 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
 
 Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
 Route::get('/items/dashboard', [ItemsDashboardController::class, 'index'])->name('items.dashboard');
+Route::post('/stock/in', [StockMovementController::class,'storeIn'])->name('stock.in');
+Route::get('/api/stock/batch-qty', [StockMovementController::class,'batchQty'])->name('stock.batchQty');
+Route::post('/stock/out', [StockMovementController::class,'storeOut'])->name('stock.out');
+Route::get('/stock/{warehouse}/{product}', [StockMovementController::class,'getStock'])->name('stock.get');
+
+Route::get('/stock/in', [StockController::class,'in'])->name('stock.in.get');
+Route::get('/stock/out', [StockController::class,'out'])->name('stock.out.get');
+Route::get('/api/products/search', [StockController::class, 'searchProducts'])->name('api.products.search');
+Route::get('/api/stock/{warehouse}/{product}', [StockController::class, 'getStock'])->name('api.stock.get');
+Route::post('/api/stock/move', [StockController::class, 'storeMovement'])->name('api.stock.move');
+Route::get('/api/stock/movements', [StockController::class, 'movements'])->name('api.stock.movements');
 
     Route::get('/admin/user/salary/{id}', [AdminUserController::class, 'salary'])->name('admin.user.salary');
      //pricing 

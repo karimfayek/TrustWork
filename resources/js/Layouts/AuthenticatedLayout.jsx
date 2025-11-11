@@ -66,7 +66,9 @@ export default function AuthenticatedLayout({ header, children }) {
         label: 'المخزن',
         items:[
             { label: 'داش بورد', routeName: 'items.dashboard', roles: ['admin' , 'acc'] },     
-            { label: 'الاصناف', routeName: 'items.index', roles: ['admin' , 'acc'] },
+            { label: 'الاصناف', routeName: 'items.index', roles: ['admin' , 'acc'] },  
+            { label: 'توريد للمخزن', routeName: 'stock.in.get', roles: ['admin' , 'acc'] },
+            { label: ' صرف من المخزن', routeName: 'stock.out.get', roles: ['admin' , 'acc'] },
         ],
         },
     ];

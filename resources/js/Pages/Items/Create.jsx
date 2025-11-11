@@ -3,14 +3,12 @@ import { useForm, Link, usePage } from '@inertiajs/react';
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 export default function Create() {
-  const { errors } = usePage().props;
-
-  const { data, setData, post } = useForm({
-    name: '',
-    unit: '',
-    quantity: '',
-    alert_quantity: '',
-  });
+const { data, setData, post, processing, errors } = useForm({
+name: '',
+code: '',
+unit: '',
+minimum_stock: ''
+});
 
   const submit = (e) => {
     e.preventDefault();
@@ -20,66 +18,44 @@ export default function Create() {
   return (
     <AuthenticatedLayout>
         
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">إضافة صنف جديد</h1>
+    <div className="max-w-lg mx-auto p-6">
+<h1 className="text-2xl font-bold mb-4">إضافة منتج جديد</h1>
 
-      <form onSubmit={submit} className="space-y-4 bg-white p-6 rounded shadow">
 
-        <div>
-          <label className="block mb-1">الاسم</label>
-          <input
-            type="text"
-            className="w-full border rounded px-3 py-2"
-            value={data.name}
-            onChange={e => setData('name', e.target.value)}
-            required
-          />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-        </div>
+<form onSubmit={submit} className="space-y-4">
+<div>
+<label className="block mb-1">اسم المنتج</label>
+<input type="text" className="border rounded w-full px-3 py-2" value={data.name} onChange={e => setData('name', e.target.value)} />
+{errors.name && <div className="text-red-500 text-sm">{errors.name}</div>}
+</div>
 
-        <div>
-          <label className="block mb-1">الوحدة</label>
-          <input
-            type="text"
-            className="w-full border rounded px-3 py-2"
-            value={data.unit}
-            onChange={e => setData('unit', e.target.value)}
-            required
-          />
-          {errors.unit && <p className="text-red-500 text-sm mt-1">{errors.unit}</p>}
-        </div>
 
-        <div>
-          <label className="block mb-1">الكمية</label>
-          <input
-            type="number"
-            step="0.01"
-            className="w-full border rounded px-3 py-2"
-            value={data.quantity}
-            onChange={e => setData('quantity', e.target.value)}
-            required
-          />
-          {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>}
-        </div>
+<div>
+<label className="block mb-1">كود المنتج</label>
+<input type="text" className="border rounded w-full px-3 py-2" value={data.code} onChange={e => setData('code', e.target.value)} />
+{errors.code && <div className="text-red-500 text-sm">{errors.code}</div>}
+</div>
 
-        <div>
-          <label className="block mb-1">حد التنبيه (اختياري)</label>
-          <input
-            type="number"
-            step="0.01"
-            className="w-full border rounded px-3 py-2"
-            value={data.alert_quantity}
-            onChange={e => setData('alert_quantity', e.target.value)}
-          />
-          {errors.alert_quantity && <p className="text-red-500 text-sm mt-1">{errors.alert_quantity}</p>}
-        </div>
 
-        <div className="flex justify-between">
-          <Link href={route('items.index')} className="px-4 py-2 bg-gray-300 rounded">رجوع</Link>
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">حفظ</button>
-        </div>
-      </form>
-    </div>
+<div>
+<label className="block mb-1">الوحدة (مثال: متر / عدد / كرتونة)</label>
+<input type="text" className="border rounded w-full px-3 py-2" value={data.unit} onChange={e => setData('unit', e.target.value)} />
+{errors.unit && <div className="text-red-500 text-sm">{errors.unit}</div>}
+</div>
+
+
+<div>
+<label className="block mb-1">حد التنبيه الأدنى (اختياري)</label>
+<input type="number" className="border rounded w-full px-3 py-2" value={data.minimum_stock} onChange={e => setData('minimum_stock', e.target.value)} />
+{errors.minimum_stock && <div className="text-red-500 text-sm">{errors.minimum_stock}</div>}
+</div>
+
+
+<button type="submit" disabled={processing} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+حفظ
+</button>
+</form>
+</div>
     
     </AuthenticatedLayout>
   );

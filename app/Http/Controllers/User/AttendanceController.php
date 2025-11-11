@@ -40,7 +40,7 @@ class AttendanceController extends Controller
             'visit:id,customer_id',
             'visit.customer:id,name'
         ])
-        ->select('check_in_time', 'check_out_time', 'id', 'type', 'visit_id', 'project_id', 'customer', 'user_id')
+        ->select('check_in_time', 'check_out_time', 'id', 'type', 'visit_id', 'project_id', 'customer', 'user_id','out_location')
         ->latest()
         ->limit(100)
         ->get();
