@@ -78,13 +78,16 @@ export default function EmployeeReport({ projects }) {
                               : tsk.quantity - tsk.quantity_done}
                           </td>
                           <td className={`p-2 border text-center  font-semibold ${tsk.quantity - tsk.quantity_done < 1
-                              ? 'text-green-500'  // ✅ مكتمل
-                              : 'bg-red-500 text-white'    // ❌ غير مكتمل
+                              ? 'text-green-500' 
+                              : 'bg-red-500 text-white'    
                             }`}>
+                              <td>
+                                
+                              </td>
                             {tsk.unit === 'collaborative' ?
-                              tsk.quantity - tsk.quantity_done / tsk.progress.length === 0 ? 'مكتمل' : 'غير مكتمل'
+                              tsk.quantity - tsk.quantity_done / tsk.progress.length === 0 ? 'مكتمل' : tsk.quantity - tsk.quantity_done / tsk.progress.length < 1 ?  ' + مكتمل'+ tsk.quantity_done - tsk.quantity  : 'غير مكتمل'
                               :
-                              tsk.quantity - tsk.quantity_done === 0 ? 'مكتمل' : 'غير مكتمل'
+                              tsk.quantity - tsk.quantity_done ===0  ? 'مكتمل' : tsk.quantity - tsk.quantity_done  < 1 ?  `مكتمل + ${tsk.quantity_done - tsk.quantity }` : 'غير مكتمل'
                             }
                             { }
                           </td>
