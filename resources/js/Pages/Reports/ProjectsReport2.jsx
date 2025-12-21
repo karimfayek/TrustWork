@@ -81,9 +81,7 @@ export default function EmployeeReport({ projects }) {
                               ? 'text-green-500' 
                               : 'bg-red-500 text-white'    
                             }`}>
-                              <td>
-                                
-                              </td>
+                              
                             {tsk.unit === 'collaborative' ?
                               tsk.quantity - tsk.quantity_done / tsk.progress.length === 0 ? 'مكتمل' : tsk.quantity - tsk.quantity_done / tsk.progress.length < 1 ?  ' + مكتمل'+ tsk.quantity_done - tsk.quantity  : 'غير مكتمل'
                               :
@@ -126,23 +124,34 @@ export default function EmployeeReport({ projects }) {
                               <div className="mt-2 bg-gray-50 p-2 rounded-lg border text-sm">
                                 <h3 className="font-semibold text-gray-700 mb-2"> اجمالى الكميات المنجزة:</h3>
                                 <table className="min-w-full text-sm border border-gray-300">
-                                  <thead className="bg-gray-100">
+                                   <thead className="bg-gray-100">
                                     <tr>
                                       <th className="p-2 border">متر</th>
                                       <th className="p-2 border">عدد</th>
                                       <th className="p-2 border"> LS</th>
-                                      <th className="p-2 border"> إجمالى</th>
+                                      <th className="p-2 border"> كميات العقد</th>
+                                      <th className="p-2 border"> اجمالى تم انجازة</th>
+                                      {proj.total_done > proj.total_quantity &&
+                                      <th className="p-2 border"> اجمالى إضافى</th>
+                                      }
                                     </tr>
                                   </thead>
                                   <tbody>
                                    
-                                      <tr className="hover:bg-gray-50">
+                                       <tr className="hover:bg-gray-50">
                                         <td className="p-2 border text-gray-700">{proj.meter_done || '0'}</td>
                                         <td className="p-2 border text-gray-600">{proj.number_done  || '0'}</td>
                                         <td className="p-2 border text-gray-600">{proj.ls_done  || '0'}</td>
+                                        <td className="p-2 border text-gray-600">{proj.total_quantity  || '0'}</td>
                                         <td className="p-2 border text-center text-blue-600 font-medium">
                                           {proj.total_done}
                                         </td>
+                                        {proj.total_done > proj.total_quantity &&
+                                          <td className="p-2 border text-center text-green-600 font-medium">
+
+                                            {proj.total_done - proj.total_quantity}
+                                          </td>
+                                      }
                                       </tr>
                                   
                                   </tbody>

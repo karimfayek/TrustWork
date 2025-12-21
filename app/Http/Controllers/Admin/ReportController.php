@@ -122,6 +122,7 @@ class ReportController extends Controller
             $project['number_done'] = $project->total_number_done ;
             $project['ls_done'] = $project->total_ls_done ;
             $project['total_done'] = $project->total_done ;
+            $project['total_quantity'] = $project->total_quantity ;
         }
 //dd($projects);
         return Inertia::render('Reports/ProjectsReport', [
@@ -142,6 +143,7 @@ class ReportController extends Controller
             $project['number_done'] = $project->total_number_done ;
             $project['ls_done'] = $project->total_ls_done ;
             $project['total_done'] = $project->total_done ;
+            $project['total_quantity'] = $project->total_quantity ;
         }
 //dd($projects);
         return Inertia::render('Reports/ProjectsReport2', [
