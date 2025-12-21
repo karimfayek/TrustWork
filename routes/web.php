@@ -85,6 +85,7 @@ Route::post('/admin/recycle-bin/delete/user/{id}', [RecycleController::class, 'f
     Route::get('/reports/insurance', [ReportController::class, 'insuranceRefundsReport'])->name('reports.insurance');
     Route::get('/reports/finance', [ReportController::class, 'financeReport'])->name('finance.employees');
     Route::get('/reports/projects', [ReportController::class, 'projectsReport'])->name('projects.employees');
+    Route::get('/reports/projects/2', [ReportController::class, 'projectsReport2'])->name('projects.employees.second');
     Route::post('/admin/user/delete', [AdminUserController::class, 'deleteUser'])->name('admin.user.delete');
     Route::post('/admin/visit/delete', [AdminVisitsController::class, 'delete'])->name('admin.visit.delete');
     Route::get('/reports/attendance', [ReportController::class, 'attReport'])->name('reports.attendance');
