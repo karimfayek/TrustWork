@@ -48,7 +48,7 @@ function SalaryRow({ user, filters, setLoading, onCalculated }) {
   console.log(absenceScore, 'absencosnr')
 
 
-  const deserved = Number(
+  const deservedOrig = Number(
     Number(user.salary?.final_salary ?? 0) +//7000 + 0 - 1129.03 = 5870.97
     Number(attData?.rewards ?? 0) -//0
     absenceScore +//1129.03
@@ -59,7 +59,8 @@ function SalaryRow({ user, filters, setLoading, onCalculated }) {
     Number(attData?.loans ?? 0) -
     Number(attData?.remaining ?? 0)
   ).toFixed(2);
-
+  const tempSalary = Number(user.salary?.final_salary ?? 0) *attData.att_days
+const deserved = user.temporary ? tempSalary : deservedOrig
   useEffect(() => {
     if (!isNaN(deserved) && onCalculated) {
       onCalculated(deserved);

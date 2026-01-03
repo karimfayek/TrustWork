@@ -31,6 +31,7 @@ class User extends Authenticatable
         'phone',
         'hire_date',
         'offdayestype',
+        'temporary'
     ];
 
     /**
@@ -55,23 +56,24 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-	
-	 public function projects() {   
-     return $this->belongsToMany(Project::class);
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class);
     }
     public function activeProjects()
     {
         return $this->belongsToMany(Project::class)
-                    ->whereDate('end_date', '>=', now()->toDateString());
+            ->whereDate('end_date', '>=', now()->toDateString());
     }
     public function endedProjects()
     {
         return $this->belongsToMany(Project::class)
-                    ->whereDate('end_date', '<', now()->toDateString());
+            ->whereDate('end_date', '<', now()->toDateString());
     }
     public function tasks()
     {
-        return $this->belongsToMany(Task::class)->withTimestamps()->withPivot('project_id' , 'quantity');
+        return $this->belongsToMany(Task::class)->withTimestamps()->withPivot('project_id', 'quantity');
     }
     public function attendances()
     {
@@ -85,14 +87,16 @@ class User extends Authenticatable
     {
         return $this->hasOne(Salary::class);
     }
-    public function advances() {
+    public function advances()
+    {
         return $this->hasMany(Advance::class);
     }
     public function loans()
     {
         return $this->hasMany(Loan::class, 'employee_id');
     }
-    public function expenses() {
+    public function expenses()
+    {
         return $this->hasMany(Expense::class);
     }
     public function deductions()
@@ -110,26 +114,26 @@ class User extends Authenticatable
         return $this->hasMany(Visit::class);
     }
     public function rewards()
-{
-    return $this->hasMany(Reward::class);
-}
-public function taskProgress()
-{
-    return $this->hasMany(TaskProgress::class);
-}
-public function roles()
-{
-    return $this->belongsToMany(Role::class);
-}
+    {
+        return $this->hasMany(Reward::class);
+    }
+    public function taskProgress()
+    {
+        return $this->hasMany(TaskProgress::class);
+    }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
 
-public function hasRole($role)
-{
-    return $this->roles()->where('name', $role)->exists();
-}
+    public function hasRole($role)
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
 
-public function hasAnyRole(array $roles)
-{
-    return $this->roles()->whereIn('name', $roles)->exists();
-}
-    
+    public function hasAnyRole(array $roles)
+    {
+        return $this->roles()->whereIn('name', $roles)->exists();
+    }
+
 }

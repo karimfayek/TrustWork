@@ -5,7 +5,7 @@ import flowbiteReact from "flowbite-react/plugin/vite";
 
 export default defineConfig({
 	 server: {
-        host: 'work.eit-host.com',  //  force IPv4 only
+        host: '0.0.0.0',  //  force IPv4 only
        // https: {
         //    key: fs.readFileSync('C:/certs/elfisalt.key'),
          //   cert: fs.readFileSync('C:/certs/elfisalt.crt'),

@@ -23,12 +23,12 @@ class AdminUserController extends Controller
     {
         $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
         if (in_array('admin', $currentUserRoles)) {
-        $roles = \App\Models\Role::Select('id', 'name')->get();
-        }else{
+            $roles = \App\Models\Role::Select('id', 'name')->get();
+        } else {
             $roles = \App\Models\Role::Select('id', 'name')->where('name', '=', 'employee')
-            ->get();
+                ->get();
         }
-         
+
 
         return Inertia::render('Admin/Users/Create', [
             'roles' => $roles
@@ -38,44 +38,44 @@ class AdminUserController extends Controller
     public function edit($id)
     {
         // جلب جميع الموظفين
-        $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects' , 'loans' , 'leaves');
+        $user = User::findOrFail($id)->load('salary', 'advances', 'activeProjects', 'loans', 'leaves');
         $user['roles'] = $user->roles()->pluck('id');
-        $user['rolesnames']= $user->roles()->pluck('name');
-        $acceptedAdvances = $user->advances()->where('status' , 'accepted')->get()->load('project');
-        $pendingAdvances = $user->advances()->where('status' , 'pending')->get()->load('project');
+        $user['rolesnames'] = $user->roles()->pluck('name');
+        $acceptedAdvances = $user->advances()->where('status', 'accepted')->get()->load('project');
+        $pendingAdvances = $user->advances()->where('status', 'pending')->get()->load('project');
         $expenses = $user->expenses()->select('amount', 'description', 'spent_at', 'id')->get();
-        $deductions= $user->deductions()->select('amount', 'type', 'deducted_at' , 'note' ,'id')->get();
+        $deductions = $user->deductions()->select('amount', 'type', 'deducted_at', 'note', 'id')->get();
         $totalAdvance = $acceptedAdvances->sum('amount');
         $totalExpense = $expenses->sum('amount');
         $remaining = $totalAdvance - $totalExpense;
-        
+
         $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
         if (in_array('admin', $currentUserRoles)) {
-        $roles = \App\Models\Role::Select('id', 'name')->get();
-        }else{
+            $roles = \App\Models\Role::Select('id', 'name')->get();
+        } else {
             $roles = \App\Models\Role::Select('id', 'name')->where('name', '=', 'employee')->get();
         }
 
-        
-       return Inertia::render('Admin/Users/Edit', [
-        'acceptedAdvances' => $acceptedAdvances,
-        'pendingAdvances' => $pendingAdvances,
-        'expenses' => $expenses,
-        'totalAdvance' => $totalAdvance,
-        'totalExpense' => $totalExpense,
-        'remaining' => $remaining,
-        'user' => $user,
-        'deductions' => $deductions,
-        'roles' => $roles
-    ]);
-       
+
+        return Inertia::render('Admin/Users/Edit', [
+            'acceptedAdvances' => $acceptedAdvances,
+            'pendingAdvances' => $pendingAdvances,
+            'expenses' => $expenses,
+            'totalAdvance' => $totalAdvance,
+            'totalExpense' => $totalExpense,
+            'remaining' => $remaining,
+            'user' => $user,
+            'deductions' => $deductions,
+            'roles' => $roles
+        ]);
+
     }
     public function show($id)
     {
         $project = Project::find($id);
         $tasks = $project->tasks()->with('users')->get();
         $users = $project->users;
-    
+
         return Inertia::render('Projects/ProjectDetails', [
             'project' => $project,
             'tasks' => $tasks,
@@ -84,37 +84,37 @@ class AdminUserController extends Controller
     }
     public function salary($id)
     {
-        $user = User::findOrFail($id)->load('salary' , 'advances', 'activeProjects');
-        $acceptedAdvances = $user->advances()->where('status' , 'accepted')->get()->load('project');
-        $pendingAdvances = $user->advances()->where('status' , 'pending')->get()->load('project');
+        $user = User::findOrFail($id)->load('salary', 'advances', 'activeProjects');
+        $acceptedAdvances = $user->advances()->where('status', 'accepted')->get()->load('project');
+        $pendingAdvances = $user->advances()->where('status', 'pending')->get()->load('project');
         $expenses = $user->expenses()->select('amount', 'description', 'spent_at', 'id')->get();
-        $deductions= $user->deductions()->select('amount', 'type', 'deducted_at' , 'note' ,'id')->get();
+        $deductions = $user->deductions()->select('amount', 'type', 'deducted_at', 'note', 'id')->get();
         $totalAdvance = $acceptedAdvances->sum('amount');
         $totalExpense = $expenses->sum('amount');
         $remaining = $totalAdvance - $totalExpense;
-       // $project = Project::with('tasks' , 'tasks.users', 'users')->find($id);
-       
-       // $userIds = $project->users->pluck('id');
-       return Inertia::render('Admin/Users/Salary', [
-        'acceptedAdvances' => $acceptedAdvances,
-        'totalAdvance' => $totalAdvance,
-        'totalExpense' => $totalExpense,
-        'remaining' => $remaining,
-        'user' => $user,
-    ]);
-}
-    public function store(Request $request )
+        // $project = Project::with('tasks' , 'tasks.users', 'users')->find($id);
+
+        // $userIds = $project->users->pluck('id');
+        return Inertia::render('Admin/Users/Salary', [
+            'acceptedAdvances' => $acceptedAdvances,
+            'totalAdvance' => $totalAdvance,
+            'totalExpense' => $totalExpense,
+            'remaining' => $remaining,
+            'user' => $user,
+        ]);
+    }
+    public function store(Request $request)
     {
         //dd($request->all());
-        $existAndDeleted = User::withTrashed()->where('email' , $request->email)->where('status' , 0)->first();
-        if($existAndDeleted){
+        $existAndDeleted = User::withTrashed()->where('email', $request->email)->where('status', 0)->first();
+        if ($existAndDeleted) {
             $existAndDeleted->update([
-                'status' => 1 
+                'status' => 1
             ]);
             $existAndDeleted->restore();
-            return back()->with('message', '   المستخدم كان موجودا فى سله المهملات وتمت استعادتة - اذهب لقائمه الموظفين وقم بتعديله !'); 
+            return back()->with('message', '   المستخدم كان موجودا فى سله المهملات وتمت استعادتة - اذهب لقائمه الموظفين وقم بتعديله !');
         }
-       $validated = $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'base_salary' => 'nullable|numeric',
@@ -122,107 +122,109 @@ class AdminUserController extends Controller
             'password' => 'required|min:8',
             'roles' => 'array',
         ]);
-      $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
+        $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
         if (in_array('admin', $currentUserRoles)) {
-        $isAdmin = true ;
-        }else{
-            $isAdmin = false ;
+            $isAdmin = true;
+        } else {
+            $isAdmin = false;
         }
 
-    // لو المستخدم مش admin وحاول يدي admin لحد
-   
-       $user =  User::create([
+        // لو المستخدم مش admin وحاول يدي admin لحد
+
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'hire_date' => $request->hire_date,
-            'offdayestype'=> $request->offdayestype,
+            'offdayestype' => $request->offdayestype,
             'role' => $isAdmin ? $request->role : 'employee',
             'password' => Hash::make($request->password),
             'must_change_password' => $request->must_change_password,
+            'temporary' => $request->temporary,
         ]);
 
-        if($user && $isAdmin){
-       
+        if ($user && $isAdmin) {
+
             $user->salary()->create([
                 'base_salary' => $request->base_salary,
                 'final_salary' => $request->final_salary,
             ]);
         }
         $adminRoleId = \App\Models\Role::where('name', 'admin')->value('id');
-       if (!in_array('admin', $currentUserRoles) &&  in_array($adminRoleId, $validated['roles'])) {
-        
-        
-        return back()->withErrors(['message' => 'غير مسموح لك بإعطاء صلاحية admin']);
-    }
-     $user->roles()->sync($validated['roles']);
-    
+        if (!in_array('admin', $currentUserRoles) && in_array($adminRoleId, $validated['roles'])) {
+
+
+            return back()->withErrors(['message' => 'غير مسموح لك بإعطاء صلاحية admin']);
+        }
+        $user->roles()->sync($validated['roles']);
+
         return back()->with('message', 'تم انشاء الموظف بنجاح!'); // "Task updated successfully"
     }
-    public function update(Request $request , $id)
+    public function update(Request $request, $id)
     {
         //dd($request->all());
-       $validated = $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
             'base_salary' => 'required|numeric',
             'final_salary' => 'required|numeric',
             'roles' => 'array',
         ]);
-       // dd($request->all());
-       $currentuserRole = auth()->user()->role ;
-      // 
+        // dd($request->all());
+        $currentuserRole = auth()->user()->role;
+        // 
         $user = User::with('salary')->find($id);
         if ($user->salary) {
-        $user->salary()->update([
-            'base_salary' => $request->base_salary,
-            'final_salary' => $request->final_salary,
-        ]);
-    }else {
-        $user->salary()->create([
-            'base_salary' => $request->base_salary,
-            'final_salary' => $request->final_salary,
-        ]);
-    }
-    if ($request->filled('password')) {
-        $pass = Hash::make($request->password);
-        $user->update([
-            'password' => $pass,
-        ]);
-    }
-    
+            $user->salary()->update([
+                'base_salary' => $request->base_salary,
+                'final_salary' => $request->final_salary,
+            ]);
+        } else {
+            $user->salary()->create([
+                'base_salary' => $request->base_salary,
+                'final_salary' => $request->final_salary,
+            ]);
+        }
+        if ($request->filled('password')) {
+            $pass = Hash::make($request->password);
+            $user->update([
+                'password' => $pass,
+            ]);
+        }
+
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'hire_date' => $request->hire_date,
             'status' => $request->status,
-            'offdayestype'=> $request->offdayestype,
+            'offdayestype' => $request->offdayestype,
             'must_change_password' => $request->must_change_password,
+            'temporary' => $request->temporary,
         ]);
 
-    $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
+        $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
 
-    // لو المستخدم مش admin وحاول يدي admin لحد
-     $adminRoleId = \App\Models\Role::where('name', 'admin')->value('id');
-       if (!in_array('admin', $currentUserRoles) &&  in_array($adminRoleId, $validated['roles'])) {
-        
-        return back()->withErrors(['message' => 'غير مسموح لك بإعطاء صلاحية admin']);
-    }
-     if (in_array('admin', $currentUserRoles) ){
-         
-         $user->roles()->sync($validated['roles']);
-     }
+        // لو المستخدم مش admin وحاول يدي admin لحد
+        $adminRoleId = \App\Models\Role::where('name', 'admin')->value('id');
+        if (!in_array('admin', $currentUserRoles) && in_array($adminRoleId, $validated['roles'])) {
 
-       /*  if($isAdmin && auth()->user()->id !== $user->id ){
-           $user->roles()->sync($validated['roles']);
-        } */
+            return back()->withErrors(['message' => 'غير مسموح لك بإعطاء صلاحية admin']);
+        }
+        if (in_array('admin', $currentUserRoles)) {
 
-      //  $user->update($validated);
-     
-      
-      
-    
+            $user->roles()->sync($validated['roles']);
+        }
+
+        /*  if($isAdmin && auth()->user()->id !== $user->id ){
+            $user->roles()->sync($validated['roles']);
+         } */
+
+        //  $user->update($validated);
+
+
+
+
         return back()->with('message', 'تم تحديث الموظف بنجاح!'); // "Task updated successfully"
     }
 
@@ -231,7 +233,7 @@ class AdminUserController extends Controller
         $project = Project::with('tasks', 'users')->findOrFail($projectId);
         $tasks = Task::with('users')->get(); // جلب جميع المهام المتاحة
         $users = User::all(); // جلب جميع الموظفين
-    
+
         // إرسال البيانات إلى React عبر Inertia
         return Inertia::render('Projects/AssignTasks', [
             'project' => $project,
@@ -239,42 +241,42 @@ class AdminUserController extends Controller
             'users' => $users,
         ]);
     }
-    
+
     public function saveTasks(Request $request, $projectId)
     {
         $project = Project::findOrFail($projectId);
-    
+
         // تخصيص المهام للموظفين
-      
+
         if ($request->has('employee_tasks')) {
             foreach ($request->employee_tasks as $taskId => $userId) {
                 $task = Task::findOrFail($taskId);
                 $user = User::findOrFail($userId);
-                
+
                 // Sync the selected user (replaces any existing assignments)
                 $task->users()->sync([$userId => ['project_id' => $projectId]]);
             }
         }
-    
+
         return redirect()->route('admin.dashboard')->with('message', 'Tasks assigned successfully');
     }
 
-    
+
     public function deleteUser(Request $request)
     {
-       // dd($request->all());
+        // dd($request->all());
         $user = User::find($request->id);
-        if($user->id === auth()->user()->id){
-            return back()->with('message', ' لا يمكن مسح المستخدم الحالى(لا تمسح نفسك)!'); 
+        if ($user->id === auth()->user()->id) {
+            return back()->with('message', ' لا يمكن مسح المستخدم الحالى(لا تمسح نفسك)!');
         }
-        if($user){
+        if ($user) {
             $user->update([
-                'status' => 0 
+                'status' => 0
             ]);
             $user->delete();
-            return back()->with('message', 'تم   الحذف!'); 
-        }else{
-            return back()->with('message', '   حدثت مشكله اثناء الحذف!'); 
+            return back()->with('message', 'تم   الحذف!');
+        } else {
+            return back()->with('message', '   حدثت مشكله اثناء الحذف!');
         }
     }
 }

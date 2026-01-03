@@ -48,7 +48,7 @@ class EmployeePerformanceService
             'alltasks' => $taskData['totalTasks'],
             'tasksCompleted' => $taskData['completedCount'],
             'completedTasksPercentage' => $taskData['completedTasksPercentage'],
-            'absenceDays' => max(0, $workingDays - $attendance['present_days'] - $attendance['leaves']),
+            'absenceDays' => $user->temporary ? 0 : max(0, $workingDays - $attendance['present_days'] - $attendance['leaves']),
             'taskScore' => $penaltyScores['taskScore'],
             'lateScore' => $penaltyScores['lateScore'],
             'lateFees' => $penaltyScores['lateFees'],
@@ -75,7 +75,7 @@ class EmployeePerformanceService
         // جلب جميع تواريخ الإجازات الرسمية في الفترة
         $holidayDates = \App\Models\Holiday::whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->pluck('date')
-            ->map(fn ($d) => Carbon::parse($d)->toDateString())
+            ->map(fn($d) => Carbon::parse($d)->toDateString())
             ->toArray();
 
         $days = 0;
@@ -117,7 +117,7 @@ class EmployeePerformanceService
                 }
             } else {
                 // استثناء الجمعة والسبت
-                if (! in_array($date->dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
+                if (!in_array($date->dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
                     $count++;
                 }
             }
@@ -131,7 +131,7 @@ class EmployeePerformanceService
         $user = User::find($userId);
         $holidayDates = \App\Models\Holiday::whereBetween('date', [$start->toDateString(), $today->toDateString()])
             ->pluck('date')
-            ->map(fn ($d) => Carbon::parse($d)->toDateString())
+            ->map(fn($d) => Carbon::parse($d)->toDateString())
             ->toArray();
 
         $offDays = [];
@@ -140,6 +140,8 @@ class EmployeePerformanceService
             $offDays = ['Friday'];
         } elseif ($user->offdayestype == '2') {
             $offDays = ['Friday', 'Saturday'];
+        } elseif ($user->offdayestype == '3') {
+            $offDays = ['Friday', 'Thursday'];
         }
 
         $attendanceDays = Attendance::where('user_id', $userId)
@@ -154,7 +156,7 @@ class EmployeePerformanceService
                 $dayName = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
 
                 // ✅ استبعاد إذا كان يوم عطلة أسبوعية أو إجازة رسمية
-                return ! in_array($dayName, $offDays) && ! in_array($date, $holidayDates);
+                return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
             })
             ->count();
         $leaves = $user->leaves()->where('status', 'approved')->count();
@@ -170,7 +172,7 @@ class EmployeePerformanceService
                 $dayName = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
 
                 // ✅ استبعاد إذا كان يوم عطلة أسبوعية أو إجازة رسمية
-                return ! in_array($dayName, $offDays) && ! in_array($date, $holidayDates);
+                return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
             })
             ->count();
 
@@ -193,10 +195,12 @@ class EmployeePerformanceService
         // جلب المهام المرتبطة بالموظف في الفترة المحددة، مع كمية نصيبه في المهمة
         $tasks = $user->tasks()
             ->whereBetween('tasks.end_date', [$start, $end])
-            ->with(['progress' => function ($query) use ($user) {
-                // جلب تقدم هذا الموظف فقط (إنجازاته في المهمة)
-                $query->where('user_id', $user->id);
-            }])
+            ->with([
+                'progress' => function ($query) use ($user) {
+                    // جلب تقدم هذا الموظف فقط (إنجازاته في المهمة)
+                    $query->where('user_id', $user->id);
+                }
+            ])
             ->get();
 
         // مجموع الكميات المطلوبة لهذا الموظف فقط (من pivot)
@@ -251,7 +255,7 @@ class EmployeePerformanceService
     private function getToolAssignments($user, $start, $end)
     {
         $lost = $user->toolassignments()->whereBetween('lost_at', [$start, $end])->get();
-        $cost = $lost->sum(fn ($item) => $item->tool->estimated_value * $item->quantity);
+        $cost = $lost->sum(fn($item) => $item->tool->estimated_value * $item->quantity);
 
         return [
             'all' => $user->toolassignments()->with('tool')->get(),
@@ -280,7 +284,7 @@ class EmployeePerformanceService
     private function calculateTransportFees($visits)
     {
         // dd($visits);
-        return $visits->sum(fn ($visit) => $visit->customer->transport_fees ?? 0);
+        return $visits->sum(fn($visit) => $visit->customer->transport_fees ?? 0);
     }
 
     private function getRewards($userId, $start, $end)

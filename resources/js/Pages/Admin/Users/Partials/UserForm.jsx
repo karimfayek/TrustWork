@@ -18,6 +18,7 @@ export default function UserForm({ user, allRoles }) {
         status: user?.status ,
         hire_date: user?.hire_date || '',
         offdayestype: user?.offdayestype || '',
+        temporary: user?.temporary || false ,
         must_change_password: user.must_change_password,
         roles: user?.roles || [],
     });
@@ -178,6 +179,7 @@ const handleShowSalary = (e) => {
                     >
                         <option value="" disabled selected>ايام الاجازات</option>
                         <option value="1" > جمعه</option>
+                        <option value="3" > خميس + جمعه</option>
                         <option value="2" > جمعه + سبت</option>
                     </select>
                 </label>
@@ -190,6 +192,17 @@ const handleShowSalary = (e) => {
                         onChange={(e) => setData("must_change_password", e.target.checked)}
                     />
                     <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
+                </label>
+            </div>
+            
+            <div className="mt-4">
+                <label className="flex items-center">
+                    <input
+                        type="checkbox"
+                        checked={data.temporary || false}
+                        onChange={(e) => setData("temporary", e.target.checked)}
+                    />
+                    <span className="mr-2 text-sm text-gray-600">موظف مؤقت</span>
                 </label>
             </div>
 

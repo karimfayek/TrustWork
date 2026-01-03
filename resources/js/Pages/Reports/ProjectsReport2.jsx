@@ -129,7 +129,6 @@ export default function EmployeeReport({ projects }) {
                                       <th className="p-2 border">متر</th>
                                       <th className="p-2 border">عدد</th>
                                       <th className="p-2 border"> LS</th>
-                                      <th className="p-2 border"> كميات العقد</th>
                                       <th className="p-2 border"> اجمالى تم انجازة</th>
                                       {proj.total_done > proj.total_quantity &&
                                       <th className="p-2 border"> اجمالى إضافى</th>
@@ -139,11 +138,10 @@ export default function EmployeeReport({ projects }) {
                                   <tbody>
                                    
                                        <tr className="hover:bg-gray-50">
-                                        <td className="p-2 border text-gray-700">{proj.meter_done || '0'}</td>
-                                        <td className="p-2 border text-gray-600">{proj.number_done  || '0'}</td>
-                                        <td className="p-2 border text-gray-600">{proj.ls_done  || '0'}</td>
-                                        <td className="p-2 border text-gray-600">{proj.total_quantity  || '0'}</td>
-                                        <td className="p-2 border text-center text-blue-600 font-medium">
+                                        <td className="p-2 border text-gray-700">{proj.meter_done || '0'} {'من '} {proj.total_meters || 0}</td>
+                                        <td className="p-2 border text-gray-600">{proj.number_done  || '0'} {'من '} {proj.total_numbers || 0}</td>
+                                        <td className="p-2 border text-gray-600">{proj.ls_done  || '0'} {'من '} {proj.total_ls || 0}</td>
+                                         <td className="p-2 border text-center text-blue-600 font-medium">
                                           {proj.total_done}
                                         </td>
                                         {proj.total_done > proj.total_quantity &&

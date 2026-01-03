@@ -20,6 +20,7 @@ export default function CrreateUser({ roles }) {
         phone: '',
         hire_date: '',
         offdayestype: '',
+        temporary: false ,
         must_change_password: false,
         roles: []
     });
@@ -183,6 +184,7 @@ export default function CrreateUser({ roles }) {
                             >
                                 <option value="" disabled selected>ايام الاجازات</option>
                                 <option value="1" > جمعه</option>
+                                 <option value="3" > خميس + جمعه</option>
                                 <option value="2" > جمعه + سبت</option>
                             </select>
                         </label>
@@ -197,7 +199,17 @@ export default function CrreateUser({ roles }) {
                             <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
                         </label>
                     </div>
-
+ 
+            <div className="mt-4">
+                <label className="flex items-center">
+                    <input
+                        type="checkbox"
+                        checked={data.temporary || false}
+                        onChange={(e) => setData("temporary", e.target.checked)}
+                    />
+                    <span className="mr-2 text-sm text-gray-600">موظف مؤقت</span>
+                </label>
+            </div>
                     <div>
                         <PrimaryButton className="w-full justify-center" disabled={processing}>
                             انشاء الموظف
