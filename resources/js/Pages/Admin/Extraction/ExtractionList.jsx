@@ -229,7 +229,9 @@ const onToggle = (newValue , id) => {
                                         >
                                             تعديل
                                         </Link> 
+                                       {  logedinUser.email !== 'sherok@trustits.net' &&
                                         <DeleteButton id={extraction.id} routeName='extraction.delete' />
+                                       }
                                     </td>
                                 </tr>
                             ))}

@@ -14,8 +14,8 @@ export default function AuthenticatedLayout({ header, children }) {
         { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc', 'proj', 'hr'] },
         { label: 'الأجازات الرسمية', routeName: 'holidays.index', roles: ['admin', 'acc', 'hr'] },
         { label: 'العهد ', routeName: 'admin.advance.list', roles: ['admin', 'acc'] },
-        { label: 'السلف ', routeName: 'admin.loans.index', roles: ['admin', 'acc'] },
-        { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'] },
+        { label: 'السلف ', routeName: 'admin.loans.index', roles: ['admin', 'acc'] , except:['sherok@trustits.net']},
+        { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'],except:['sherok@trustits.net'] },
         { label: 'الادوات', routeName: 'tools.index', roles: ['admin', 'acc', 'hr'] },
         { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc', 'hr'] },
         { label: 'العملاء', routeName: 'customers.index', roles: ['admin', 'acc', 'hr'] },
@@ -23,15 +23,14 @@ export default function AuthenticatedLayout({ header, children }) {
         { label: 'التقارير', routeName: 'reports.index', roles: ['admin'] },
         { label: 'سلة المحذوفات', routeName: 'admin.recyclebin', roles: ['admin'] },
     ];
-    const user = usePage().props.auth.user;
-    const userRoles = user?.rolesnames ?? []; // مثلا ['admin', 'proj']
 
-    // هات اللينكات اللي اي رول من رولز اليوزر موجود في roles بتاعتها
+    const user = usePage().props.auth.user;
+    const userRoles = user?.rolesnames ?? []; 
     const roleLinks = allNavLinks.filter(link =>
-        link.roles.some(role => userRoles.includes(role))
+        link.roles.some(role => userRoles.includes(role)) &&
+         !link.except?.includes(user.email)
     );
 
-    // تصنيف الروابط في مجموعات
     const groupedNavLinks = [
         {
             label: 'المشاريع',
@@ -55,8 +54,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc', 'proj', 'hr'] },
                 { label: 'الأجازات الرسمية', routeName: 'holidays.index', roles: ['admin', 'acc', 'hr'] },
                  { label: 'العهد ', routeName: 'admin.advance.list', roles: ['admin', 'acc'] },
-                { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'] }, 
-                { label: 'السلف', routeName: 'admin.loans.index', roles: ['admin', 'acc', 'hr'] },
+                { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'] , except:['sherok@trustits.net']}, 
+                { label: 'السلف', routeName: 'admin.loans.index', roles: ['admin', 'acc', 'hr'] , except:['sherok@trustits.net']},
                 
             ],
         },
@@ -125,7 +124,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 {groupedNavLinks.map(group => {
                                     // تحقق من وجود صلاحية لأي عنصر في المجموعة
                                     const visibleItems = group.items.filter(link =>
-                                        link.roles.some(role => userRoles.includes(role))
+                                        link.roles.some(role => userRoles.includes(role)) && !link.except?.includes(user.email)
                                     );
                                     if (visibleItems.length === 0) return null;
                                     return (
