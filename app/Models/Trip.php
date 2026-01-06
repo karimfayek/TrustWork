@@ -17,6 +17,12 @@ class Trip extends Model
         'end_km',
         'distance',
         'started_at',
-        'ended_at'
+        'ended_at',
+        'to_location',
+        'from_location',
     ];
+    public function car()
+    {
+        return $this->belongsTo(Car::class);
+    }
 }

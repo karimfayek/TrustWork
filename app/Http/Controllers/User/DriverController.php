@@ -21,6 +21,7 @@ class DriverController extends Controller
     {
         $data = $request->validate([
             'user_id' => 'required|exists:users,id|unique:drivers,user_id',
+            'car_id' => 'nullable|exists:cars,id',
             'residence' => 'nullable|string',
             'license_type' => 'required|string',
             'license_number' => 'required|unique:drivers',
@@ -36,7 +37,7 @@ class DriverController extends Controller
     public function update(Request $request, Driver $driver)
     {
         $driver->update($request->validate([
-            // 'user_id' => 'nullable|exists:users,id|unique:drivers,user_id' . $driver->id,
+            'car_id' => 'nullable|exists:cars,id',
             'residence' => 'nullable|string',
             'license_type' => 'required|string',
             'license_number' => 'required|unique:drivers,license_number,' . $driver->id,
@@ -64,15 +65,27 @@ class DriverController extends Controller
     {
         return Inertia::render('Admin/Drivers/Edit', [
             //send driver with user
-            'driver' => $driver->with('user')->first()
+            'driver' => $driver->with('user')->first(),
+            'cars' => \App\models\Car::all()
         ]);
     }
     // create
     public function create()
     {
         $users = \App\models\User::doesntHave('driver')->get();
+        $cars = Car::all();
         return Inertia::render('Admin/Drivers/Create', [
-            'users' => $users
+            'users' => $users,
+            'cars' => $cars
+        ]);
+    }
+
+    // dashbaord driver
+    public function dashboard()
+    {
+        $driver = auth()->user()->driver->load('car', 'activeTrip');
+        return Inertia::render('Admin/Drivers/Dashboard', [
+            'driver' => $driver
         ]);
     }
 }

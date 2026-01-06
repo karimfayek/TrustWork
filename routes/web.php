@@ -288,9 +288,16 @@ Route::middleware(['auth', 'role:admin,proj'])->group(function () {
 Route::middleware(['auth', 'role:admin,hr,driver,acc'])->group(function () {
     Route::resource('cars', CarController::class);
     Route::resource('drivers', DriverController::class);
-    Route::post('/trips/start', [TripController::class, 'start']);
-    Route::post('/trips/{trip}/end', [TripController::class, 'end']);
 });
+Route::middleware(['auth', 'role:admin,driver'])->group(function () {
+    //dashboard route
+    Route::get('/driver/dashboard', [DriverController::class, 'dashboard'])->name('driver.dashboard');
+    Route::post('/trips/start', [TripController::class, 'start'])
+        ->name('driver.trips.start');
+    Route::post('/trips/end/{trip}', [TripController::class, 'end'])
+        ->name('driver.trips.end');
+});
+
 
 
 

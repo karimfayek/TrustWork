@@ -25,4 +25,9 @@ class Driver extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function activeTrip()
+    {
+        return $this->hasOne(Trip::class)
+            ->whereNull('ended_at');
+    }
 }

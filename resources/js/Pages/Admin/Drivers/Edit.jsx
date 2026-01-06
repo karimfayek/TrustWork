@@ -5,7 +5,7 @@ import Button from "@/components/PrimaryButton";
 import Input from "@/components/TextInput";
 import Label from "@/components/InputLabel";
 
-export default function Edit({ driver }) {
+export default function Edit({ driver, cars }) {
     const { data, setData, put, processing, errors } = useForm({
         residence: driver.residence || "",
         license_type: driver.license_type || "",
@@ -13,6 +13,7 @@ export default function Edit({ driver }) {
         license_expiry_date:
             new Date(driver.license_expiry_date).toISOString().split("T")[0] ||
             "",
+        car_id: driver.car_id || "",
     });
 
     const submit = (e) => {
@@ -80,7 +81,21 @@ export default function Edit({ driver }) {
                             }
                         />
                     </div>
-
+                    <div>
+                        <Label>السيارة</Label>
+                        <select
+                            className="w-full border rounded p-2"
+                            value={data.car_id ?? ""}
+                            onChange={(e) => setData("car_id", e.target.value)}
+                        >
+                            <option value="">بدون سيارة</option>
+                            {cars.map((car) => (
+                                <option key={car.id} value={car.id}>
+                                    {car.plate_number} - {car.model}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="flex gap-3 pt-4">
                         <Button type="submit" disabled={processing}>
                             تحديث

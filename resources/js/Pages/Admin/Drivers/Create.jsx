@@ -4,13 +4,14 @@ import Button from "@/components/PrimaryButton";
 import Input from "@/components/TextInput";
 import Label from "@/components/InputLabel";
 
-export default function Create({ users }) {
+export default function Create({ users, cars }) {
     const { data, setData, post, processing, errors } = useForm({
         user_id: "",
         residence: "",
         license_type: "",
         license_number: "",
         license_expiry_date: "",
+        car_id: "",
     });
 
     const submit = (e) => {
@@ -88,6 +89,21 @@ export default function Create({ users }) {
                         />
                     </div>
 
+                    <div>
+                        <Label>السيارة</Label>
+                        <select
+                            className="w-full border rounded p-2"
+                            value={data.car_id}
+                            onChange={(e) => setData("car_id", e.target.value)}
+                        >
+                            <option value="">بدون سيارة</option>
+                            {cars.map((car) => (
+                                <option key={car.id} value={car.id}>
+                                    {car.plate_number} - {car.model}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="flex gap-3 pt-4">
                         <Button type="submit" disabled={processing}>
                             حفظ
