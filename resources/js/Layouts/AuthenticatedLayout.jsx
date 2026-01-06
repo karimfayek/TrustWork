@@ -1,90 +1,229 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import ApplicationLogo from "@/Components/ApplicationLogo";
+import Dropdown from "@/Components/Dropdown";
+import NavLink from "@/Components/NavLink";
+import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
+import { Link, usePage } from "@inertiajs/react";
+import { useEffect, useState } from "react";
 
 export default function AuthenticatedLayout({ header, children }) {
     const allNavLinks = [
-        { label: 'المشاريع', routeName: 'admin.dashboard', roles: ['admin', 'proj', 'tech', 'acc'] },
-        { label: 'المهام', routeName: 'tasks.index', roles: ['admin', 'proj'] },
-        { label: 'الزيارات', routeName: 'admin.visits.index', roles: ['admin'] },
-        { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc', 'hr'] },
-        { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc', 'proj', 'hr'] },
-        { label: 'الأجازات الرسمية', routeName: 'holidays.index', roles: ['admin', 'acc', 'hr'] },
-        { label: 'العهد ', routeName: 'admin.advance.list', roles: ['admin', 'acc'] },
-        { label: 'السلف ', routeName: 'admin.loans.index', roles: ['admin', 'acc'] , except:['sherok@trustits.net']},
-        { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'],except:['sherok@trustits.net'] },
-        { label: 'الادوات', routeName: 'tools.index', roles: ['admin', 'acc', 'hr'] },
-        { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc', 'hr'] },
-        { label: 'العملاء', routeName: 'customers.index', roles: ['admin', 'acc', 'hr'] },
-        { label: 'المخزن', routeName: 'items.index', roles: ['admin', 'acc'] },
-        { label: 'التقارير', routeName: 'reports.index', roles: ['admin'] },
-        { label: 'سلة المحذوفات', routeName: 'admin.recyclebin', roles: ['admin'] },
+        {
+            label: "المشاريع",
+            routeName: "admin.dashboard",
+            roles: ["admin", "proj", "tech", "acc"],
+        },
+        { label: "المهام", routeName: "tasks.index", roles: ["admin", "proj"] },
+        {
+            label: "الزيارات",
+            routeName: "admin.visits.index",
+            roles: ["admin"],
+        },
+        {
+            label: "الموظفين",
+            routeName: "users.index",
+            roles: ["admin", "acc", "hr"],
+        },
+        {
+            label: "الحضور",
+            routeName: "attendance.list",
+            roles: ["admin", "acc", "proj", "hr"],
+        },
+        {
+            label: "الأجازات الرسمية",
+            routeName: "holidays.index",
+            roles: ["admin", "acc", "hr"],
+        },
+        {
+            label: "العهد ",
+            routeName: "admin.advance.list",
+            roles: ["admin", "acc"],
+        },
+        {
+            label: "السلف ",
+            routeName: "admin.loans.index",
+            roles: ["admin", "acc"],
+            except: ["sherok@trustits.net"],
+        },
+        {
+            label: "المكافئات",
+            routeName: "rewards.index",
+            roles: ["admin", "acc", "hr"],
+            except: ["sherok@trustits.net"],
+        },
+        {
+            label: "الادوات",
+            routeName: "tools.index",
+            roles: ["admin", "acc", "hr"],
+        },
+        {
+            label: "ادارة الادوات",
+            routeName: "admin.tool-assignments",
+            roles: ["admin", "acc", "hr"],
+        },
+        {
+            label: "العملاء",
+            routeName: "customers.index",
+            roles: ["admin", "acc", "hr"],
+        },
+        { label: "المخزن", routeName: "items.index", roles: ["admin", "acc"] },
+        { label: "التقارير", routeName: "reports.index", roles: ["admin"] },
+        {
+            label: "السيارات",
+            routeName: "cars.index",
+            roles: ["admin", "acc", "hr"],
+        },
+        {
+            label: "السائقين",
+            routeName: "drivers.index",
+            roles: ["admin", "acc", "hr"],
+        },
+        {
+            label: "سلة المحذوفات",
+            routeName: "admin.recyclebin",
+            roles: ["admin"],
+        },
     ];
 
     const user = usePage().props.auth.user;
-    const userRoles = user?.rolesnames ?? []; 
-    const roleLinks = allNavLinks.filter(link =>
-        link.roles.some(role => userRoles.includes(role)) &&
-         !link.except?.includes(user.email)
+    const userRoles = user?.rolesnames ?? [];
+    const roleLinks = allNavLinks.filter(
+        (link) =>
+            link.roles.some((role) => userRoles.includes(role)) &&
+            !link.except?.includes(user.email)
     );
 
     const groupedNavLinks = [
         {
-            label: 'المشاريع',
+            label: "المشاريع",
             items: [
-                { label: 'المشاريع', routeName: 'admin.dashboard', roles: ['admin', 'proj', 'tech', 'acc'] },
-                { label: 'المهام', routeName: 'tasks.index', roles: ['admin', 'proj'] },
+                {
+                    label: "المشاريع",
+                    routeName: "admin.dashboard",
+                    roles: ["admin", "proj", "tech", "acc"],
+                },
+                {
+                    label: "المهام",
+                    routeName: "tasks.index",
+                    roles: ["admin", "proj"],
+                },
             ],
         },
         {
-            label: 'الأدوات',
+            label: "الأدوات",
             items: [
-                { label: 'الادوات', routeName: 'tools.index', roles: ['admin', 'acc', 'hr'] },
-                { label: 'ادارة الادوات', routeName: 'admin.tool-assignments', roles: ['admin', 'acc', 'hr'] },
+                {
+                    label: "الادوات",
+                    routeName: "tools.index",
+                    roles: ["admin", "acc", "hr"],
+                },
+                {
+                    label: "ادارة الادوات",
+                    routeName: "admin.tool-assignments",
+                    roles: ["admin", "acc", "hr"],
+                },
             ],
         },
-      
+
         {
-            label: 'الموظفين',
-            items: [ 
-                { label: 'الموظفين', routeName: 'users.index', roles: ['admin', 'acc', 'hr'] },
-                { label: 'الحضور', routeName: 'attendance.list', roles: ['admin', 'acc', 'proj', 'hr'] },
-                { label: 'الأجازات الرسمية', routeName: 'holidays.index', roles: ['admin', 'acc', 'hr'] },
-                 { label: 'العهد ', routeName: 'admin.advance.list', roles: ['admin', 'acc'] },
-                { label: 'المكافئات', routeName: 'rewards.index', roles: ['admin', 'acc', 'hr'] , except:['sherok@trustits.net']}, 
-                { label: 'السلف', routeName: 'admin.loans.index', roles: ['admin', 'acc', 'hr'] , except:['sherok@trustits.net']},
-                
+            label: "الموظفين",
+            items: [
+                {
+                    label: "الموظفين",
+                    routeName: "users.index",
+                    roles: ["admin", "acc", "hr"],
+                },
+                {
+                    label: "الحضور",
+                    routeName: "attendance.list",
+                    roles: ["admin", "acc", "proj", "hr"],
+                },
+                {
+                    label: "الأجازات الرسمية",
+                    routeName: "holidays.index",
+                    roles: ["admin", "acc", "hr"],
+                },
+                {
+                    label: "العهد ",
+                    routeName: "admin.advance.list",
+                    roles: ["admin", "acc"],
+                },
+                {
+                    label: "المكافئات",
+                    routeName: "rewards.index",
+                    roles: ["admin", "acc", "hr"],
+                    except: ["sherok@trustits.net"],
+                },
+                {
+                    label: "السلف",
+                    routeName: "admin.loans.index",
+                    roles: ["admin", "acc", "hr"],
+                    except: ["sherok@trustits.net"],
+                },
             ],
         },
-          
-        
+
         {
-        label: 'المخزن',
-        items:[
-            { label: 'داش بورد', routeName: 'items.dashboard', roles: ['admin' , 'acc'] },     
-            { label: 'الاصناف', routeName: 'items.index', roles: ['admin' , 'acc'] },  
-            { label: 'توريد للمخزن', routeName: 'stock.in.get', roles: ['admin' , 'acc'] },
-            { label: ' صرف من المخزن', routeName: 'stock.out.get', roles: ['admin' , 'acc'] },
-        ],
+            label: "الحركة",
+            items: [
+                {
+                    label: "السيارات",
+                    routeName: "cars.index",
+                    roles: ["admin", "acc", "hr"],
+                },
+                {
+                    label: "السائقين",
+                    routeName: "drivers.index",
+                    roles: ["admin", "acc", "proj", "hr"],
+                },
+            ],
+        },
+
+        {
+            label: "المخزن",
+            items: [
+                {
+                    label: "داش بورد",
+                    routeName: "items.dashboard",
+                    roles: ["admin", "acc"],
+                },
+                {
+                    label: "الاصناف",
+                    routeName: "items.index",
+                    roles: ["admin", "acc"],
+                },
+                {
+                    label: "توريد للمخزن",
+                    routeName: "stock.in.get",
+                    roles: ["admin", "acc"],
+                },
+                {
+                    label: " صرف من المخزن",
+                    routeName: "stock.out.get",
+                    roles: ["admin", "acc"],
+                },
+            ],
         },
     ];
 
     // روابط فردية خارج المجموعات
     const singleNavLinks = [
-        { label: 'الزيارات', routeName: 'admin.visits.index', roles: ['admin'] },
-        { label: 'العملاء', routeName: 'customers.index', roles: ['admin', 'acc', 'hr'] },
-        { label: 'سلة المحذوفات', routeName: 'admin.recyclebin', roles: ['admin'] },
-        { label: 'التقارير', routeName: 'reports.index', roles: ['admin'] },
-
+        {
+            label: "الزيارات",
+            routeName: "admin.visits.index",
+            roles: ["admin"],
+        },
+        {
+            label: "العملاء",
+            routeName: "customers.index",
+            roles: ["admin", "acc", "hr"],
+        },
+        { label: "التقارير", routeName: "reports.index", roles: ["admin"] },
     ];
 
     const { props } = usePage();
 
-    const [notifications, setNotifications] = useState([])
-    const [showNotifications, setShowNotifications] = useState(false)
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
     const successMessage = props.flash.message;
     const errorMessages = props.errors;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -121,14 +260,18 @@ export default function AuthenticatedLayout({ header, children }) {
 
                             <div className="hidden sm:flex items-center justify-center gap-8 ms-10">
                                 {/* عرض القوائم المنسدلة للمجموعات */}
-                                {groupedNavLinks.map(group => {
+                                {groupedNavLinks.map((group) => {
                                     // تحقق من وجود صلاحية لأي عنصر في المجموعة
-                                    const visibleItems = group.items.filter(link =>
-                                        link.roles.some(role => userRoles.includes(role)) && !link.except?.includes(user.email)
+                                    const visibleItems = group.items.filter(
+                                        (link) =>
+                                            link.roles.some((role) =>
+                                                userRoles.includes(role)
+                                            ) &&
+                                            !link.except?.includes(user.email)
                                     );
                                     if (visibleItems.length === 0) return null;
                                     return (
-                                        <Dropdown key={group.label} >
+                                        <Dropdown key={group.label}>
                                             <Dropdown.Trigger>
                                                 <span className="inline-flex items-center rounded-md cursor-pointer px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
                                                     {group.label}
@@ -149,11 +292,15 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 </span>
                                             </Dropdown.Trigger>
                                             <Dropdown.Content>
-                                                {visibleItems.map(link => (
+                                                {visibleItems.map((link) => (
                                                     <Dropdown.Link
                                                         key={link.routeName}
-                                                        href={route(link.routeName)}
-                                                        active={route().current(link.routeName)}
+                                                        href={route(
+                                                            link.routeName
+                                                        )}
+                                                        active={route().current(
+                                                            link.routeName
+                                                        )}
                                                     >
                                                         {link.label}
                                                     </Dropdown.Link>
@@ -163,17 +310,23 @@ export default function AuthenticatedLayout({ header, children }) {
                                     );
                                 })}
                                 {/* عرض الروابط الفردية */}
-                                {singleNavLinks.filter(link =>
-                                    link.roles.some(role => userRoles.includes(role))
-                                ).map(link => (
-                                    <NavLink
-                                        key={link.routeName}
-                                        href={route(link.routeName)}
-                                        active={route().current(link.routeName)}
-                                    >
-                                        {link.label}
-                                    </NavLink>
-                                ))}
+                                {singleNavLinks
+                                    .filter((link) =>
+                                        link.roles.some((role) =>
+                                            userRoles.includes(role)
+                                        )
+                                    )
+                                    .map((link) => (
+                                        <NavLink
+                                            key={link.routeName}
+                                            href={route(link.routeName)}
+                                            active={route().current(
+                                                link.routeName
+                                            )}
+                                        >
+                                            {link.label}
+                                        </NavLink>
+                                    ))}
                             </div>
                         </div>
 
@@ -206,26 +359,44 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                     <Dropdown.Content>
                                         <Dropdown.Link
-                                            href={route('profile.edit')}
+                                            href={route("profile.edit")}
                                         >
-                                           . الملف الشخصى
+                                            . الملف الشخصى
                                         </Dropdown.Link>
 
-                                        {['admin'].some(role => userRoles?.includes(role)) &&
+                                        {["admin"].some((role) =>
+                                            userRoles?.includes(role)
+                                        ) && (
+                                            <>
+                                                <ResponsiveNavLink
+                                                    href={route("settings")}
+                                                    className="text-blue-600"
+                                                    active={route().current(
+                                                        "settings"
+                                                    )}
+                                                >
+                                                    الاعدادات
+                                                </ResponsiveNavLink>
+                                                <ResponsiveNavLink
+                                                    label="سلة المحذوفات"
+                                                    href={route(
+                                                        "admin.recyclebin"
+                                                    )}
+                                                    className="text-red-600"
+                                                    active={route().current(
+                                                        "admin.recyclebin"
+                                                    )}
+                                                >
+                                                    سلة المحذوفات
+                                                </ResponsiveNavLink>
+                                            </>
+                                        )}
 
-                                            <ResponsiveNavLink
-                                                href={route('settings')}
-                                                className='text-blue-600'
-                                                active={route().current('settings')}
-                                            >
-                                                الاعدادات
-                                            </ResponsiveNavLink>
-                                        }
                                         <Dropdown.Link
-                                            href={route('logout')}
+                                            href={route("logout")}
                                             method="post"
                                             as="button"
-                                            className='text-red-600'
+                                            className="text-red-600"
                                         >
                                             تسجيل الخروج
                                         </Dropdown.Link>
@@ -235,7 +406,9 @@ export default function AuthenticatedLayout({ header, children }) {
                             {/* Notification bell */}
                             <div className="relative me-4">
                                 <button
-                                    onClick={() => setShowNotifications(prev => !prev)}
+                                    onClick={() =>
+                                        setShowNotifications((prev) => !prev)
+                                    }
                                     className="relative inline-flex items-center justify-center rounded-full bg-white text-gray-600 hover:text-gray-800 focus:outline-none"
                                 >
                                     <svg
@@ -265,25 +438,31 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <div className="max-h-64 overflow-y-auto py-2 text-sm text-gray-700">
                                             {notifications.length > 0 ? (
                                                 notifications.map((n, i) => (
-                                                    <div key={i} className="px-4 py-2 hover:bg-gray-100">
+                                                    <div
+                                                        key={i}
+                                                        className="px-4 py-2 hover:bg-gray-100"
+                                                    >
                                                         {n.message}
                                                     </div>
                                                 ))
                                             ) : (
-                                                <div className="px-4 py-2 text-center text-gray-500">لا توجد إشعارات</div>
+                                                <div className="px-4 py-2 text-center text-gray-500">
+                                                    لا توجد إشعارات
+                                                </div>
                                             )}
                                         </div>
                                     </div>
                                 )}
                             </div>
-
                         </div>
 
                         <div className="-me-2 flex items-center sm:hidden">
                             {/* Notification icon for mobile */}
                             <div className="me-3 flex sm:hidden">
                                 <button
-                                    onClick={() => setShowNotifications(prev => !prev)}
+                                    onClick={() =>
+                                        setShowNotifications((prev) => !prev)
+                                    }
                                     className="relative inline-flex items-center justify-center rounded-full bg-white text-gray-600 hover:text-gray-800 focus:outline-none"
                                 >
                                     <svg
@@ -311,7 +490,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <button
                                 onClick={() =>
                                     setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
+                                        (previousState) => !previousState
                                     )
                                 }
                                 className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
@@ -325,8 +504,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <path
                                         className={
                                             !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
+                                                ? "inline-flex"
+                                                : "hidden"
                                         }
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -336,8 +515,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <path
                                         className={
                                             showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
+                                                ? "inline-flex"
+                                                : "hidden"
                                         }
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -352,14 +531,14 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 <div
                     className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
+                        (showingNavigationDropdown ? "block" : "hidden") +
+                        " sm:hidden"
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
+                            href={route("dashboard")}
+                            active={route().current("dashboard")}
                         >
                             Dashboard
                         </ResponsiveNavLink>
@@ -376,7 +555,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
+                            <ResponsiveNavLink href={route("profile.edit")}>
                                 الملف الشخصى
                             </ResponsiveNavLink>
                             {roleLinks.map(({ label, routeName }) => (
@@ -388,22 +567,22 @@ export default function AuthenticatedLayout({ header, children }) {
                                     {label}
                                 </ResponsiveNavLink>
                             ))}
-                            {['admin'].some(role => userRoles?.includes(role)) &&
-
+                            {["admin"].some((role) =>
+                                userRoles?.includes(role)
+                            ) && (
                                 <ResponsiveNavLink
-
-                                    href={route('settings')}
-                                    className='text-blue-600'
-                                    active={route().current('settings')}
+                                    href={route("settings")}
+                                    className="text-blue-600"
+                                    active={route().current("settings")}
                                 >
                                     الاعدادات
                                 </ResponsiveNavLink>
-                            }
+                            )}
                             <ResponsiveNavLink
                                 method="post"
-                                href={route('logout')}
+                                href={route("logout")}
                                 as="button"
-                                className='text-red-600'
+                                className="text-red-600"
                             >
                                 تسجيل الخروج
                             </ResponsiveNavLink>
@@ -421,7 +600,6 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
 
             <main>
-
                 <>
                     {successMessage && (
                         <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
@@ -431,12 +609,13 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     {Object.entries(errorMessages).length > 0 && (
                         <div className="bg-red-100 text-red-800 border border-red-300 p-2 rounded mt-4">
-
-                            {Object.entries(errorMessages).map(([field, message]) => (
-                                <div key={field}>
-                                    {field}: {message}
-                                </div>
-                            ))}
+                            {Object.entries(errorMessages).map(
+                                ([field, message]) => (
+                                    <div key={field}>
+                                        {field}: {message}
+                                    </div>
+                                )
+                            )}
                         </div>
                     )}
                     {props.errors.message && (

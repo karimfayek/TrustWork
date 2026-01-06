@@ -1,77 +1,76 @@
-import React, { useEffect, useState } from 'react';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import Pagination from '../../Components/Pagination';
+import React, { useEffect, useState } from "react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import Pagination from "../../Components/Pagination";
 
 export default function Dashboard({ projects }) {
-        const logedinUser = usePage().props.auth.user
- const { posts, filters } = usePage().props;
-console.log(projects , 'projects')
+    const logedinUser = usePage().props.auth.user;
+    const { posts, filters } = usePage().props;
+    console.log(projects, "projects");
 
-    const [search, setSearch] = useState(filters.search || '');
-    const page = search !== '' ? 1 : projects.current_page
-     useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-        router.get(route('admin.dashboard'), 
-            { 
-                search, 
-                page:page || 1 // نحافظ على الصفحة الحالية
-            }, 
-            {
-                preserveState: true,
-                replace: true,
-            }
-        );
-    }, 900);
+    const [search, setSearch] = useState(filters.search || "");
+    const page = search !== "" ? 1 : projects.current_page;
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            router.get(
+                route("admin.dashboard"),
+                {
+                    search,
+                    page: page || 1, // نحافظ على الصفحة الحالية
+                },
+                {
+                    preserveState: true,
+                    replace: true,
+                }
+            );
+        }, 900);
 
-    return () => clearTimeout(delayDebounce);
-}, [search]);
+        return () => clearTimeout(delayDebounce);
+    }, [search]);
     const handleDeleteProject = (e, id) => {
         e.preventDefault();
-    
-        const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذا المشروع؟");
-    
-        if (!confirmed) return; // المستخدم رفض
-    
-        router.post(
-            route("admin.project.delete"),
-            { id }
+
+        const confirmed = window.confirm(
+            "هل أنت متأكد أنك تريد حذف هذا المشروع؟"
         );
+
+        if (!confirmed) return; // المستخدم رفض
+
+        router.post(route("admin.project.delete"), { id });
     };
     return (
         <AuthenticatedLayout>
             <Head title="Admin Dashboard" />
 
             <div className="max-w-7xl mx-auto p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-        المشاريع
-    </h1>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+                        المشاريع
+                    </h1>
 
-    {!logedinUser?.rolesnames?.includes('tech') && (
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 w-full md:w-auto">
-            <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="ابحث .. اسم المشروع او الكود او اسم العميل"
-                className="px-4 py-2 border rounded w-full md:w-64"
-            />
-            <Link
-                href={route('admin.projects.create')}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow text-center"
-            >
-                + إنشاء مشروع جديد
-            </Link>
-        </div>
-    )}
-</div>
-
+                    {!logedinUser?.rolesnames?.includes("tech") && (
+                        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 w-full md:w-auto">
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="ابحث .. اسم المشروع او الكود او اسم العميل"
+                                className="px-4 py-2 border rounded w-full md:w-64"
+                            />
+                            <Link
+                                href={route("admin.projects.create")}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow text-center"
+                            >
+                                + إنشاء مشروع جديد
+                            </Link>
+                        </div>
+                    )}
+                </div>
 
                 <div className="overflow-x-auto bg-white rounded-lg shadow">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-100 text-gray-700">
-                            <tr className='text-right'>
+                            <tr className="text-right">
                                 <th className="px-6 py-3">اسم المشروع</th>
                                 <th className="px-6 py-3">الوصف</th>
                                 <th className="px-6 py-3">تاريخ البدء</th>
@@ -81,76 +80,121 @@ console.log(projects , 'projects')
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {projects.data.map((project) => (
-                                <tr key={project.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">{project.name}</td>
+                                <tr
+                                    key={project.id}
+                                    className="hover:bg-gray-50"
+                                >
+                                    <td className="px-6 py-4">
+                                        {project.name}
+                                    </td>
                                     <td className="px-6 py-4 text-gray-600 max-w-[200px] truncate whitespace-nowrap overflow-hidden">
                                         {project.description}
                                     </td>
-                                    <td className="px-6 py-4">{project.start_date}</td>
-                                    <td className={`px-6 py-4 ${new Date(project.end_date) < new Date() ? 'text-red-500' : ''}`}>
+                                    <td className="px-6 py-4">
+                                        {project.start_date}
+                                    </td>
+                                    <td
+                                        className={`px-6 py-4 ${
+                                            new Date(project.end_date) <
+                                            new Date()
+                                                ? "text-red-500"
+                                                : ""
+                                        }`}
+                                    >
                                         {project.end_date}
-                                        </td>
+                                    </td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
-                                         {['proj', 'admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
-
+                                        {["proj", "admin"].some((role) =>
+                                            logedinUser?.rolesnames?.includes(
+                                                role
+                                            )
+                                        ) && (
                                             <>
                                                 <Link
-                                                    href={route('projects.assignTasks', project.id)}
+                                                    href={route(
+                                                        "projects.assignTasks",
+                                                        project.id
+                                                    )}
                                                     className="mb-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                 >
                                                     إسناد المهام
-                                                </Link><Link
-                                                    href={route('project.show', project.id)}
+                                                </Link>
+                                                <Link
+                                                    href={route(
+                                                        "project.show",
+                                                        project.id
+                                                    )}
                                                     className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                 >
                                                     عرض
                                                 </Link>
-
-
                                             </>
-                                        }
-                                         {['proj', 'admin' , 'tech'].some(role => logedinUser?.rolesnames?.includes(role)) &&
-
+                                        )}
+                                        {["proj", "admin", "tech"].some(
+                                            (role) =>
+                                                logedinUser?.rolesnames?.includes(
+                                                    role
+                                                )
+                                        ) && (
                                             <Link
-                                                href={route('admin.projects.edit', project.id)}
+                                                href={route(
+                                                    "admin.projects.edit",
+                                                    project.id
+                                                )}
                                                 className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                             >
                                                 تعديل
                                             </Link>
-                                        }
-                                        
-                                       
+                                        )}
 
-                                          {['acc' ,'admin'].some(role => logedinUser?.rolesnames?.includes(role))&&
-                                         <><Link
-                                                href={route('project.extractions.list', project.id)}
-                                                className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                            >
-                                                مستخلص
-                                            </Link>
-                                            {logedinUser.email !=="sherok@trustits.net" &&
-                                            <Link
-                                                href={route('acc.pricing', project.id)}
-                                                className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                            >
-                                                    تسعير
-                                                </Link>
-                                            }
-                                                </>
-                                        }
-                                          {['admin'].some(role => logedinUser?.rolesnames?.includes(role)) &&
-
+                                        {["acc", "admin"].some((role) =>
+                                            logedinUser?.rolesnames?.includes(
+                                                role
+                                            )
+                                        ) && (
                                             <>
-                                           
-                                            <button
-                                        onClick={(e) => handleDeleteProject (e, project.id)}
-                                          
-                                            className="inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium"
-                                        >
-                                            مسح
-                                        </button>
+                                                <Link
+                                                    href={route(
+                                                        "project.extractions.list",
+                                                        project.id
+                                                    )}
+                                                    className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                                >
+                                                    مستخلص
+                                                </Link>
+                                                {logedinUser.email !==
+                                                    "sherok@trustits.net" && (
+                                                    <Link
+                                                        href={route(
+                                                            "acc.pricing",
+                                                            project.id
+                                                        )}
+                                                        className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                                    >
+                                                        تسعير
+                                                    </Link>
+                                                )}
                                             </>
-                                        }
+                                        )}
+                                        {["admin"].some((role) =>
+                                            logedinUser?.rolesnames?.includes(
+                                                role
+                                            )
+                                        ) && (
+                                            <>
+                                                <button
+                                                    onClick={(e) =>
+                                                        handleDeleteProject(
+                                                            e,
+                                                            project.id
+                                                        )
+                                                    }
+                                                    className="inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium"
+                                                >
+                                                    مسح
+                                                </button>
+                                            </>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
