@@ -24,9 +24,9 @@ class CarController extends Controller
             'current_km' => 'required|integer',
             'oil_change_every' => 'required|integer',
             'maintenance_every' => 'required|integer',
-            'license_number' => 'required|string',
+            'license_number' => 'required|numeric',
             'license_expiry_date' => 'required|date',
-            'chassis_number' => 'required|string',
+            'chassis_number' => 'required|numeric',
         ]);
         Car::create($data);
 
@@ -37,10 +37,19 @@ class CarController extends Controller
     public function update(Request $request, Car $car)
     {
         $car->update($request->validate([
-            'plate_number' => 'required',
-            'model' => 'required'
+            //check if plate number is unique except the current car
+            'plate_number' => 'required|unique:cars,plate_number,' . $car->id,
+            'model' => 'required',
+            'current_km' => 'required|integer',
+            'oil_change_every' => 'required|integer',
+            'maintenance_every' => 'required|integer',
+            'license_number' => 'required|numeric',
+            'license_expiry_date' => 'required|date',
+            'chassis_number' => 'required|numeric',
         ]));
-        return back();
+        //redirect to car index
+        return redirect()->route('cars.index')
+            ->with('success', 'تم تحديث السيارة بنجاح');
     }
     // delete
     public function destroy(Car $car)

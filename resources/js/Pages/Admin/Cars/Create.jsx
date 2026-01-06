@@ -1,5 +1,5 @@
 import { useForm, Head, Link } from "@inertiajs/react";
-import UserLayout from "@/layouts/UserLayout";
+import UserLayout from "@/layouts/AuthenticatedLayout";
 import PrimaryButton from "@/components/PrimaryButton";
 import TextInput from "@/components/TextInput";
 import Label from "@/components/InputLabel";

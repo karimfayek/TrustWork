@@ -136,4 +136,9 @@ class User extends Authenticatable
         return $this->roles()->whereIn('name', $roles)->exists();
     }
 
+    public function driver()
+    {
+        return $this->hasOne(Driver::class);
+    }
+
 }
