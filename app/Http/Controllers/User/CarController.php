@@ -76,4 +76,14 @@ class CarController extends Controller
     {
         return Inertia::render('Admin/Cars/Create');
     }
+
+    public function driverCar()
+    {
+        $user = auth()->user();
+        $driver = $user->driver;
+        $car = $driver->car;
+        return Inertia::render('Driver/Car', [
+            'car' => $car
+        ]);
+    }
 }

@@ -25,4 +25,8 @@ class Trip extends Model
     {
         return $this->belongsTo(Car::class);
     }
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }

@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Response;
 class ExtractionController extends Controller
 {
     public function list(Project $project)
-    { 
+    {
         return Inertia::render('Admin/Extraction/ExtractionList', [
             'project' => $project->load('extractions'),
         ]);
     }
     public function index(Project $project)
-    { 
+    {
         $deductionsList = [
             ['key' => 'initial_insurance', 'label' => 'تأمين أعمال %'],
             ['key' => 'profit_tax', 'label' => 'أرباح تجارية وصناعية %'],
@@ -30,18 +30,18 @@ class ExtractionController extends Controller
             ['key' => 'advance_payment', 'label' => ' خصم دفعة مقدمة    '],
             ['key' => 'previous_payments', 'label' => ' ما سبق صرفة'],
         ];
-       
+
         $numExtractions = $project->extractions()
-        ->where('supply' , 0)
-        ->where('type' , '!=' ,'mir')->where('type' , '!=' ,'ir')->where('type' , '!=' ,'qs')->where('type' , '!=' ,'delevery')
-        ->count();
+            ->where('supply', 0)
+            ->where('type', '!=', 'mir')->where('type', '!=', 'ir')->where('type', '!=', 'qs')->where('type', '!=', 'delevery')
+            ->count();
         $projectId = $project->id;
 
         // 1. نجيب كل المستخلصات السابقة (بدون المستخلص الحالي لو فيه)
-        $previousExtractionIds = Extraction::where('project_id', $projectId)->where('supply' , 0)
-        ->where('type' , '!=' ,'mir')->where('type' , '!=' ,'ir')->where('type' , '!=' ,'qs')->where('type' , '!=' ,'delevery')
+        $previousExtractionIds = Extraction::where('project_id', $projectId)->where('supply', 0)
+            ->where('type', '!=', 'mir')->where('type', '!=', 'ir')->where('type', '!=', 'qs')->where('type', '!=', 'delevery')
             ->pluck('id');
-        
+
         // 2. نجيب مجموع المنصرف لكل task من البنود السابقة
         $previousQuantities = DB::table('extraction_items')
             ->whereIn('extraction_id', $previousExtractionIds)
@@ -51,14 +51,35 @@ class ExtractionController extends Controller
         return Inertia::render('Admin/Extraction/ExtractionForm', [
             'project' => $project->load('tasks', 'tasks.extractionItems'),
             'deductionsList' => $deductionsList,
-            'previousQuantities'=>  $previousQuantities,
+            'prevQTYs' => $previousQuantities,
             'extractionsCount' => $numExtractions,
-            'prevPay' =>  $project->extractions()->sum('net_total'),
+            'prevPay' => $project->extractions()->sum('net_total'),
         ]);
+    }
+    public function getPrevQTYs(Project $project, $type)
+    {
+        // dd($project);
+        if ($type == 'delevery' || $type == 'mir' || $type == 'qs' || $type == 'ir') {
+
+            $previousExtractionIds = Extraction::where('project_id', $project->id)
+                ->where('type', '=', $type)
+                ->pluck('id');
+        } else {
+            $previousExtractionIds = Extraction::where('project_id', $project->id)->where('supply', 0)
+                ->where('type', '!=', 'mir')->where('type', '!=', 'ir')->where('type', '!=', 'qs')->where('type', '!=', 'delevery')
+                ->pluck('id');
+        }
+        // dd($previousExtractionIds);
+        $previousQuantities = DB::table('extraction_items')
+            ->whereIn('extraction_id', $previousExtractionIds)
+            ->select('task_id', DB::raw('SUM(current_done) as total_prev_done'))
+            ->groupBy('task_id')
+            ->pluck('total_prev_done', 'task_id');
+        return response()->json($previousQuantities);
     }
     public function show(Project $project)
     {
-       
+
         $deductionsList = [
             ['key' => 'initial_insurance', 'label' => 'تأمين ابتدائي 5%'],
             ['key' => 'final_insurance', 'label' => 'تأمين نهائي 5%'],
@@ -68,7 +89,7 @@ class ExtractionController extends Controller
             ['key' => 'other_tax', 'label' => 'ضريبة أخرى نسبة مئوية'],
             ['key' => 'vat', 'label' => 'قيمة مضافة'],
         ];
-    
+
         return Inertia::render('Admin/Extraction/ExtractionPreview', [
             'project' => $project,
         ]);
@@ -76,13 +97,13 @@ class ExtractionController extends Controller
 
     public function store(Request $request, Project $project)
     {
-      //dd($request->all());
+        //dd($request->all());
         $validated = $request->validate([
             'type' => 'required|in:partial,final,delevery,mir,ir,qs,report',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
-            'netTotal'=>'required|numeric',
-            'total'=>'required|numeric',
+            'netTotal' => 'required|numeric',
+            'total' => 'required|numeric',
             'project_code' => 'nullable|string',
             'notes' => 'nullable|string',
             'items' => 'required|array',
@@ -97,20 +118,20 @@ class ExtractionController extends Controller
             'items.*.progress_percentage' => 'required|numeric',
             'items.*.total' => 'required|numeric',
         ]);
-       // dd($request->supply);
-    //dd($request->all());
+        // dd($request->supply);
+        //dd($request->all());
         $extraction = $project->extractions()->create([
             'type' => $request->type,
             'supply' => $request->supply,
             'isnotinclusive' => $request->isnotinclusive,
-            'date'=>$request->date,
+            'date' => $request->date,
             'customer_name' => $request->customer_name,
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->total,
-            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->netTotal,
-            'partial_number' =>  $request->num,
+            'total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->total,
+            'net_total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->netTotal,
+            'partial_number' => $request->num,
         ]);
         foreach ($validated['items'] as $itemData) {
             //dd($itemData);
@@ -120,13 +141,13 @@ class ExtractionController extends Controller
     }
     public function update(Request $request, $extraction)
     {
-      //dd($request->all());
+        //dd($request->all());
         $validated = $request->validate([
-           'type' => 'required|in:partial,final,delevery,mir,ir,qs,report',
+            'type' => 'required|in:partial,final,delevery,mir,ir,qs,report',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
-            'netTotal'=>'required|numeric',
-            'total'=>'required|numeric',
+            'netTotal' => 'required|numeric',
+            'total' => 'required|numeric',
             'project_code' => 'nullable|string',
             'notes' => 'nullable|string',
             'items' => 'required|array',
@@ -143,43 +164,43 @@ class ExtractionController extends Controller
         ]);
         //dd($request->all());
         $extraction = Extraction::find($extraction);
-       // dd($extraction->project);
-         $extraction->update([
+        // dd($extraction->project);
+        $extraction->update([
             'type' => $request->type,
             'supply' => $request->supply,
             'isnotinclusive' => $request->isnotinclusive,
-            'date'=>$request->date,
+            'date' => $request->date,
             'customer_name' => $request->customer_name,
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->total,
+            'total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->total,
 
-            'net_total'=>  $request->type =='mir' ||  $request->type =='ir'||  $request->type =='qs' ||  $request->type =='delevery' ||  $request->type =='report' ? 0 : $request->netTotal,
-           
+            'net_total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->netTotal,
+
         ]);
         $sentTaskIds = collect($validated['items'])->pluck('task_id')->toArray();
-$extraction->items()->whereNotIn('task_id', $sentTaskIds)->delete();
+        $extraction->items()->whereNotIn('task_id', $sentTaskIds)->delete();
 
-// تحديث أو إدخال كل عنصر
-foreach ($validated['items'] as $itemData) {
-   //dd($itemData['title']);
-    $extraction->items()->updateOrCreate(
-       ['task_id' => $itemData['task_id']],
-        [
-            
-            'title' => $itemData['title'],
-            'unit' => $itemData['unit'],
-            'quantity' => $itemData['quantity'],
-            'previous_done' => $itemData['previous_done'],
-            'current_done' => $itemData['current_done'],
-            'total_done' => $itemData['total_done'],
-            'unit_price' => $itemData['unit_price'],
-            'progress_percentage' => $itemData['progress_percentage'],
-            'total' => $itemData['total'],
-        ]
-    );
-}
+        // تحديث أو إدخال كل عنصر
+        foreach ($validated['items'] as $itemData) {
+            //dd($itemData['title']);
+            $extraction->items()->updateOrCreate(
+                ['task_id' => $itemData['task_id']],
+                [
+
+                    'title' => $itemData['title'],
+                    'unit' => $itemData['unit'],
+                    'quantity' => $itemData['quantity'],
+                    'previous_done' => $itemData['previous_done'],
+                    'current_done' => $itemData['current_done'],
+                    'total_done' => $itemData['total_done'],
+                    'unit_price' => $itemData['unit_price'],
+                    'progress_percentage' => $itemData['progress_percentage'],
+                    'total' => $itemData['total'],
+                ]
+            );
+        }
         return redirect()->route('extractions.preview', [$extraction->project->id, $extraction->id]);
     }
 
@@ -195,21 +216,21 @@ foreach ($validated['items'] as $itemData) {
     {
         $projectId = $project->id;
         $previousExtractionIds = Extraction::where('project_id', $projectId)
-        ->where('supply', 0)
-        ->where('type' , '!=' ,'mir')->where('type' , '!=' ,'ir')->where('type' , '!=' ,'qs')->where('type' , '!=' ,'delevery')
-        ->where('id', '!=', $extraction->id) // استثناء المستخلص الحالي
-        ->pluck('id');
+            ->where('supply', 0)
+            ->where('type', '!=', 'mir')->where('type', '!=', 'ir')->where('type', '!=', 'qs')->where('type', '!=', 'delevery')
+            ->where('id', '!=', $extraction->id) // استثناء المستخلص الحالي
+            ->pluck('id');
 
-    $previousQuantities = DB::table('extraction_items')
-        ->whereIn('extraction_id', $previousExtractionIds)
-        ->select('task_id', DB::raw('SUM(current_done) as total_prev_done'))
-        ->groupBy('task_id')
-        ->pluck('total_prev_done', 'task_id');
-        
+        $previousQuantities = DB::table('extraction_items')
+            ->whereIn('extraction_id', $previousExtractionIds)
+            ->select('task_id', DB::raw('SUM(current_done) as total_prev_done'))
+            ->groupBy('task_id')
+            ->pluck('total_prev_done', 'task_id');
+
         $previousQuantitiess = $extraction->items()
-        ->select('task_id', DB::raw('SUM(total_done) as total_prev_done'))
-        ->groupBy('task_id')
-        ->pluck('total_prev_done', 'task_id');
+            ->select('task_id', DB::raw('SUM(total_done) as total_prev_done'))
+            ->groupBy('task_id')
+            ->pluck('total_prev_done', 'task_id');
         //dd($previousQuantitiess);
         $deductionsList = [
             ['key' => 'initial_insurance', 'label' => 'تأمين أعمال %'],
@@ -227,8 +248,8 @@ foreach ($validated['items'] as $itemData) {
             'deductionsList' => $deductionsList
         ]);
     }
-    
-    public function UploadFIle(Request $request , $id)
+
+    public function UploadFIle(Request $request, $id)
     {
         $extraction = Extraction::findOrFail($id);
 
@@ -236,12 +257,12 @@ foreach ($validated['items'] as $itemData) {
             'file' => 'required|mimes:jpeg,png,jpg,pdf|max:10240', // 10MB كحد أقصى
         ]);
 
-        if ($request->hasFile('file')) {            
+        if ($request->hasFile('file')) {
             $path = $request->file('file')->store('extractions', 'private');
             $file = storage_path('app/private/' . $extraction->file);
             //dd($file);
             if (file_exists($file)) {
-                
+
                 @unlink($file);
             }
             $extraction->file = $path;
@@ -251,12 +272,12 @@ foreach ($validated['items'] as $itemData) {
 
         return back()->with('message', 'تم  رفع المرفق!');
     }
-    
-    public function SetCollected(Request $request , $id)
+
+    public function SetCollected(Request $request, $id)
     {
-       // dd($request->all());
+        // dd($request->all());
         $extraction = Extraction::findOrFail($id);
-        $iscollected = $request->is_collected ;
+        $iscollected = $request->is_collected;
         $extraction->is_collected = $iscollected;
         $extraction->save();
         return back()->with('message', '  تم تعديل حالة التحصيل!');
@@ -266,19 +287,19 @@ foreach ($validated['items'] as $itemData) {
 
         $extraction = Extraction::find($request->id);
         $file = public_path('\\storage\\' . $extraction->file);
-            
+
         if (file_exists($file)) {
             @unlink($file);
         }
         $extraction->delete();
-        return back()->with('message' , 'تم الحذف');
+        return back()->with('message', 'تم الحذف');
     }
 
 
     public function showPrivateFile($filename)
     {
-         $path = storage_path('app/private/' . $filename);
-       //dd($path);
+        $path = storage_path('app/private/' . $filename);
+        //dd($path);
         if (!file_exists($path)) {
             abort(404);
         }
@@ -288,7 +309,7 @@ foreach ($validated['items'] as $itemData) {
 
         return Response::make(file_get_contents($path), 200, [
             'Content-Type' => $mime,
-            'Content-Disposition' => 'inline; filename="'.$filename.'"'
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
         ]);
     }
 

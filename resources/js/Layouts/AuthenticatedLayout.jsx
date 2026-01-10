@@ -173,7 +173,12 @@ export default function AuthenticatedLayout({ header, children }) {
                 {
                     label: "السائقين",
                     routeName: "drivers.index",
-                    roles: ["admin", "acc", "proj", "hr"],
+                    roles: ["admin", "acc", "hr"],
+                },
+                {
+                    label: "الرحلات",
+                    routeName: "trips.index",
+                    roles: ["admin", "acc", "hr"],
                 },
             ],
         },

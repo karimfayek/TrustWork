@@ -138,6 +138,7 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::post('/extraction/delete', [ExtractionController::class, 'delete'])->name('extraction.delete');
     Route::post('/extraction/file/upload/{id}', [ExtractionController::class, 'UploadFIle'])->name('extraction.file.upload');
     Route::post('/extraction/set/collected/{id}', [ExtractionController::class, 'SetCollected'])->name('extraction.collected.set');
+    Route::post('/extraction/delevery/{project}/{type}', [ExtractionController::class, 'getPrevQTYs'])->name('extraction.delevery.getPrevQTYs');
 });
 Route::middleware(['auth', 'role:admin,hr'])->group(function () {
     Route::post('/admin/att/delete', [AttendanceController::class, 'delete'])->name('admin.att.delete');
@@ -296,7 +297,14 @@ Route::middleware(['auth', 'role:admin,driver'])->group(function () {
         ->name('driver.trips.start');
     Route::post('/trips/end/{trip}', [TripController::class, 'end'])
         ->name('driver.trips.end');
+    Route::get('/driver/car', [CarController::class, 'DriverCar'])->name('driver.cars.index');
+    Route::get('/driver/trips', [TripController::class, 'DriverTrips'])->name('driver.trips.index');
+
 });
+Route::middleware(['auth', 'role:admin,hr,driver,acc'])->group(function () {
+    Route::resource('trips', TripController::class);
+});
+
 
 
 

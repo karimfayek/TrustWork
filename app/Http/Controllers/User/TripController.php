@@ -5,9 +5,25 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Trip;
-
+use Inertia\Inertia;
 class TripController extends Controller
 {
+
+    public function index()
+    {
+        $trips = Trip::all();
+        return Inertia::render('Admin/Trips/Index', [
+            'trips' => $trips->load('driver.user'),
+        ]);
+    }
+    public function DriverTrips()
+    {
+        $driver = auth()->user()->driver;
+        $trips = $driver->trips()->get();
+        return Inertia::render('Driver/Trips', [
+            'trips' => $trips->load('driver.user'),
+        ]);
+    }
     public function start(Request $request)
     {
         //dd($request->all());
