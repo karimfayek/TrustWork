@@ -51,6 +51,11 @@ export default function AuthenticatedLayout({ header, children }) {
             except: ["sherok@trustits.net"],
         },
         {
+            label: "التأخيرات",
+            routeName: "lates.index",
+            roles: ["admin"],
+        },
+        {
             label: "الادوات",
             routeName: "tools.index",
             roles: ["admin", "acc", "hr"],
@@ -89,7 +94,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const roleLinks = allNavLinks.filter(
         (link) =>
             link.roles.some((role) => userRoles.includes(role)) &&
-            !link.except?.includes(user.email)
+            !link.except?.includes(user.email),
     );
 
     const groupedNavLinks = [
@@ -158,6 +163,11 @@ export default function AuthenticatedLayout({ header, children }) {
                     routeName: "admin.loans.index",
                     roles: ["admin", "acc", "hr"],
                     except: ["sherok@trustits.net"],
+                },
+                {
+                    label: "التأخيرات",
+                    routeName: "lates.index",
+                    roles: ["admin"],
                 },
             ],
         },
@@ -270,9 +280,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                     const visibleItems = group.items.filter(
                                         (link) =>
                                             link.roles.some((role) =>
-                                                userRoles.includes(role)
+                                                userRoles.includes(role),
                                             ) &&
-                                            !link.except?.includes(user.email)
+                                            !link.except?.includes(user.email),
                                     );
                                     if (visibleItems.length === 0) return null;
                                     return (
@@ -301,10 +311,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                                     <Dropdown.Link
                                                         key={link.routeName}
                                                         href={route(
-                                                            link.routeName
+                                                            link.routeName,
                                                         )}
                                                         active={route().current(
-                                                            link.routeName
+                                                            link.routeName,
                                                         )}
                                                     >
                                                         {link.label}
@@ -318,15 +328,15 @@ export default function AuthenticatedLayout({ header, children }) {
                                 {singleNavLinks
                                     .filter((link) =>
                                         link.roles.some((role) =>
-                                            userRoles.includes(role)
-                                        )
+                                            userRoles.includes(role),
+                                        ),
                                     )
                                     .map((link) => (
                                         <NavLink
                                             key={link.routeName}
                                             href={route(link.routeName)}
                                             active={route().current(
-                                                link.routeName
+                                                link.routeName,
                                             )}
                                         >
                                             {link.label}
@@ -370,14 +380,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </Dropdown.Link>
 
                                         {["admin"].some((role) =>
-                                            userRoles?.includes(role)
+                                            userRoles?.includes(role),
                                         ) && (
                                             <>
                                                 <ResponsiveNavLink
                                                     href={route("settings")}
                                                     className="text-blue-600"
                                                     active={route().current(
-                                                        "settings"
+                                                        "settings",
                                                     )}
                                                 >
                                                     الاعدادات
@@ -385,11 +395,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 <ResponsiveNavLink
                                                     label="سلة المحذوفات"
                                                     href={route(
-                                                        "admin.recyclebin"
+                                                        "admin.recyclebin",
                                                     )}
                                                     className="text-red-600"
                                                     active={route().current(
-                                                        "admin.recyclebin"
+                                                        "admin.recyclebin",
                                                     )}
                                                 >
                                                     سلة المحذوفات
@@ -495,7 +505,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <button
                                 onClick={() =>
                                     setShowingNavigationDropdown(
-                                        (previousState) => !previousState
+                                        (previousState) => !previousState,
                                     )
                                 }
                                 className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
@@ -573,7 +583,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </ResponsiveNavLink>
                             ))}
                             {["admin"].some((role) =>
-                                userRoles?.includes(role)
+                                userRoles?.includes(role),
                             ) && (
                                 <ResponsiveNavLink
                                     href={route("settings")}
@@ -619,7 +629,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <div key={field}>
                                         {field}: {message}
                                     </div>
-                                )
+                                ),
                             )}
                         </div>
                     )}

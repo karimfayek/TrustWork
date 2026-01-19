@@ -126,7 +126,7 @@ class EmployeePerformanceService
         return $count;
     }
 
-    private function getAttendanceData($userId, $start, $today)
+    public function getAttendanceData($userId, $start, $today)
     {
         $user = User::find($userId);
         $holidayDates = \App\Models\Holiday::whereBetween('date', [$start->toDateString(), $today->toDateString()])
@@ -160,7 +160,7 @@ class EmployeePerformanceService
             })
             ->count();
         $leaves = $user->leaves()->where('status', 'approved')->count();
-        $lateAttendances = Attendance::where('user_id', $userId)
+        $lateAttendancesQ = Attendance::with(['project', 'visit.customer'])->where('user_id', $userId)
             ->whereBetween('check_in_time', [$start, $today])
             ->where('is_late', true)
             ->get()
@@ -173,8 +173,9 @@ class EmployeePerformanceService
 
                 // ✅ استبعاد إذا كان يوم عطلة أسبوعية أو إجازة رسمية
                 return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
-            })
-            ->count();
+            });
+        $lateAttendances = $lateAttendancesQ->count();
+
 
         $visits = Visit::where('user_id', $userId)
             ->whereBetween('created_at', [$start, $today])
@@ -187,6 +188,7 @@ class EmployeePerformanceService
             'leaves' => $leaves,
             'percentage' => ($attendanceDays) / max(1, $this->countWorkingDays($user->offdayestype, $start, $today)) * 100,
             'visits' => $visits,
+            'lateAttendancesGet' => $lateAttendancesQ,
         ];
     }
 
@@ -270,12 +272,35 @@ class EmployeePerformanceService
         $expenses = $user->expenses->whereBetween('spent_at', [$start, $end])->sum('amount');
         $basics = $user->deductions->where('type', 'basic')->sum('amount');
         $deductions = $user->deductions->whereBetween('deducted_at', [$start, $end])->where('type', 'deduction')->sum('amount');
+        $lateAttendances = $user->attendances()
+            ->whereBetween('check_in_time', [$start, $end])
+            ->where('is_late', 1)
+            ->whereNotNull('late_deduct_type')
+            ->get();
+        $salary = $user->salary->final_salary;
+        $dayValue = $salary / 30;
+        $lateDeductionsTotal = 0;
 
+        foreach ($lateAttendances as $attendance) {
+            switch ($attendance->late_deduct_type) {
+                case 1: // ربع يوم
+                    $lateDeductionsTotal += $dayValue / 4;
+                    break;
+
+                case 2: // نصف يوم
+                    $lateDeductionsTotal += $dayValue / 2;
+                    break;
+
+                case 3: // يوم كامل
+                    $lateDeductionsTotal += $dayValue;
+                    break;
+            }
+        }
         // dd($expenses);
         return [
             'advances' => $advances,
             'expenses' => $expenses,
-            'deductions' => $deductions,
+            'deductions' => $deductions + $lateDeductionsTotal,
             'basics' => $basics,
             'remaining' => $advances - $expenses,
         ];

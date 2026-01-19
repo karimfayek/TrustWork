@@ -7,7 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Attendance extends Model
 {
     protected $fillable = [
-        'project_id', 'user_id' , 'check_in_time','check_out_time','in_location','is_late','out_location','customer' , 'type','visit_id'
+        'project_id',
+        'user_id',
+        'check_in_time',
+        'check_out_time',
+        'in_location',
+        'is_late',
+        'out_location',
+        'customer',
+        'type',
+        'visit_id',
+        'late_deduct_type'
     ];
 
 
@@ -18,10 +28,11 @@ class Attendance extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class , 'project_id')->withTrashed();
+        return $this->belongsTo(Project::class, 'project_id')->withTrashed();
     }
     public function visit()
     {
-        return $this->belongsTo(Visit::class , 'visit_id');
+        return $this->belongsTo(Visit::class, 'visit_id');
     }
+
 }

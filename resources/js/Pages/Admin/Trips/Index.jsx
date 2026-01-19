@@ -37,8 +37,9 @@ export default function Index({ trips }) {
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
+                                            className="text-blue-600"
                                         >
-                                            {"لوكيشن  "}
+                                            {" لوكيشن  "}
                                         </a>
                                     </td>
                                     <td className="px-6 py-3">
@@ -51,9 +52,9 @@ export default function Index({ trips }) {
                                                 trip.end_lng
                                             }
                                             target="_blank"
-                                            rel="noopener noreferrer"
+                                            className="text-blue-600"
                                         >
-                                            {"لوكيشن  "}
+                                            {" لوكيشن  "}
                                         </a>
                                     </td>
                                     <td className="px-6 py-3">
@@ -61,17 +62,17 @@ export default function Index({ trips }) {
                                     </td>
                                     <td className="px-6 py-3">
                                         {new Date(
-                                            trip.started_at
+                                            trip.started_at,
                                         ).toLocaleDateString("en-GB")}
                                     </td>
                                     <td className="px-6 py-3">
                                         {new Date(
-                                            trip.started_at
+                                            trip.started_at,
                                         ).toLocaleTimeString("en-GB")}
                                     </td>
                                     <td className="px-6 py-3">
                                         {new Date(
-                                            trip.ended_at
+                                            trip.ended_at,
                                         ).toLocaleTimeString("en-GB")}
                                     </td>
                                 </tr>

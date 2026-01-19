@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\Admin\StockMovementController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ItemsDashboardController;
+use App\Http\Controllers\Admin\LateController;
 use App\Http\Controllers\User\EmployeeAdvanceController;
 use App\Http\Controllers\User\IssueController;
 use App\Http\Controllers\User\TaskProgressController;
@@ -100,6 +101,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/settings', [SettingController::class, 'index'])->name('settings.get');
     Route::post('/admin/settings', [SettingController::class, 'store'])->name('settings.post');
 
+    //lates
+    Route::get('/lates', [LateController::class, 'index'])->name('lates.index');
+    Route::get('/lates/getLateAttendances/{id}', [LateController::class, 'getLateAttendances'])->name('admin.lateAttendances.getLateAttendances');
+    Route::post('/lates/cancelDeduct/{id}', [LateController::class, 'cancelDeduct'])->name('admin.lateAttendances.cancelDeduct');
+    Route::post('/lates/updateDeduct/{id}', [LateController::class, 'updateDeduct'])->name('admin.lateAttendances.updateDeduct');
 });
 //admin,acc
 Route::middleware(['auth', 'role:admin,acc'])->group(function () {

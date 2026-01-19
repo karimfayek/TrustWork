@@ -329,13 +329,19 @@ class AttendanceController extends Controller
         if ($existing) {
             return back()->with('message', 'تم تسجيل حضورك مسبقًا اليوم.');
         }
+        $now = Carbon::now('Africa/Cairo');
 
+        // وقت الحضور الرسمي 09:15 صباحًا لنفس اليوم
+        $lateTime = Carbon::parse($now->toDateString() . ' 09:15:00', 'Africa/Cairo');
+
+        // المقارنة
+        $isLate = $now->greaterThan($lateTime) ? 1 : 0;
         Attendance::create([
             'user_id' => $user->id,
             'project_id' => $project->id,
             'check_in_time' => now(),
             'in_location' => $request->input('location', 'غير محدد'),
-            'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
+            'is_late' => $isLate,
         ]);
 
         return back()->with('message', 'تم تسجيل الحضور بنجاح.');
@@ -390,6 +396,13 @@ class AttendanceController extends Controller
             } else {
                 $visit_id = null;
             }
+            $checkInTime = Carbon::parse($request->check_in_time);
+
+            // وقت 9:15 صباحًا في نفس اليوم
+            $lateTime = Carbon::parse($checkInTime->toDateString() . ' 09:15:00');
+
+            // لو وقت الحضور أكبر من 9:15 → متأخر
+            $isLate = $checkInTime->greaterThan($lateTime) ? 1 : 0;
             Attendance::create([
                 'user_id' => $user,
                 'project_id' => $project,
@@ -398,7 +411,7 @@ class AttendanceController extends Controller
                 'type' => $type,
                 'check_in_time' => $time,
                 'in_location' => $request->input('location', 'غير محدد'),
-                'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
+                'is_late' => $isLate,
             ]);
             return back()->with('message', 'تم تسجيل الحضور بنجاح.');
         } elseif ($inOut === 'out') {
