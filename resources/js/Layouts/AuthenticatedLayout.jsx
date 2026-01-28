@@ -71,6 +71,22 @@ export default function AuthenticatedLayout({ header, children }) {
             roles: ["admin", "acc", "hr"],
         },
         { label: "المخزن", routeName: "items.index", roles: ["admin", "acc"] },
+        {
+            label: "تصنيفات المنتجات",
+            routeName: "categories.index",
+            roles: ["admin", "sales"],
+        },
+        {
+            label: "المنتجات",
+            routeName: "products.index",
+            roles: ["admin", "sales"],
+        },
+
+        {
+            label: "العروض",
+            routeName: "quotes.index",
+            roles: ["admin", "sales"],
+        },
         { label: "التقارير", routeName: "reports.index", roles: ["admin"] },
         {
             label: "السيارات",
@@ -218,6 +234,26 @@ export default function AuthenticatedLayout({ header, children }) {
                 },
             ],
         },
+        {
+            label: "المنتجات",
+            items: [
+                {
+                    label: "التصنيفات",
+                    routeName: "categories.index",
+                    roles: ["admin", "sales"],
+                },
+                {
+                    label: "المنتجات",
+                    routeName: "products.index",
+                    roles: ["admin", "sales"],
+                },
+                {
+                    label: "العروض",
+                    routeName: "quotes.index",
+                    roles: ["admin", "sales"],
+                },
+            ],
+        },
     ];
 
     // روابط فردية خارج المجموعات
@@ -264,7 +300,7 @@ export default function AuthenticatedLayout({ header, children }) {
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="border-b border-gray-100 bg-white print:hidden">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">

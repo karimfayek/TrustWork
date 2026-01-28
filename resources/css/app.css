@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,68 +6,68 @@
 
 @media print {
     .print\:hidden {
-      display: none !important;
+        display: none !important;
+    }
+    .print-only {
+        display: inline !important;
     }
     .print-footer {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      padding: 10px;
-      font-size: 12px;
-      text-align: center;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        padding: 10px;
+        font-size: 12px;
+        text-align: center;
     }
     body {
-      margin: 0;
-      padding: 0;
-      zoom: 80%;
-      background-color: #fff;
+        margin: 0;
+        padding: 0;
+        zoom: 80%;
+        background-color: #fff;
     }
-    .bg-gray-100{
-      background-color:#fff
+    .bg-gray-100 {
+        background-color: #fff;
     }
     .print-container {
-      width: 100%;
-      overflow: visible;
-      zoom: 90%; /* قلل الحجم شوية لو الجدول كبير */
+        width: 100%;
+        overflow: visible;
+        zoom: 90%; /* قلل الحجم شوية لو الجدول كبير */
     }
-  
-    table {
-      width: 100% !important;
-      table-layout: auto !important;
-      border-collapse: collapse;
-     
-    }
-  
-    th, td {
-      padding: 2px 4px;
-      border: 1px solid #000;
-      min-width: 30px;
-      max-width: 200px;
-    }
-    td{
-     
-      overflow-wrap: break-word;
-      word-wrap: break-word;
-      word-break: break-word;   
-    }
-    thead{
-      background-color: gray;
-    }
-   
-  }
-  .btn {
-    @apply inline-flex items-center justify-center font-semibold rounded-md px-4 py-2 text-white tracking-widest uppercase transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
-  }
-  
-  .btn-green {
-    @apply bg-green-600 hover:bg-green-700 focus:bg-gray-700 focus:ring-indigo-500;
-  }
-  
-  .btn-gray {
-    @apply bg-gray-800 hover:bg-gray-900 focus:bg-gray-700 focus:ring-indigo-500;
-  }
-  
-  .btn-fixed-bottom {
-    @apply fixed bottom-0 left-0 right-0 print:hidden;
-  }
 
+    table {
+        width: 100% !important;
+        table-layout: auto !important;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 2px 4px;
+        border: 1px solid #000;
+        min-width: 30px;
+        max-width: 200px;
+    }
+    td {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+    thead {
+        background-color: gray;
+    }
+}
+.btn {
+    @apply inline-flex items-center justify-center font-semibold rounded-md px-4 py-2 text-white tracking-widest uppercase transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-green {
+    @apply bg-green-600 hover:bg-green-700 focus:bg-gray-700 focus:ring-indigo-500;
+}
+
+.btn-gray {
+    @apply bg-gray-800 hover:bg-gray-900 focus:bg-gray-700 focus:ring-indigo-500;
+}
+
+.btn-fixed-bottom {
+    @apply fixed bottom-0 left-0 right-0 print:hidden;
+}

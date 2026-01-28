@@ -40,6 +40,9 @@ use App\Http\Controllers\User\EmployeeLeavesController;
 use App\Http\Controllers\User\TripController;
 use App\Http\Controllers\User\CarController;
 use App\Http\Controllers\User\DriverController;
+use App\Http\Controllers\NordenProductController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 
 
@@ -279,6 +282,25 @@ Route::middleware(['auth', 'role:admin,proj,tech'])->group(function () {
     Route::get('/projects/edit/{id}', [ProjectController::class, 'edit'])->name('admin.projects.edit');
     Route::post('/projects/update', [ProjectController::class, 'update'])->name('admin.projects.update');
     Route::post('/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
+
+
+});
+//sales
+Route::middleware(['auth', 'role:admin,sales'])->group(function () {
+    //products
+    Route::resource('categories', CategoryController::class);
+    Route::resource('products', NordenProductController::class);
+    Route::post('/quotes/create', [QuoteController::class, 'create'])
+        ->name('quotes.create');
+
+    Route::get('/quotes/preview', [QuoteController::class, 'preview'])
+        ->name('quotes.preview');
+    Route::post('/quotes/store', [QuoteController::class, 'store'])
+        ->name('quotes.store');
+    Route::get('/quotes', [QuoteController::class, 'index'])
+        ->name('quotes.index');
+    Route::get('/quotes/{id}', [QuoteController::class, 'show'])
+        ->name('quotations.show');
 });
 //admin,proj
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {
