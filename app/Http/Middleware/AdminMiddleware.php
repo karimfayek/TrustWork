@@ -51,6 +51,7 @@ class AdminMiddleware
 
             $user->hasRole('managment') => 'employee.att.index',
             $user->hasRole('hr') => 'users.index',
+            $user->hasRole('sales') => 'products.index',
 
             default => 'profile.edit',
         };
