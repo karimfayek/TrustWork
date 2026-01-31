@@ -13,6 +13,7 @@ class Quotation extends Model
         'total',
         'notes',
         'user_id',
+        'body',
     ];
 
     public function items()

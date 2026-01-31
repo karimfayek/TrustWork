@@ -69,7 +69,7 @@ export default function ProductsIndex({ products }) {
                             onChange={(e) => setStock(e.target.value)}
                             className="px-4 py-2 border rounded w-full md:w-40"
                         >
-                            <option value="">All Stock</option>
+                            <option value="">All </option>
                             <option value="1">In Stock</option>
                             <option value="0">Out of Stock</option>
                         </select>
@@ -110,6 +110,7 @@ export default function ProductsIndex({ products }) {
                                 ) && <th className="px-6 py-3">سعر التكلفة</th>}
                                 <th className="px-6 py-3">Data Sheet</th>
                                 <th className="px-6 py-3">فى المخزن</th>
+                                <th className="px-6 py-3">الكمية</th>
                                 <th className="px-6 py-3">الخيارات</th>
                             </tr>
                         </thead>
@@ -131,7 +132,7 @@ export default function ProductsIndex({ products }) {
                                         />
                                     </td>
                                     <td className="px-6 py-4">
-                                        {product.category.name}
+                                        {product.category?.name}
                                     </td>
                                     <td className="px-6 py-4">
                                         {product.part_number}
@@ -168,6 +169,9 @@ export default function ProductsIndex({ products }) {
                                                 لا
                                             </span>
                                         )}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {product.quantity}
                                     </td>
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                         {["admin"].some((role) =>

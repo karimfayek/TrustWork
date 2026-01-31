@@ -17,6 +17,6 @@ class QuotationItem extends Model
 
     public function product()
     {
-        return $this->belongsTo(NordenProduct::class);
+        return $this->belongsTo(NordenProduct::class, 'norden_product_id');
     }
 }

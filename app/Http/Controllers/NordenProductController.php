@@ -59,11 +59,12 @@ class NordenProductController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'stock' => 'required|boolean',
+            'quantity' => 'nullable|numeric',
             'description' => 'nullable|string|max:255',
             'price' => 'required|numeric',
             'cost_price' => 'nullable|numeric',
             'part_number' => 'required|string|unique:norden_products,part_number|max:255',
-            'data_sheet' => 'required|string|max:255',
+            'data_sheet' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'required|exists:categories,id',
         ]);
@@ -81,11 +82,12 @@ class NordenProductController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'stock' => 'required|boolean',
+            'quantity' => 'nullable|numeric',
             'description' => 'nullable|string|max:255',
             'price' => 'required|numeric',
             'cost_price' => 'nullable|numeric',
             'part_number' => 'required|string|unique:norden_products,part_number,' . $product->id . ',id|max:255',
-            'data_sheet' => 'required|string|max:255',
+            'data_sheet' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'required|exists:categories,id',
         ]);

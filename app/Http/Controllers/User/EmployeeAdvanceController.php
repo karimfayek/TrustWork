@@ -16,12 +16,14 @@ class EmployeeAdvanceController extends Controller
 {
     public function list()
     {
-        $pendingAdvances = Advance::where('status' , 'pending')->with('project' , 'user')->get();
+        $pendingAdvances = Advance::where('status', 'pending')->with('project', 'user')->get();
         //dd($pendingAdvances);
-        $users = User::with('advances' ,'advances.project' )->get();
+        $users = User::where('status', 1)->with('advances', 'advances.project')->get();
+        $activeProjects = Project::notCompleted()->get();
         return Inertia::render('Employee/Advances/List', [
             'pendingAdvances' => $pendingAdvances,
             'users' => $users,
+            'activeProjects' => $activeProjects,
         ]);
     }
 
@@ -30,14 +32,14 @@ class EmployeeAdvanceController extends Controller
         $user = $request->user();
         $finalSalary = $user->salary->final_salary;
         $advances = $user->advances()->get()->load('project');
-        $expenses = $user->expenses()->get()->load('by', 'advance' , 'advance.project');
+        $expenses = $user->expenses()->get()->load('by', 'advance', 'advance.project');
 
         $totalAdvance = $user->advances()->accepted()->sum('amount');
-    // Get active projects where is_completed() returns false
-    $activeProjects = $user->projects->filter(function ($project) {
-        return !$project->is_completed;
-    })->values();
-      //dd($activeProjects);
+        // Get active projects where is_completed() returns false
+        $activeProjects = $user->projects->filter(function ($project) {
+            return !$project->is_completed;
+        })->values();
+        //dd($activeProjects);
         $totalExpense = $expenses->sum('amount');
         $remaining = $totalAdvance - $totalExpense;
 
@@ -48,14 +50,14 @@ class EmployeeAdvanceController extends Controller
             'totalExpense' => $totalExpense,
             'remaining' => $remaining,
             'activeProjects' => $activeProjects,
-            'finalSalary'=>  (int)$finalSalary
+            'finalSalary' => (int) $finalSalary
         ]);
     }
 
     public function storeAdvance(Request $request)
     {
-       
-        
+
+
         $request->validate([
             'amount' => 'required|numeric|min:1',
             'note' => 'required|string|max:255',
@@ -74,19 +76,19 @@ class EmployeeAdvanceController extends Controller
             'given_at' => null,
             'status' => 'pending',
         ]);
-        $project= Project::find($request->project_id);
-        if($project){
-            $Porjectname =  $project->name ;
-        }else{
-            $Porjectname =  'اخرى' ;
+        $project = Project::find($request->project_id);
+        if ($project) {
+            $Porjectname = $project->name;
+        } else {
+            $Porjectname = 'اخرى';
         }
-       
+
 
         if (config('app.env') === 'production') {
-            $emails =  Setting::where('key', 'advance_request_notify')->value('value');
+            $emails = Setting::where('key', 'advance_request_notify')->value('value');
             if (!empty($emails)) {
                 $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
-            
+
                 if (!empty($emailsArray)) {
                     Mail::to($emails)->send(new AdvanceRequestNotification(
                         $user->name,
@@ -97,8 +99,8 @@ class EmployeeAdvanceController extends Controller
                     ));
                 }
             }
-       
-    }
+
+        }
         return redirect()->back()->with('success', 'تم طلب العهدة.');
     }
     public function storeAdvanceAdmin(Request $request)
@@ -120,8 +122,8 @@ class EmployeeAdvanceController extends Controller
             'note' => $request->note,
             'project_id' => $request->project_id == 'null' ? null : $request->project_id,
             'given_at' => now(),
-            'status' =>  'accepted',
-            'given_by' =>  auth()->user()->id,
+            'status' => 'accepted',
+            'given_by' => auth()->user()->id,
             'method' => $request->method,
         ]);
 
@@ -129,7 +131,7 @@ class EmployeeAdvanceController extends Controller
     }
     public function statusAdvanceAdmin(Request $request)
     {
-       // dd($request->all());
+        // dd($request->all());
         $request->validate([
             'advance_id' => 'required',
             'status' => 'required',
@@ -138,84 +140,84 @@ class EmployeeAdvanceController extends Controller
         ]);
         // dd($request->all());
         $advance = Advance::findOrFail($request->advance_id);
-        if($request->status === 'declined'){
+        if ($request->status === 'declined') {
             $giveAt = null;
-        }else{
+        } else {
             $giveAt = now();
         }
         $advance->update([
             'amount' => $request->amount,
             'note' => $request->note,
-            'given_at' => $giveAt ,
-            'status' =>  $request->status,
-            'method'=> $request->payment_method
+            'given_at' => $giveAt,
+            'status' => $request->status,
+            'method' => $request->payment_method
         ]);
 
         return redirect()->back()->with('success', 'تم تحديث العهدة.');
     }
-    
+
     public function settlementAdvanceAdmin(Request $request)
     {
-    //dd($request->all());
+        //dd($request->all());
         $request->validate([
             'user_id' => 'required',
             'advance_id' => 'required',
             'amount' => 'required|numeric|min:1',
         ]);
         // dd($request->all());
-        
-       $user = User::find($request->user_id);
-      
-       $user->expenses()->create([
-        'amount' => $request->amount,
-        'description' => 'تسوية',
-        'spent_at' => now(),
-        'advance_id' =>$request->advance_id,
-        'stored_by'=> auth()->user()->id ,
-        'asa'=> 'settle'
-    ]);
+
+        $user = User::find($request->user_id);
+
+        $user->expenses()->create([
+            'amount' => $request->amount,
+            'description' => 'تسوية',
+            'spent_at' => now(),
+            'advance_id' => $request->advance_id,
+            'stored_by' => auth()->user()->id,
+            'asa' => 'settle'
+        ]);
         return redirect()->back()->with('success', 'تم تحديث العهدة.');
     }
 
-public function deleteAdvance(Request $request)
-{
-    //dd($request->all());
-    $request->validate([
-        'id' => 'required|exists:advances,id',
-    ]);
-      // dd($request->all());
-    $advance = Advance::find($request->id);
-    $advance->delete();
+    public function deleteAdvance(Request $request)
+    {
+        //dd($request->all());
+        $request->validate([
+            'id' => 'required|exists:advances,id',
+        ]);
+        // dd($request->all());
+        $advance = Advance::find($request->id);
+        $advance->delete();
 
-    return redirect()->back()->with('success', 'تم مسح العهدة.');
-}
+        return redirect()->back()->with('success', 'تم مسح العهدة.');
+    }
 
-public function storeExpense(Request $request)
-{
-   
-    $request->validate([
-        'amount' => 'required|numeric|min:1',
-        'description' => 'required|string|max:255',
-        'advance_id' => 'required|exists:advances,id',
-        'file' => 'required|image|max:2048',
-    ]);
-   // dd($request->all());
-    
-    $user = $request->user_id
-    ? User::findOrFail($request->user_id) // الإدمن يضيف لشخص معين
-    : $request->user(); // الموظف يضيف لنفسه
-    $path = $request->file('file')->store('expenses', 'public');
-    //$visit->file_path = $path;
-    $user->expenses()->create([
-        'amount' => $request->amount,
-        'description' => $request->description,
-        'file_path' =>  $path,
-        'stored_by' =>  auth()->user()->id,
-        'advance_id' =>  $request->advance_id,
-        'spent_at' => now(),
-    ]);
+    public function storeExpense(Request $request)
+    {
 
-    return redirect()->back()->with('success', 'تم تسجيل المصروف.');
-}
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'description' => 'required|string|max:255',
+            'advance_id' => 'required|exists:advances,id',
+            'file' => 'required|image|max:5048',
+        ]);
+        // dd($request->all());
+
+        $user = $request->user_id
+            ? User::findOrFail($request->user_id) // الإدمن يضيف لشخص معين
+            : $request->user(); // الموظف يضيف لنفسه
+        $path = $request->file('file')->store('expenses', 'public');
+        //$visit->file_path = $path;
+        $user->expenses()->create([
+            'amount' => $request->amount,
+            'description' => $request->description,
+            'file_path' => $path,
+            'stored_by' => auth()->user()->id,
+            'advance_id' => $request->advance_id,
+            'spent_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'تم تسجيل المصروف.');
+    }
 
 }

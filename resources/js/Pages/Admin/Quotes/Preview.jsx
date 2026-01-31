@@ -10,6 +10,7 @@ export default function QuotePreview({
         quotation_number: quotationNumber,
         quotation_date: today,
         company_name: "",
+        body: "",
         notes: "",
         items: [],
     });
@@ -97,30 +98,47 @@ export default function QuotePreview({
                     <p> To: {data.company_name}</p>
                 </div>
             </div>
-
+            <p className="text-center hidden print-only">
+                After Greeting,,,,,
+                <br />
+                <br />
+                {data.body}
+            </p>
             <p className="text-center">
-                After Greeting,,,,, <br />
-                <span className="font-bold">
-                    Please kindly find below our offer concerning FIRE ALARM
-                    System manufacturer by EATON-JSB-UK
-                </span>
+                <textarea
+                    name="body"
+                    id=""
+                    value={data.body}
+                    onChange={(e) => setData("body", e.target.value)}
+                    className="print:hidden border px-3 py-1 w-full"
+                    required
+                ></textarea>
             </p>
             {/* Products */}
             {Object.entries(groupedProducts).map(([category, products]) => (
                 <div key={category} className="mb-8">
                     <h2 className="font-bold mb-2">{category}</h2>
 
-                    <table className="w-full border text-sm">
-                        <thead className="bg-gray-100">
+                    <table className="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
+                        <thead className="bg-gray-200 text-gray-800">
                             <tr>
-                                <th>#</th>
-                                <th>Item</th>
-                                <th>Qty</th>
-                                <th>Unit Price</th>
-                                <th>Total</th>
+                                <th className="px-3 py-2 text-left w-12">#</th>
+                                <th className="px-3 py-2 text-left">
+                                    Description
+                                </th>
+                                <th className="px-3 py-2 text-center w-24">
+                                    Qty
+                                </th>
+                                <th className="px-3 py-2 text-right w-32">
+                                    Unit Price
+                                </th>
+                                <th className="px-3 py-2 text-right w-32">
+                                    Total
+                                </th>
                             </tr>
                         </thead>
-                        <tbody>
+
+                        <tbody className="divide-y divide-gray-200">
                             {products.map((p, index) => {
                                 const item =
                                     data.items.find(
@@ -128,10 +146,23 @@ export default function QuotePreview({
                                     ) || {};
 
                                 return (
-                                    <tr key={p.id}>
-                                        <td>{index + 1}</td>
-                                        <td>{p.part_number}</td>
-                                        <td>
+                                    <tr key={p.id} className="hover:bg-gray-50">
+                                        <td className="px-3 py-2">
+                                            {index + 1}
+                                        </td>
+
+                                        <td className="px-3 py-2">
+                                            <div className="font-medium">
+                                                {p.part_number}
+                                            </div>
+                                            {p.description && (
+                                                <div className="text-xs text-gray-500">
+                                                    {p.description}
+                                                </div>
+                                            )}
+                                        </td>
+
+                                        <td className="px-3 py-2 text-center">
                                             <input
                                                 type="number"
                                                 min="1"
@@ -142,14 +173,22 @@ export default function QuotePreview({
                                                         Number(e.target.value),
                                                     )
                                                 }
-                                                className="border w-20 print:hidden"
+                                                className="border rounded w-16 text-center print:hidden"
                                             />
-                                            <span className="print-only hidden">
-                                                {item.quantity}
+                                            <span className="hidden print:inline">
+                                                {item.quantity || 1}
                                             </span>
                                         </td>
-                                        <td>{p.price}</td>
-                                        <td>{item.total || p.price}</td>
+
+                                        <td className="px-3 py-2 text-right">
+                                            {Number(p.price).toLocaleString()}
+                                        </td>
+
+                                        <td className="px-3 py-2 text-right font-semibold">
+                                            {Number(
+                                                item.total || p.price,
+                                            ).toLocaleString()}
+                                        </td>
                                     </tr>
                                 );
                             })}
@@ -159,9 +198,15 @@ export default function QuotePreview({
             ))}
 
             {/* Footer */}
-            <div className="mt-6  font-bold">
-                The Sum of Equipment: {grandTotal}
+            <div className="mt-6 flex justify-end">
+                <div className="w-72 border-t-2 border-gray-800 pt-3 text-right">
+                    <div className="text-sm text-gray-600">Total Amount</div>
+                    <div className="text-xl font-bold">
+                        {Number(grandTotal).toLocaleString()} $
+                    </div>
+                </div>
             </div>
+
             <p className="text-center">Please accept my very Best Regards</p>
             <textarea
                 placeholder="ملاحظات"

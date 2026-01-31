@@ -251,7 +251,7 @@ class ReportController extends Controller
     public function financeReport()
     {
         $users = Employee::where('role', 'employee')->where('status', 1)->get()->load('advances', 'expenses', 'deductions', 'advances.project', 'advances.user', 'expenses.user', 'expenses.by', 'expenses.advance', 'expenses.advance.project');
-        $projects = Project::all()->load('tasks', 'users', 'tasks.users', 'tasks.progress.user', 'advances', 'advances.project', 'advances.user', 'advances.expenses');
+        $projects = Project::all()->load('tasks', 'users', 'tasks.users', 'tasks.progress.user', 'advances', 'advances.project', 'advances.user', 'advances.expenses', 'advances.expenses.user', 'advances.expenses.by', 'advances.expenses.advance', 'advances.expenses.advance.project');
         foreach ($projects as $project) {
             foreach ($project->tasks as $task) {
                 $task['quantity_done'] = $task->progress->sum('quantity_done');

@@ -17,6 +17,7 @@ export default function ProductCreate({ categories }) {
         category_id: "",
         cost_price: "",
         stock: true,
+        quantity: "",
     });
 
     const handleSubmit = (e) => {
@@ -33,6 +34,7 @@ export default function ProductCreate({ categories }) {
                     category_id: "",
                     cost_price: "",
                     stock: true,
+                    quantity: "",
                 });
             },
         });
@@ -174,6 +176,24 @@ export default function ProductCreate({ categories }) {
                             </span>
                         </label>
                     </div>
+                    {data.stock && (
+                        <div>
+                            <InputLabel htmlFor="quantity" value="الكمية" />
+                            <TextInput
+                                id="quantity"
+                                type="number"
+                                value={data.quantity}
+                                className="mt-1 block w-full"
+                                onChange={(e) =>
+                                    setData("quantity", e.target.value)
+                                }
+                            />
+                            <InputError
+                                message={errors.quantity}
+                                className="mt-2"
+                            />
+                        </div>
+                    )}
                     {/* زر الإرسال */}
                     <div>
                         <PrimaryButton

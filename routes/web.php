@@ -301,6 +301,8 @@ Route::middleware(['auth', 'role:admin,sales'])->group(function () {
         ->name('quotes.index');
     Route::get('/quotes/{id}', [QuoteController::class, 'show'])
         ->name('quotations.show');
+    Route::delete('/quotes/{id}', [QuoteController::class, 'destroy'])
+        ->name('quotations.destroy');
 });
 //admin,proj
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {

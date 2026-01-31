@@ -20,18 +20,18 @@ class VisitsController extends Controller
     public function index(Request $request)
     {
         $customers = Customer::all();
-        $visits = Visit::where('user_id' , $request->user()->id )->with('customer','attendance')->get();
+        $visits = Visit::where('user_id', $request->user()->id)->with('customer', 'attendance')->get();
 
         return Inertia::render('Employee/Visits/index', [
             'customers' => $customers,
             'visits' => $visits,
         ]);
     }
-    public function show($id , Request $request)
+    public function show($id, Request $request)
     {
         $customers = Customer::all();
-        $visit = Visit::where('id',$id)->where('user_id' , $request->user()->id )->first();
-        if($visit){
+        $visit = Visit::where('id', $id)->where('user_id', $request->user()->id)->first();
+        if ($visit) {
             $visit->load('customer');
             $visit->load('attendance');
         }
@@ -44,7 +44,7 @@ class VisitsController extends Controller
     public function start(Request $request)
     {
         $customers = Customer::all();
-        $visits = Visit::where('user_id' , $request->user()->id )->with('customer')->get();
+        $visits = Visit::where('user_id', $request->user()->id)->with('customer')->get();
         $activeVisit = Visit::where('user_id', $request->user()->id)
             ->whereHas('attendance', function ($query) {
                 $query->whereNull('check_out_time');
@@ -66,53 +66,54 @@ class VisitsController extends Controller
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
         ]);
-        $esistingVisit = Visit::where('customer_id' , $request->customer_id )->where('user_id' , $request->user()->id)->whereDate('created_at', Carbon::today())
-        ->first();
-        if($esistingVisit){
-            return  response()->json(['error' => 'تم تسجيل الحضور بالفعل اليوم.']);
+        $esistingVisit = Visit::where('customer_id', $request->customer_id)->where('user_id', $request->user()->id)->whereDate('created_at', Carbon::today())
+            ->first();
+        if ($esistingVisit) {
+            return response()->json(['error' => 'تم تسجيل الحضور بالفعل اليوم.']);
         }
-        
-      
+
+
         $visit = Visit::create([
             'user_id' => $request->user()->id,
             'customer_id' => $request->customer_id,
-            'is_late' =>  now()->hour >= 9,
+            'is_late' => now()->hour >= 9,
         ]);
         Attendance::create([
-            'user_id' =>$request->user()->id,
+            'user_id' => $request->user()->id,
+            'created_by' => $request->user()->id,
             'visit_id' => $visit->id,
             'type' => 'visit',
             'check_in_time' => now(),
             'in_location' => $request->input('location', 'غير محدد'),
             'is_late' => now()->hour >= 9, // تعتبر متأخر بعد الساعة 9 صباحًا
         ]);
-       // return redirect()->back()->with(['visit' => $visit]);
-       try{
-          if (config('app.env') === 'production' || true) {
-            $emails =  Setting::where('key', 'visit_request_notify')->value('value');
-            if (!empty($emails)) {
-                $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
-            
-                if (!empty($emailsArray)) {
-                    $customer = \App\Models\Customer::find( $request->customer_id);
-                    $visitsCountThisMonth = $customer->visits()
-                        ->whereBetween('created_at', [
-                            now()->startOfMonth(),
-                            now()->endOfMonth()
-                        ])
-                        ->count();
-                      Mail::to($emails)->send(new VisitStartNotification(
-                        $request->user()->name,
-                        $customer->name,
-                        $visitsCountThisMonth,
-                    ));
+        // return redirect()->back()->with(['visit' => $visit]);
+        try {
+            if (config('app.env') === 'production' || true) {
+                $emails = Setting::where('key', 'visit_request_notify')->value('value');
+                if (!empty($emails)) {
+                    $emailsArray = array_filter(array_map('trim', explode(',', $emails)));
+
+                    if (!empty($emailsArray)) {
+                        $customer = \App\Models\Customer::find($request->customer_id);
+                        $visitsCountThisMonth = $customer->visits()
+                            ->whereBetween('created_at', [
+                                now()->startOfMonth(),
+                                now()->endOfMonth()
+                            ])
+                            ->count();
+                        Mail::to($emails)->send(new VisitStartNotification(
+                            $request->user()->name,
+                            $customer->name,
+                            $visitsCountThisMonth,
+                        ));
+                    }
                 }
+
             }
-       
-    }
-       } catch (error $e){
-         return response()->json(['visit' => $visit]);
-       }
+        } catch (error $e) {
+            return response()->json(['visit' => $visit]);
+        }
         return response()->json(['visit' => $visit]);
     }
 
@@ -133,12 +134,12 @@ class VisitsController extends Controller
 
         $visit->notes = $request->notes;
         $visit->save();
-        $att = Attendance::where('visit_id' , $visit->id)->first();
+        $att = Attendance::where('visit_id', $visit->id)->first();
         $att->check_out_time = now();
-        $att->out_location =  $request->input('location', 'غير محدد');
+        $att->out_location = $request->input('location', 'غير محدد');
         $att->save();
 
-        return  response()->json([
+        return response()->json([
             'success' => true,
             'redirect' => route('visits.show', $visit->id),
             'message' => 'تم إنهاء الزيارة',
@@ -161,7 +162,7 @@ class VisitsController extends Controller
             if (file_exists($file)) {
                 @unlink($file);
             }
-           
+
             $visit->report_path = $path;
         }
 

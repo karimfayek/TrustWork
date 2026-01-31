@@ -14,7 +14,7 @@ class LateController extends Controller
     public function index()
     {
 
-        $users = User::all();
+        $users = User::where('status', 1)->get();
         return Inertia::render('Admin/Late/LateIndex', [
             'users' => $users,
         ]);

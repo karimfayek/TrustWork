@@ -38,9 +38,10 @@ class AttendanceController extends Controller
                 'user:id,name',
                 'project:id,name',
                 'visit:id,customer_id',
-                'visit.customer:id,name'
+                'visit.customer:id,name',
+                'by:id,name',
             ])
-                ->select('check_in_time', 'check_out_time', 'id', 'type', 'visit_id', 'project_id', 'customer', 'user_id', 'out_location')
+                ->select('check_in_time', 'check_out_time', 'id', 'type', 'visit_id', 'project_id', 'customer', 'user_id', 'out_location', 'created_by')
                 ->latest()
                 ->limit(100)
                 ->get();
@@ -356,13 +357,13 @@ class AttendanceController extends Controller
 
         $currentUserRoles = auth()->user()->roles->pluck('name')->toArray();
         //dd($role);
-        if (!array_intersect($currentUserRoles, ['admin', 'acc', 'hr'])) {
+        if (!array_intersect($currentUserRoles, ['admin', 'hr'])) {
             $request->validate([
                 'location' => 'required',
             ]);
         }
         $project = $request->project;
-        $customer_id = $request->customer_id;
+        //$customer_id = $request->customer_id;
         $inOut = $request->inOut;
         $type = $request->input("type");
         $customer = $request->input('customer') ?? null;
@@ -405,6 +406,7 @@ class AttendanceController extends Controller
             $isLate = $checkInTime->greaterThan($lateTime) ? 1 : 0;
             Attendance::create([
                 'user_id' => $user,
+                'created_by' => auth()->user()->id,
                 'project_id' => $project,
                 'visit_id' => $visit_id,
                 'customer' => $customer,

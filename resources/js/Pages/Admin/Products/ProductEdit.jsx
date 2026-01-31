@@ -17,6 +17,7 @@ export default function ProductEdit({ product, categories }) {
         category_id: product.category_id,
         cost_price: product.cost_price,
         stock: product.stock,
+        quantity: product.quantity,
     });
 
     const handleSubmit = (e) => {
@@ -154,6 +155,24 @@ export default function ProductEdit({ product, categories }) {
                             </span>
                         </label>
                     </div>
+
+                    <div>
+                        <InputLabel htmlFor="quantity" value="الكمية" />
+                        <TextInput
+                            id="quantity"
+                            type="number"
+                            value={data.quantity}
+                            className="mt-1 block w-full"
+                            onChange={(e) =>
+                                setData("quantity", e.target.value)
+                            }
+                        />
+                        <InputError
+                            message={errors.quantity}
+                            className="mt-2"
+                        />
+                    </div>
+
                     {/* زر الإرسال */}
                     <div>
                         <PrimaryButton

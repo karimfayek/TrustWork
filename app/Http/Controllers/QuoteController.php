@@ -20,10 +20,10 @@ class QuoteController extends Controller
             'quotations' => $quotations
         ]);
     }
-    public function show(Quotation $quotation)
+    public function show($id)
     {
-        $quotation->load(['items.product.category', 'user']);
-
+        $quotation = Quotation::with('items', 'items.product', 'user')->find($id);
+        //dd($quotation);
         return inertia('Admin/Quotations/Show', [
             'quotation' => $quotation
         ]);
@@ -43,10 +43,23 @@ class QuoteController extends Controller
             ->whereIn('id', session('quote_products', []))
             ->get()
             ->groupBy('category.name');
+        $year = now()->year;
 
+        // آخر عرض سعر في نفس السنة
+        $lastQuotation = Quotation::whereYear('created_at', $year)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastQuotation) {
+            // استخراج الرقم بعد /
+            $lastNumber = intval(substr($lastQuotation->quotationNumber, -2));
+            $newNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '01';
+        }
         return inertia('Admin/Quotes/Preview', [
             'groupedProducts' => $products,
-            'quotationNumber' => 'QT-' . now()->format('Ymd-His'),
+            'quotationNumber' => 'QT-' . $year . '/' . $newNumber,
             'today' => now()->toDateString(),
         ]);
     }
@@ -57,6 +70,7 @@ class QuoteController extends Controller
             'quotation_number' => 'required|unique:quotations',
             'quotation_date' => 'required|date',
             'company_name' => 'required|string',
+            'body' => 'nullable|string',
             'items' => 'required|array',
 
         ]);
@@ -66,6 +80,7 @@ class QuoteController extends Controller
                 'quotation_number' => $request->quotation_number,
                 'quotation_date' => $request->quotation_date,
                 'company_name' => $request->company_name,
+                'body' => $request->body,
                 'total' => collect($request->items)->sum('total'),
                 'notes' => $request->notes,
                 'user_id' => auth()->user()->id,
@@ -81,5 +96,13 @@ class QuoteController extends Controller
         return redirect()
             ->route('products.index')
             ->with('success', 'تم حفظ عرض السعر بنجاح');
+    }
+    public function destroy($id)
+    {
+        $quotation = Quotation::find($id);
+        $quotation->delete();
+        return redirect()
+            ->route('quotes.index')
+            ->with('message', 'تم حذف عرض السعر بنجاح');
     }
 }

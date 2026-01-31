@@ -26,7 +26,7 @@ export default function AuthenticatedLayout({ header, children }) {
         {
             label: "الحضور",
             routeName: "attendance.list",
-            roles: ["admin", "acc", "proj", "hr"],
+            roles: ["admin", "hr"],
         },
         {
             label: "الأجازات الرسمية",

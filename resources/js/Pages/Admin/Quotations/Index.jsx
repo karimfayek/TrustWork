@@ -1,70 +1,112 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Pagination from "@/Components/Pagination";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 
 export default function QuotationsIndex({ quotations }) {
+    const handleDeleteQuotation = (e, id) => {
+        e.preventDefault();
+        router.delete(route("quotations.destroy", { id }));
+    };
     return (
         <AuthenticatedLayout>
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-                <h1 className="text-2xl font-bold mb-6">Quotations</h1>
+            <div className="max-w-7xl mx-auto">
+                <div className="bg-white rounded-xl shadow">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-6 py-4 border-b">
+                        <h1 className="text-xl font-semibold text-gray-800">
+                            Quotations
+                        </h1>
+                    </div>
 
-                <div className="bg-white shadow rounded">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead className="bg-gray-100 text-gray-700">
-                            <tr>
-                                <th className="px-4 py-2 text-right">#</th>
-                                <th className="px-4 py-2 text-right">
-                                    Quotation No
-                                </th>
-                                <th className="px-4 py-2 text-right">Date</th>
-                                <th className="px-4 py-2 text-right">
-                                    Company
-                                </th>
-                                <th className="px-4 py-2 text-right">Total</th>
-                                <th className="px-4 py-2 text-right">
-                                    Created By
-                                </th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {quotations.data.map((q) => (
-                                <tr key={q.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-2 text-right">
-                                        {q.id}
-                                    </td>
-                                    <td className="px-4 py-2 text-right">
-                                        {q.quotation_number}
-                                    </td>
-                                    <td className="px-4 py-2 text-right">
-                                        {q.quotation_date}
-                                    </td>
-                                    <td className="px-4 py-2 text-right">
-                                        {q.company_name}
-                                    </td>
-                                    <td className="px-4 py-2 text-right">
-                                        {q.total}
-                                    </td>
-                                    <td className="px-4 py-2 text-right">
-                                        {q.user?.name}
-                                    </td>
-                                    <td className="px-4 py-2 text-right">
-                                        <Link
-                                            href={route(
-                                                "quotations.show",
-                                                q.id,
-                                            )}
-                                            className="text-blue-600"
-                                        >
-                                            View
-                                        </Link>
-                                    </td>
+                    {/* Table */}
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                            <thead className="bg-gray-50 text-gray-600 border-b">
+                                <tr>
+                                    <th className="px-4 py-3 text-right w-16">
+                                        #
+                                    </th>
+                                    <th className="px-4 py-3 text-right">
+                                        Quotation No
+                                    </th>
+                                    <th className="px-4 py-3 text-right">
+                                        Date
+                                    </th>
+                                    <th className="px-4 py-3 text-right">
+                                        Company
+                                    </th>
+                                    <th className="px-4 py-3 text-right">
+                                        Total
+                                    </th>
+                                    <th className="px-4 py-3 text-right">
+                                        Created By
+                                    </th>
+                                    <th className="px-4 py-3 text-right w-24">
+                                        Action
+                                    </th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
 
-                    <Pagination links={quotations.links} />
+                            <tbody className="divide-y">
+                                {quotations.data.map((q, index) => (
+                                    <tr key={q.id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-3">
+                                            {index + 1}
+                                        </td>
+
+                                        <td className="px-4 py-3 font-medium text-gray-800">
+                                            {q.quotation_number}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-gray-600">
+                                            {q.quotation_date}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            {q.company_name}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-right font-semibold">
+                                            {Number(q.total).toLocaleString()}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-gray-600">
+                                            {q.user?.name}
+                                        </td>
+
+                                        <td className="px-4 py-3 text-right">
+                                            <Link
+                                                href={route(
+                                                    "quotations.show",
+                                                    q.id,
+                                                )}
+                                                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded hover:bg-blue-200"
+                                            >
+                                                View
+                                            </Link>
+                                            <span className="mx-2">|</span>
+                                            <button
+                                                onClick={(e) =>
+                                                    handleDeleteQuotation(
+                                                        e,
+                                                        q.id,
+                                                    )
+                                                }
+                                                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded hover:bg-red-200"
+                                            >
+                                                Delete !
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="px-6 py-4 border-t">
+                        <Pagination links={quotations.links} />
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -16,6 +16,7 @@ class Attendance extends Model
         'out_location',
         'customer',
         'type',
+        'created_by',
         'visit_id',
         'late_deduct_type'
     ];
@@ -34,5 +35,8 @@ class Attendance extends Model
     {
         return $this->belongsTo(Visit::class, 'visit_id');
     }
-
+    public function by()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

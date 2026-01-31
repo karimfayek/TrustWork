@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 class Project extends Model
 {
     use SoftDeletes;
@@ -19,6 +20,38 @@ class Project extends Model
         'advance_payment',
         'customer_email'
     ];
+    public function scopeNotCompleted($query)
+    {
+        return $query
+            ->select('projects.*')
+            ->addSelect([
+                'tasks_sum_quantity' => Task::selectRaw('SUM(quantity)')
+                    ->whereColumn('tasks.project_id', 'projects.id'),
+
+                'tasks_sum_done' => DB::table('task_progress')
+                    ->join('tasks', 'tasks.id', '=', 'task_progress.task_id')
+                    ->selectRaw('SUM(task_progress.quantity_done)')
+                    ->whereColumn('tasks.project_id', 'projects.id'),
+            ])
+            ->havingRaw('tasks_sum_quantity > 0')
+            ->havingRaw('tasks_sum_done < tasks_sum_quantity');
+    }
+    public function scopeCompleted($query)
+    {
+        return $query
+            ->select('projects.*')
+            ->addSelect([
+                'tasks_sum_quantity' => Task::selectRaw('SUM(quantity)')
+                    ->whereColumn('tasks.project_id', 'projects.id'),
+
+                'tasks_sum_done' => DB::table('task_progress')
+                    ->join('tasks', 'tasks.id', '=', 'task_progress.task_id')
+                    ->selectRaw('SUM(task_progress.quantity_done)')
+                    ->whereColumn('tasks.project_id', 'projects.id'),
+            ])
+            ->havingRaw('tasks_sum_quantity > 0')
+            ->havingRaw('tasks_sum_done >= tasks_sum_quantity');
+    }
     public function users()
     {
         return $this->belongsToMany(User::class);
