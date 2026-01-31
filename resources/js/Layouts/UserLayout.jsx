@@ -1,18 +1,20 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import ApplicationLogo from "@/Components/ApplicationLogo";
+import Dropdown from "@/Components/Dropdown";
+import NavLink from "@/Components/NavLink";
+import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
+import { Link, usePage } from "@inertiajs/react";
+import { useState } from "react";
 
 export default function UserLayout({ header, children }) {
     const user = usePage().props.auth.user;
     const { props } = usePage();
     const successMessage = props.flash.message;
     const errorMessages = props.errors;
-    const role = props.auth.user.role
+    const role = props.auth.user.role;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+
+    const logedinUser = usePage().props.auth.user;
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -27,38 +29,78 @@ export default function UserLayout({ header, children }) {
                             </div>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                {role !== 'managment' &&
-
-                                <><NavLink
-                                        href={route('dashboard')}
-                                        active={route().current('dashboard')}
-                                    >
-                                        مشاريعى
-                                    </NavLink><NavLink
-                                        href={route('visits.index')}
-                                        active={route().current('visits.index')}
-                                    >
+                                {role !== "managment" && (
+                                    <>
+                                        <NavLink
+                                            href={route("dashboard")}
+                                            active={route().current(
+                                                "dashboard",
+                                            )}
+                                        >
+                                            مشاريعى
+                                        </NavLink>
+                                        <NavLink
+                                            href={route("visits.index")}
+                                            active={route().current(
+                                                "visits.index",
+                                            )}
+                                        >
                                             الزيارات
-                                        </NavLink><NavLink
-                                            href={route('employee.tasks.index')}
-                                            active={route().current('employee.tasks.index')}
+                                        </NavLink>
+                                        <NavLink
+                                            href={route("employee.tasks.index")}
+                                            active={route().current(
+                                                "employee.tasks.index",
+                                            )}
                                         >
                                             مهامى
-                                        </NavLink></>
-                                }
+                                        </NavLink>
+                                    </>
+                                )}
                                 <NavLink
-                                    href={route('employee.att.index')}
-                                    active={route().current('employee.att.index')}
+                                    href={route("employee.att.index")}
+                                    active={route().current(
+                                        "employee.att.index",
+                                    )}
                                 >
                                     الحضور
                                 </NavLink>
                                 <NavLink
-                                    href={route('employee.advance')}
-                                    active={route().current('employee.advance')}
+                                    href={route("employee.advance")}
+                                    active={route().current("employee.advance")}
                                 >
                                     العهد المالية
                                 </NavLink>
-                               
+                                {["admin", "sales"].some((role) =>
+                                    logedinUser?.rolesnames?.includes(role),
+                                ) && (
+                                    <>
+                                        <NavLink
+                                            href={route("categories.index")}
+                                            active={route().current(
+                                                "categories.index",
+                                            )}
+                                        >
+                                            التصنيفات
+                                        </NavLink>
+                                        <NavLink
+                                            href={route("products.index")}
+                                            active={route().current(
+                                                "products.index",
+                                            )}
+                                        >
+                                            المنتجات
+                                        </NavLink>
+                                        <NavLink
+                                            href={route("quotes.index")}
+                                            active={route().current(
+                                                "quotes.index",
+                                            )}
+                                        >
+                                            العروض
+                                        </NavLink>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -90,23 +132,23 @@ export default function UserLayout({ header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        {role === 'admin' &&
-                                          <Dropdown.Link
-                                          href={route('admin.dashboard')}
-                                      >
-                                        أدمن داشبورد
-                                      </Dropdown.Link>
-                                        }
+                                        {role === "admin" && (
+                                            <Dropdown.Link
+                                                href={route("admin.dashboard")}
+                                            >
+                                                أدمن داشبورد
+                                            </Dropdown.Link>
+                                        )}
                                         <Dropdown.Link
-                                            href={route('profile.edit')}
+                                            href={route("profile.edit")}
                                         >
                                             الملف الشخصى
                                         </Dropdown.Link>
                                         <Dropdown.Link
-                                            href={route('logout')}
+                                            href={route("logout")}
                                             method="post"
                                             as="button"
-                                            className='text-red-600'
+                                            className="text-red-600"
                                         >
                                             تسجيل الخروج
                                         </Dropdown.Link>
@@ -133,8 +175,8 @@ export default function UserLayout({ header, children }) {
                                     <path
                                         className={
                                             !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
+                                                ? "inline-flex"
+                                                : "hidden"
                                         }
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -144,8 +186,8 @@ export default function UserLayout({ header, children }) {
                                     <path
                                         className={
                                             showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
+                                                ? "inline-flex"
+                                                : "hidden"
                                         }
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -160,14 +202,14 @@ export default function UserLayout({ header, children }) {
 
                 <div
                     className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
+                        (showingNavigationDropdown ? "block" : "hidden") +
+                        " sm:hidden"
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
+                            href={route("dashboard")}
+                            active={route().current("dashboard")}
                         >
                             Dashboard
                         </ResponsiveNavLink>
@@ -184,45 +226,45 @@ export default function UserLayout({ header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
+                            <ResponsiveNavLink href={route("profile.edit")}>
                                 الملف الشخصى
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
-                                    href={route('dashboard')}
-                                    active={route().current('dashboard')}
-                                >
-                                    مشاريعى
-                                </ResponsiveNavLink>
-                                <ResponsiveNavLink
-                                    href={route('visits.index')}
-                                    active={route().current('visits.index')}
-                                >
-                                    الزيارات
-                                </ResponsiveNavLink>
-                                
-                                <ResponsiveNavLink
-                                    href={route('employee.tasks.index')}
-                                    active={route().current('tasks.index')}
-                                >
-                                    مهامى
-                                </ResponsiveNavLink>
-                                <ResponsiveNavLink
-                                    href={route('employee.att.index')}
-                                    active={route().current('employee.att.index')}
-                                >
-                                    الحضور
-                                </ResponsiveNavLink>
-                                <ResponsiveNavLink
-                                    href={route('employee.advance')}
-                                    active={route().current('employee.advance')}
-                                >
-                                    العهد المالية
-                                </ResponsiveNavLink>
+                                href={route("dashboard")}
+                                active={route().current("dashboard")}
+                            >
+                                مشاريعى
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                href={route("visits.index")}
+                                active={route().current("visits.index")}
+                            >
+                                الزيارات
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink
+                                href={route("employee.tasks.index")}
+                                active={route().current("tasks.index")}
+                            >
+                                مهامى
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                href={route("employee.att.index")}
+                                active={route().current("employee.att.index")}
+                            >
+                                الحضور
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                href={route("employee.advance")}
+                                active={route().current("employee.advance")}
+                            >
+                                العهد المالية
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
-                                href={route('logout')}
+                                href={route("logout")}
                                 as="button"
-                                className='text-red-600'
+                                className="text-red-600"
                             >
                                 تسجيل الخروج
                             </ResponsiveNavLink>
@@ -240,32 +282,30 @@ export default function UserLayout({ header, children }) {
             )}
 
             <main>
-            <>
+                <>
                     {successMessage && (
                         <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
                             {successMessage}
                         </div>
                     )}
-                     {errorMessages.length > 0 && (
+                    {errorMessages.length > 0 && (
                         <div className="bg-green-100 text-green-800 border border-green-300 p-2 rounded mt-4">
                             <ul>
-                                {errorMessages.map(
-                                    (err) =>(
-                                        <li>{err}</li>
-                                    )
-                            
-                                )}
+                                {errorMessages.map((err) => (
+                                    <li>{err}</li>
+                                ))}
                             </ul>
                         </div>
                     )}
-                     {Object.entries(errorMessages).length > 0 && (
+                    {Object.entries(errorMessages).length > 0 && (
                         <div className="bg-red-100 text-red-800 border border-red-300 p-2 rounded mt-4">
-                           
-                           {Object.entries(errorMessages).map(([field, message]) => (
-                            <div key={field}>
-                                    {field}: {message}
-                                </div>
-                                ))}
+                            {Object.entries(errorMessages).map(
+                                ([field, message]) => (
+                                    <div key={field}>
+                                        {field}: {message}
+                                    </div>
+                                ),
+                            )}
                         </div>
                     )}
                     {props.errors.message && (
@@ -275,7 +315,7 @@ export default function UserLayout({ header, children }) {
                     )}
                 </>
                 {children}
-                </main>
+            </main>
         </div>
     );
 }
