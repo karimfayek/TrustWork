@@ -202,7 +202,7 @@ export default function QuotePreview({
                 <div className="w-72 border-t-2 border-gray-800 pt-3 text-right">
                     <div className="text-sm text-gray-600">Total Amount</div>
                     <div className="text-xl font-bold">
-                        {Number(grandTotal).toLocaleString()} $
+                        {Number(grandTotal).toLocaleString()}
                     </div>
                 </div>
             </div>
