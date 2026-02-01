@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Driver;
 use App\Models\Car;
+use App\Models\User;
 use Inertia\Inertia;
 
 class DriverController extends Controller
@@ -66,13 +67,13 @@ class DriverController extends Controller
         return Inertia::render('Admin/Drivers/Edit', [
             //send driver with user
             'driver' => $driver->with('user')->first(),
-            'cars' => \App\models\Car::all()
+            'cars' => Car::all()
         ]);
     }
     // create
     public function create()
     {
-        $users = \App\models\User::doesntHave('driver')->get();
+        $users = User::doesntHave('driver')->get();
         $cars = Car::all();
         return Inertia::render('Admin/Drivers/Create', [
             'users' => $users,
