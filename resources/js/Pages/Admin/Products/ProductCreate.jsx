@@ -17,7 +17,8 @@ export default function ProductCreate({ categories }) {
         category_id: "",
         cost_price: "",
         stock: true,
-        quantity: "",
+        quantity: 0,
+        currency: "",
     });
 
     const handleSubmit = (e) => {
@@ -34,7 +35,8 @@ export default function ProductCreate({ categories }) {
                     category_id: "",
                     cost_price: "",
                     stock: true,
-                    quantity: "",
+                    quantity: 0,
+                    currency: "",
                 });
             },
         });
@@ -102,6 +104,26 @@ export default function ProductCreate({ categories }) {
                             onChange={(e) => setData("price", e.target.value)}
                         />
                         <InputError message={errors.price} className="mt-2" />
+                    </div>
+                    {/* العملة */}
+                    <div>
+                        <InputLabel htmlFor="currency" value="العملة" />
+                        <select
+                            id="currency"
+                            value={data.currency}
+                            onChange={(e) =>
+                                setData("currency", e.target.value)
+                            }
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="">اختر العملة</option>
+                            <option value="EGP">EGP</option>
+                            <option value="USD">USD</option>
+                        </select>
+                        <InputError
+                            message={errors.currency}
+                            className="mt-2"
+                        />
                     </div>
                     {/* سعر التكلفة */}
                     {["admin"].some((role) =>
@@ -176,24 +198,24 @@ export default function ProductCreate({ categories }) {
                             </span>
                         </label>
                     </div>
-                    {data.stock && (
-                        <div>
-                            <InputLabel htmlFor="quantity" value="الكمية" />
-                            <TextInput
-                                id="quantity"
-                                type="number"
-                                value={data.quantity}
-                                className="mt-1 block w-full"
-                                onChange={(e) =>
-                                    setData("quantity", e.target.value)
-                                }
-                            />
-                            <InputError
-                                message={errors.quantity}
-                                className="mt-2"
-                            />
-                        </div>
-                    )}
+
+                    <div>
+                        <InputLabel htmlFor="quantity" value="الكمية" />
+                        <TextInput
+                            id="quantity"
+                            type="number"
+                            value={data.quantity}
+                            className="mt-1 block w-full"
+                            onChange={(e) =>
+                                setData("quantity", e.target.value)
+                            }
+                        />
+                        <InputError
+                            message={errors.quantity}
+                            className="mt-2"
+                        />
+                    </div>
+
                     {/* زر الإرسال */}
                     <div>
                         <PrimaryButton

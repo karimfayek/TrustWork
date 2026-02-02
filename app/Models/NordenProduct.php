@@ -16,7 +16,8 @@ class NordenProduct extends Model
         'data_sheet',
         'image',
         'stock',
-        'quantity'
+        'quantity',
+        'currency',
     ];
 
     public function category()

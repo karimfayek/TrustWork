@@ -18,6 +18,7 @@ export default function ProductEdit({ product, categories }) {
         cost_price: product.cost_price,
         stock: product.stock,
         quantity: product.quantity,
+        currency: product.currency,
     });
 
     const handleSubmit = (e) => {
@@ -88,6 +89,26 @@ export default function ProductEdit({ product, categories }) {
                             onChange={(e) => setData("price", e.target.value)}
                         />
                         <InputError message={errors.price} className="mt-2" />
+                    </div>
+                    {/* العملة */}
+                    <div>
+                        <InputLabel htmlFor="currency" value="العملة" />
+                        <select
+                            id="currency"
+                            value={data.currency}
+                            onChange={(e) =>
+                                setData("currency", e.target.value)
+                            }
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="">اختر العملة</option>
+                            <option value="EGP">EGP</option>
+                            <option value="USD">USD</option>
+                        </select>
+                        <InputError
+                            message={errors.currency}
+                            className="mt-2"
+                        />
                     </div>
                     {/* سعر التكلفة */}
                     <div>

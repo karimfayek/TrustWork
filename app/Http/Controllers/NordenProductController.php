@@ -30,9 +30,16 @@ class NordenProductController extends Controller
             $query->where('stock', $request->stock); // 0 or 1
         }
 
+        // Category
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
         return Inertia::render('Admin/Products/ProductsIndex', [
             'products' => $query->with('category')->latest()->paginate(50)->withQueryString(),
-            'categories' => Category::all(),
+            'categories' => Category::whereNull('parent_id')
+                ->with('children')
+                ->get(),
             'filters' => $request->only('search', 'stock'),
         ]);
     }
@@ -62,6 +69,7 @@ class NordenProductController extends Controller
             'quantity' => 'nullable|numeric',
             'description' => 'nullable|string|max:255',
             'price' => 'required|numeric',
+            'currency' => 'required|string|max:3',
             'cost_price' => 'nullable|numeric',
             'part_number' => 'required|string|unique:norden_products,part_number|max:255',
             'data_sheet' => 'nullable|string|max:255',
@@ -85,6 +93,7 @@ class NordenProductController extends Controller
             'quantity' => 'nullable|numeric',
             'description' => 'nullable|string|max:255',
             'price' => 'required|numeric',
+            'currency' => 'required|string|max:3',
             'cost_price' => 'nullable|numeric',
             'part_number' => 'required|string|unique:norden_products,part_number,' . $product->id . ',id|max:255',
             'data_sheet' => 'nullable|string|max:255',
