@@ -15,7 +15,7 @@ export default function ProductsIndex({ products, categories }) {
     const [search, setSearch] = useState(filters.search || "");
     const [stock, setStock] = useState(filters.stock ?? "");
     const [category, setCategory] = useState(filters.category ?? "");
-    //const page = search !== "" ? 1 : products.current_page;
+    const page = search !== "" ? 1 : products.current_page;
     const toggleProduct = (id) => {
         setSelectedProducts((prev) =>
             prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
@@ -29,18 +29,17 @@ export default function ProductsIndex({ products, categories }) {
                     search,
                     stock,
                     category,
-                    page: 1, // 👈 دايمًا نرجع لأول صفحة
+                    page: page || 1, // نحافظ على الصفحة الحالية
                 },
                 {
                     preserveState: true,
                     replace: true,
                 },
             );
-        }, 600);
+        }, 900);
 
         return () => clearTimeout(delayDebounce);
     }, [search, stock, category]);
-
     const handleDeleteProject = (e, id) => {
         e.preventDefault();
 
