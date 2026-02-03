@@ -4,7 +4,12 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Pagination from "@/Components/Pagination";
 import CategorySidebar from "./CategorySidebar";
 import { useRemember } from "@inertiajs/react";
-export default function ProductsIndex({ products, categories }) {
+export default function ProductsIndex({
+    products,
+    categories,
+    productsStockCostValue,
+    productsStockPriceValue,
+}) {
     const logedinUser = usePage().props.auth.user;
     const { filters } = usePage().props;
     const [selectedProducts, setSelectedProducts] = useRemember(
@@ -15,7 +20,7 @@ export default function ProductsIndex({ products, categories }) {
     const [search, setSearch] = useState(filters.search || "");
     const [stock, setStock] = useState(filters.stock ?? "");
     const [category, setCategory] = useState(filters.category ?? "");
-    const page = search !== "" ? 1 : products.current_page;
+    const page = category !== "" ? 1 : products.current_page;
     const toggleProduct = (id) => {
         setSelectedProducts((prev) =>
             prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
@@ -53,12 +58,28 @@ export default function ProductsIndex({ products, categories }) {
         <AuthenticatedLayout>
             <Head title="Admin Dashboard" />
 
-            <div className="max-w-7xl mx-auto p-6">
+            <div className=" mx-auto p-6">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
                         المنتجات
                     </h1>
+                    <small className="text-gray-600">
+                        {products.total} عدد المنتجات
+                    </small>
+                    {["admin"].some((role) =>
+                        logedinUser?.rolesnames?.includes(role),
+                    ) && (
+                        <>
+                            <small className="text-gray-600">
+                                {productsStockCostValue} قيمه المخزون (تكلفه)
+                            </small>
+                            <small className="text-gray-600">
+                                {productsStockPriceValue} قيمه المخزون (سعر
+                                البيع)
+                            </small>
+                        </>
+                    )}
 
                     <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 w-full md:w-auto">
                         <input

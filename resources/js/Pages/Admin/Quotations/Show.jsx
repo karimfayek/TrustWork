@@ -5,7 +5,10 @@ export default function QuotationShow({ quotation }) {
     console.log(quotation);
     return (
         <AuthenticatedLayout>
-            <div className="max-w-5xl mx-auto bg-white rounded-xl shadow p-10 print:shadow-none print:p-0">
+            <div
+                className="max-w-5xl mx-auto bg-white rounded-xl shadow p-10 print:shadow-none print:p-0"
+                dir="ltr"
+            >
                 {/* Header */}
                 <div className="flex justify-between items-start mb-8">
                     <div>
@@ -16,7 +19,7 @@ export default function QuotationShow({ quotation }) {
                         </p>
                     </div>
 
-                    <div className="text-right space-y-1">
+                    <div className="text-left space-y-1">
                         <p className="text-sm text-gray-600">Date</p>
                         <p className="font-medium">
                             {quotation.quotation_date}
@@ -40,10 +43,8 @@ export default function QuotationShow({ quotation }) {
                 <table className="w-full text-sm border border-gray-300 rounded-lg overflow-hidden">
                     <thead className="bg-gray-100 text-gray-700">
                         <tr>
-                            <th className="px-3 py-2 text-right w-12">#</th>
-                            <th className="px-3 py-2 text-right">
-                                Description
-                            </th>
+                            <th className="px-3 py-2 text-left w-12">#</th>
+                            <th className="px-3 py-2 text-left">Description</th>
                             <th className="px-3 py-2 text-center w-24">Qty</th>
                             <th className="px-3 py-2 text-right w-32">
                                 Unit Price
@@ -89,7 +90,8 @@ export default function QuotationShow({ quotation }) {
                     <div className="w-72 border-t-2 border-gray-800 pt-3 text-right">
                         <p className="text-sm text-gray-600">Total Amount</p>
                         <p className="text-2xl font-bold">
-                            {Number(quotation.total).toLocaleString()} $
+                            {Number(quotation.total).toLocaleString()}{" "}
+                            {quotation.currency}
                         </p>
                     </div>
                 </div>

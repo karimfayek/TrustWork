@@ -1,6 +1,7 @@
 import { useForm } from "@inertiajs/react";
 import { useEffect } from "react";
 import InputError from "@/Components/InputError";
+import InputLabel from "@/Components/InputLabel";
 export default function QuotePreview({
     groupedProducts,
     quotationNumber,
@@ -10,15 +11,13 @@ export default function QuotePreview({
         quotation_number: quotationNumber,
         quotation_date: today,
         company_name: "",
+        currency: "EGP",
         body: "",
         notes: "",
         items: [],
     });
 
     const updateQuantity = (product, qty) => {
-        const unit = product.price;
-        const total = qty * unit;
-
         const items = [...data.items];
 
         const index = items.findIndex(
@@ -26,18 +25,32 @@ export default function QuotePreview({
         );
 
         if (index > -1) {
+            const unit = items[index].unit_price;
+
             items[index] = {
                 ...items[index],
                 quantity: qty,
-                total,
+                total: qty * unit,
             };
-        } else {
-            items.push({
-                norden_product_id: product.id,
-                quantity: qty,
-                unit_price: unit,
-                total,
-            });
+        }
+
+        setData("items", items);
+    };
+    const updateUnitPrice = (product, price) => {
+        const items = [...data.items];
+
+        const index = items.findIndex(
+            (i) => i.norden_product_id === product.id,
+        );
+
+        if (index > -1) {
+            const qty = items[index].quantity;
+
+            items[index] = {
+                ...items[index],
+                unit_price: price,
+                total: qty * price,
+            };
         }
 
         setData("items", items);
@@ -70,6 +83,10 @@ export default function QuotePreview({
                 <div>
                     <img src="/logo.webp" className="h-16 mb-4" />
                     <p>Quotation No: {data.quotation_number}</p>
+                    <InputError
+                        message={errors.quotation_number}
+                        className="mt-2"
+                    />
                 </div>
 
                 <div className=" space-y-2">
@@ -96,6 +113,22 @@ export default function QuotePreview({
                         className="mt-2"
                     />
                     <p> To: {data.company_name}</p>
+                    <InputLabel
+                        htmlFor="currency"
+                        value="العملة"
+                        className="print:hidden"
+                    />
+                    <select
+                        dir="rtl"
+                        value={data.currency}
+                        onChange={(e) => setData("currency", e.target.value)}
+                        className="print:hidden border px-3 py-1 w-full"
+                        required
+                    >
+                        <option value="EGP">EGP</option>
+                        <option value="USD">USD</option>
+                    </select>
+                    <InputError message={errors.currency} className="mt-2" />
                 </div>
             </div>
             <p className="text-center hidden print-only">
@@ -181,7 +214,29 @@ export default function QuotePreview({
                                         </td>
 
                                         <td className="px-3 py-2 text-right">
-                                            {Number(p.price).toLocaleString()}
+                                            {/* Screen */}
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={
+                                                    item.unit_price || p.price
+                                                }
+                                                onChange={(e) =>
+                                                    updateUnitPrice(
+                                                        p,
+                                                        Number(e.target.value),
+                                                    )
+                                                }
+                                                className="border rounded w-28 text-right px-2 print:hidden"
+                                            />
+
+                                            {/* Print */}
+                                            <span className="hidden print:inline">
+                                                {Number(
+                                                    item.unit_price || p.price,
+                                                ).toLocaleString()}
+                                            </span>
                                         </td>
 
                                         <td className="px-3 py-2 text-right font-semibold">
@@ -202,7 +257,7 @@ export default function QuotePreview({
                 <div className="w-72 border-t-2 border-gray-800 pt-3 text-right">
                     <div className="text-sm text-gray-600">Total Amount</div>
                     <div className="text-xl font-bold">
-                        {Number(grandTotal).toLocaleString()}
+                        {Number(grandTotal).toLocaleString()} {data.currency}
                     </div>
                 </div>
             </div>

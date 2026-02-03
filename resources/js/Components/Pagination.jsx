@@ -1,7 +1,7 @@
 // resources/js/Components/Pagination.jsx
 
-import React from 'react';
-import { Link } from '@inertiajs/react';
+import React from "react";
+import { Link } from "@inertiajs/react";
 
 export default function Pagination({ links }) {
     return (
@@ -9,12 +9,14 @@ export default function Pagination({ links }) {
             {links.map((link, index) => (
                 <Link
                     key={index}
-                    href={link.url || '#'}
+                    href={link.url || "#"}
+                    preserveState
+                    preserveScroll
                     dangerouslySetInnerHTML={{ __html: link.label }}
                     className={`
                         px-3 py-1 border rounded text-sm
-                        ${link.active ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'}
-                        ${!link.url ? 'opacity-50 pointer-events-none' : ''}
+                        ${link.active ? "bg-blue-500 text-white" : "hover:bg-gray-200"}
+                        ${!link.url ? "opacity-50 pointer-events-none" : ""}
                     `}
                 />
             ))}

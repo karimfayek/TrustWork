@@ -17,7 +17,7 @@ class NordenProductController extends Controller
         // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
+                $q->where('description', 'like', '%' . $request->search . '%')
                     ->orWhere('part_number', 'like', '%' . $request->search . '%')
                     ->orWhereHas('category', function ($q) use ($request) {
                         $q->where('name', 'like', '%' . $request->search . '%');
@@ -32,15 +32,34 @@ class NordenProductController extends Controller
 
         // Category
         if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+            //dd($request->category);
+            $category = Category::with('children')->find($request->category);
+
+            if ($category) {
+                $categoryIds = array_merge(
+                    [$category->id],
+                    $category->allChildrenIds()
+                );
+
+                $query->whereIn('category_id', $categoryIds);
+            }
         }
 
+        $data = NordenProduct::where('stock', 1)
+            ->selectRaw('
+        COUNT(*) as count,
+        SUM(price) as total_price,
+        SUM(cost_price) as total_cost_price
+    ')
+            ->first();
         return Inertia::render('Admin/Products/ProductsIndex', [
             'products' => $query->with('category')->latest()->paginate(50)->withQueryString(),
             'categories' => Category::whereNull('parent_id')
                 ->with('children')
                 ->get(),
             'filters' => $request->only('search', 'stock'),
+            'productsStockCostValue' => $data->total_cost_price,
+            'productsStockPriceValue' => $data->total_price,
         ]);
     }
     //create new product

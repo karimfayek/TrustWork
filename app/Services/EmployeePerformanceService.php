@@ -320,8 +320,7 @@ class EmployeePerformanceService
     {
         return Reward::where('user_id', $userId)
             ->where(function ($q) {
-                $q->where('type', '<>', 'spent')
-                    ->orWhereNull('type');
+                $q->where('type', '=', 'spent');
             })
             ->whereBetween('reward_date', [$start, $end])
             ->sum('amount');

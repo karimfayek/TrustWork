@@ -14,6 +14,7 @@ class Quotation extends Model
         'notes',
         'user_id',
         'body',
+        'currency',
     ];
 
     public function items()

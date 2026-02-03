@@ -21,4 +21,15 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+    public function allChildrenIds()
+    {
+        $ids = $this->children()->pluck('id')->toArray();
+
+        foreach ($this->children as $child) {
+            $ids = array_merge($ids, $child->allChildrenIds());
+        }
+
+        return $ids;
+    }
+
 }

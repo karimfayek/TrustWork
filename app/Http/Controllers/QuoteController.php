@@ -12,9 +12,18 @@ class QuoteController extends Controller
 {
     public function index()
     {
-        $quotations = Quotation::with('user')
-            ->latest()
-            ->paginate(10);
+        //if admin retirn all quotations
+        if (auth()->user()->hasRole('admin')) {
+            $quotations = Quotation::with('user')
+                ->latest()
+                ->paginate(10);
+        } else {
+            $quotations = Quotation::with('user')
+                ->where('user_id', auth()->user()->id)
+                ->latest()
+                ->paginate(10);
+        }
+
 
         return inertia('Admin/Quotations/Index', [
             'quotations' => $quotations
@@ -22,7 +31,12 @@ class QuoteController extends Controller
     }
     public function show($id)
     {
-        $quotation = Quotation::with('items', 'items.product', 'user')->find($id);
+        //if admin retirn all quotations
+        if (auth()->user()->hasRole('admin')) {
+            $quotation = Quotation::with('items', 'items.product', 'user')->find($id);
+        } else {
+            $quotation = Quotation::with('items', 'items.product', 'user')->where('user_id', auth()->user()->id)->find($id);
+        }
         //dd($quotation);
         return inertia('Admin/Quotations/Show', [
             'quotation' => $quotation
@@ -39,20 +53,20 @@ class QuoteController extends Controller
 
     public function preview()
     {
+
+
         $products = NordenProduct::with('category')
             ->whereIn('id', session('quote_products', []))
             ->get()
             ->groupBy('category.name');
         $year = now()->year;
-
-        // آخر عرض سعر في نفس السنة
         $lastQuotation = Quotation::whereYear('created_at', $year)
             ->orderBy('id', 'desc')
             ->first();
 
         if ($lastQuotation) {
-            // استخراج الرقم بعد /
-            $lastNumber = intval(substr($lastQuotation->quotationNumber, -2));
+            preg_match('/(\d+)$/', $lastQuotation->quotation_number, $matches);
+            $lastNumber = intval($matches[1] ?? 0);
             $newNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '01';
@@ -69,6 +83,7 @@ class QuoteController extends Controller
         $request->validate([
             'quotation_number' => 'required|unique:quotations',
             'quotation_date' => 'required|date',
+            'currency' => 'required|string|in:EGP,USD',//only EGP or USD
             'company_name' => 'required|string',
             'body' => 'nullable|string',
             'items' => 'required|array',
@@ -80,6 +95,7 @@ class QuoteController extends Controller
                 'quotation_number' => $request->quotation_number,
                 'quotation_date' => $request->quotation_date,
                 'company_name' => $request->company_name,
+                'currency' => $request->currency,
                 'body' => $request->body,
                 'total' => collect($request->items)->sum('total'),
                 'notes' => $request->notes,
@@ -99,7 +115,15 @@ class QuoteController extends Controller
     }
     public function destroy($id)
     {
-        $quotation = Quotation::find($id);
+        //if admin ok if not and he is the owner of the quotation
+        if (!auth()->user()->hasRole('admin')) {
+            $quotation = Quotation::where('user_id', auth()->user()->id)->find($id);
+        } else {
+            $quotation = Quotation::find($id);
+        }
+        if (!$quotation) {
+            abort(403);
+        }
         $quotation->delete();
         return redirect()
             ->route('quotes.index')

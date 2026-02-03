@@ -4,7 +4,7 @@ export default function CategorySidebar({
     onSelect,
 }) {
     return (
-        <div className="bg-white rounded shadow p-4">
+        <div className="bg-white rounded shadow p-4 sticky top-0 max-h-screen overflow-y-auto">
             <h3 className="font-bold mb-4">Categories</h3>
 
             <button
