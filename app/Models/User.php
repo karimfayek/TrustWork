@@ -144,5 +144,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(Quotation::class);
     }
-
+    //get sum advances
+    public function totalAdvances()
+    {
+        return $this->advances()->sum('amount');
+    }
+    public function totalExpenses()
+    {
+        return $this->expenses()->sum('amount');
+    }
+    public function totalDeductions()
+    {
+        return $this->deductions()->sum('amount');
+    }
+    public function totalLoans()
+    {
+        return $this->loans()->sum('amount');
+    }
+    public function totalRewards()
+    {
+        return $this->rewards()->sum('amount');
+    }
 }

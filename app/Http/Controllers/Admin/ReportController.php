@@ -10,6 +10,7 @@ use App\Models\Attendance;
 use App\Models\Visit;
 use App\Models\User as Employee;
 use App\Models\Project;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Tool;
 
@@ -265,4 +266,38 @@ class ReportController extends Controller
             'projects' => $projects->toArray(),
         ]);
     }
+    public function custodiesReport()
+    {
+        //load total advances and expenses
+        $employees = Employee::where('status', 1)->get()->load('advances', 'advances.expenses', 'expenses', 'deductions', 'advances.project', 'advances.user', 'expenses.by', 'expenses.advance', 'expenses.advance.project');
+        foreach ($employees as $employee) {
+            $employee['total_advances'] = $employee->totalAdvances();
+            $employee['total_expenses'] = $employee->totalExpenses();
+            $employee['total_deductions'] = $employee->totalDeductions();
+        }
+        $totalExpenses = \App\Models\Expense::where('asa', 'expense')->sum('amount');
+        //open custodies count (advances where its expenses->sum('amount') < advances->amount)
+
+        /* $openCustodiesCount = \App\Models\Advance::withSum('expenses', 'amount')
+           ->whereRaw('COALESCE(expenses_sum_amount, 0) < amount')
+           ->count(); */
+        $openCustodies = \App\Models\Advance::where(
+            'amount',
+            '>',
+            function ($q) {
+                $q->select(DB::raw('COALESCE(SUM(expenses.amount), 0)'))
+                    ->from('expenses')
+                    ->whereColumn('expenses.advance_id', 'advances.id');
+            }
+        )->get();
+
+        //  dd($openCustodies);
+        return Inertia::render('Reports/Financial/EmployeeCustody', [
+            'employees' => $employees,
+            'totalExpenses' => $totalExpenses,
+            'openCustodiesCount' => $openCustodies->count(),
+            'openCustodies' => $openCustodies->load('user', 'project', 'expenses', 'user.advances', 'user.expenses', 'user.deductions'),
+        ]);
+    }
+
 }

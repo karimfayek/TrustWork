@@ -84,11 +84,17 @@ function SalaryRow({ user, filters, setLoading, onCalculated }) {
             <td className="p-2">
                 {Number(attData?.lostCostThisMonth).toFixed(2)}
             </td>
-            <td className="p-2">{attData?.remaining}</td>
+            <td className="p-2 remaining">{attData?.remaining}</td>
             <td className="p-2">{attData?.basics ?? 0}</td>
-            <td className="p-2">{attData?.deductions ?? 0}</td>
+            <td className="p-2">
+                {Number(
+                    attData?.deductions - Number(attData?.lateDeductionsTotal),
+                ).toFixed(2) ?? 0}
+            </td>
+            <td className="p-2 lateDeductions">
+                {Number(attData?.lateDeductionsTotal).toFixed(2) ?? 0}
+            </td>
             <td className="p-2">{attData?.loans ?? 0}</td>
-            <td className="p-2">{attData?.transportaionFees ?? 0}</td>
             <td className="p-2">{attData?.rewards ?? 0}</td>
             <td className="p-2 font-bold">{deserved}</td>
         </tr>
@@ -220,8 +226,8 @@ export default function EmployeeReport({ users }) {
                             <th className="p-2 border">عهد</th>
                             <th className="p-2 border">الاستقطاعات</th>
                             <th className="p-2 border">جزاءات</th>
+                            <th className="p-2 border">التأخيرات</th>
                             <th className="p-2 border">سلف</th>
-                            <th className="p-2 border">الانتقالات</th>
                             <th className="p-2 border">المكافآت</th>
                             <th className="p-2 border">المستحق</th>
                         </tr>

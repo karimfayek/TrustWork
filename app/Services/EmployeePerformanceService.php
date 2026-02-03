@@ -33,6 +33,7 @@ class EmployeePerformanceService
         return [
             'attendance_percentage' => round($attendance['percentage'], 2),
             'deductions' => $financials['deductions'],
+            'lateDeductionsTotal' => $financials['lateDeductionsTotal'],
             'basics' => $financials['basics'],
             'rewards' => $rewards,
             'loans' => $loans,
@@ -160,9 +161,10 @@ class EmployeePerformanceService
             })
             ->count();
         $leaves = $user->leaves()->where('status', 'approved')->count();
+        //dd($start->toDateString(), $today->toDateString());
         $lateAttendancesQ = Attendance::with(['project', 'visit.customer'])->where('user_id', $userId)
-            ->whereBetween('check_in_time', [$start, $today])
-            ->where('is_late', true)
+            ->whereBetween('check_in_time', [$start->toDateString(), $today->toDateString() . ' 23:59:59'])
+            ->where('is_late', 1)
             ->get()
             ->groupBy(function ($attendance) {
                 return \Carbon\Carbon::parse($attendance->check_in_time)->toDateString(); // Group by date
@@ -174,6 +176,7 @@ class EmployeePerformanceService
                 // ✅ استبعاد إذا كان يوم عطلة أسبوعية أو إجازة رسمية
                 return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
             });
+        //dd($lateAttendancesQ);
         $lateAttendances = $lateAttendancesQ->count();
 
 
@@ -301,6 +304,7 @@ class EmployeePerformanceService
             'advances' => $advances,
             'expenses' => $expenses,
             'deductions' => $deductions + $lateDeductionsTotal,
+            'lateDeductionsTotal' => $lateDeductionsTotal,
             'basics' => $basics,
             'remaining' => $advances - $expenses,
         ];

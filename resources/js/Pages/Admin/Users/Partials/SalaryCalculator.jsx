@@ -201,7 +201,15 @@ const DeductionsSection = ({ attData, absenceScore }) => (
         <div>
             <b>استقطاعات من الراتب</b>
             <p className="text-red-800">
-                {Number(attData?.deductions).toFixed(2)}
+                {Number(
+                    attData?.deductions - Number(attData?.lateDeductionsTotal),
+                ).toFixed(2) ?? 0}
+            </p>
+        </div>
+        <div>
+            <b>تأخيرات</b>
+            <p className="text-red-800">
+                {Number(attData?.lateDeductionsTotal).toFixed(2) ?? 0}
             </p>
         </div>
         <div>
@@ -211,7 +219,7 @@ const DeductionsSection = ({ attData, absenceScore }) => (
         <div>
             <b>غياب</b>
             <p className="text-red-800">
-                <span>{absenceScore}</span>
+                <span>{absenceScore.toFixed(2)}</span>
             </p>
         </div>
         <div>

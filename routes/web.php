@@ -99,6 +99,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/reports/salaries', [ReportController::class, 'salariesReport'])->name('reports.salaries');
     Route::get('/reports/salaries/all', [ReportController::class, 'salariesReportAll'])->name('reports.salaries.all');
     Route::get('/reports/tools', [ReportController::class, 'toolsReport'])->name('reports.tools');
+    Route::get('/reports/custodies', [ReportController::class, 'custodiesReport'])->name('reports.custodies');
     //settings
     Route::get('/settings', [SettingController::class, 'show'])->name('settings');
     Route::get('/admin/settings', [SettingController::class, 'index'])->name('settings.get');

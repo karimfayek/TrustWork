@@ -1,1 +1,0 @@
-import{j as n}from"./app-CcuHaMBL.js";import{h as r}from"./HandelDelete-MEvV5y1D.js";function s({id:t,routeName:e}){return console.log(e,"routename"),n.jsx("button",{onClick:o=>r(o,t,e),className:"inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium",children:"مسح"})}export{s as D};

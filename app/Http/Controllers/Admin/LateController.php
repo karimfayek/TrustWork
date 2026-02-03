@@ -30,6 +30,7 @@ class LateController extends Controller
         $to = Carbon::parse($request->to);
         $service = new EmployeePerformanceService();
         $data = $service->getAttendanceData($userId, $from, $to);
+        //return lateattendancesget rounded to 2 decimal places
         return response()->json($data['lateAttendancesGet']);
     }
     public function cancelDeduct(Request $request, $id)
