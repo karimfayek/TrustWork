@@ -50,14 +50,19 @@ export default function CustodyAccordion({
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setShowModal(false);
-                    setAmount(0);
+                    handleCloseModal();
                     router.reload();
                 },
             },
         );
     };
-
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setIsAddingExpense(false);
+        setFile(null);
+        setFileError("");
+        setDescription("");
+    };
     return (
         <>
             <div className="border rounded-xl">
@@ -155,7 +160,7 @@ export default function CustodyAccordion({
 
                         <div className="flex justify-end gap-2">
                             <button
-                                onClick={() => setShowModal(false)}
+                                onClick={() => handleCloseModal()}
                                 className="bg-gray-200 px-4 py-2 rounded"
                             >
                                 إلغاء
