@@ -194,7 +194,7 @@ class EmployeeAdvanceController extends Controller
 
     public function storeExpense(Request $request)
     {
-
+        // dd($request->all());
         $request->validate([
             'amount' => 'required|numeric|min:1',
             'description' => 'required|string|max:255',

@@ -10,19 +10,42 @@ export default function CustodyAccordion({
 }) {
     const [open, setOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [fileError, setFileError] = useState(null);
+    const [isAddingExpense, setIsAddingExpense] = useState(false);
     const [amount, setAmount] = useState(amountOrig);
-
+    const [description, setDescription] = useState("");
+    const [file, setFile] = useState(null);
+    const handleAddExpense = (e) => {
+        e.stopPropagation();
+        setIsAddingExpense(true);
+        setShowModal(true);
+    };
     const confirmApproval = () => {
         if (amount > amountOrig || amount < 1) {
             alert("ادخل قيمه اكبر من واحد واقل من المبلغ المتبقى من السلفه");
             return;
         }
+        if (isAddingExpense && !file) {
+            setFileError("الملف مطلوب");
+            return;
+        }
+        if (!description && isAddingExpense) {
+            alert("ادخل الوصف");
+            return;
+        }
+        const asa = isAddingExpense ? "expense" : "settle";
+        const routeName = isAddingExpense
+            ? "employee.expense.store"
+            : "admin.advance.settlement";
         router.post(
-            route("admin.advance.settlement"),
+            route(routeName),
             {
                 amount: amount,
                 user_id: user_id,
                 advance_id: advanceId,
+                asa: asa,
+                file: file,
+                description: description,
             },
             {
                 preserveScroll: true,
@@ -56,12 +79,24 @@ export default function CustodyAccordion({
                             {custody.date} • {custody.amount} EGP
                         </p>
                         {custody.is_opened && (
-                            <button
-                                onClick={(e) => setShowModal(true)}
-                                className="text-red-500 hover:underline text-sm"
-                            >
-                                🗑 تسوية
-                            </button>
+                            <div className="flex gap-2 justify-between">
+                                <div>
+                                    <button
+                                        onClick={(e) => setShowModal(true)}
+                                        className="text-red-500 hover:underline text-sm"
+                                    >
+                                        🗑 تسوية
+                                    </button>
+                                </div>
+                                <div>
+                                    <button
+                                        onClick={(e) => handleAddExpense(e)}
+                                        className="text-green-500 hover:underline text-sm"
+                                    >
+                                        اضافة مصروف
+                                    </button>
+                                </div>
+                            </div>
                         )}
                     </div>
                     <span>{open ? "−" : "+"}</span>
@@ -77,8 +112,7 @@ export default function CustodyAccordion({
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
                         <h2 className="text-xl font-bold mb-4">
-                            {" "}
-                            مبلغ التسوية
+                            {isAddingExpense ? "مبلغ المصروف" : "مبلغ التسوية"}
                         </h2>
                         <input
                             type={"text"}
@@ -88,6 +122,36 @@ export default function CustodyAccordion({
                             max={amountOrig}
                             onChange={(e) => setAmount(e.target.value)}
                         />
+                        {isAddingExpense && (
+                            <>
+                                {fileError && (
+                                    <p className="text-red-500 text-sm">
+                                        {fileError}
+                                    </p>
+                                )}
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    الايصال
+                                </label>
+                                <input
+                                    required
+                                    type={"file"}
+                                    className="w-full p-2 border rounded mb-4"
+                                    onChange={(e) => setFile(e.target.files[0])}
+                                />
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    الوصف *
+                                </label>
+                                <input
+                                    required
+                                    type={"text"}
+                                    className="w-full p-2 border rounded mb-4"
+                                    value={description}
+                                    onChange={(e) =>
+                                        setDescription(e.target.value)
+                                    }
+                                />
+                            </>
+                        )}
 
                         <div className="flex justify-end gap-2">
                             <button
