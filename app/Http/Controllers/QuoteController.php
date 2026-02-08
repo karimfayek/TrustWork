@@ -7,6 +7,8 @@ use App\Models\NordenProduct;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\Quotation;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\QuotationApproved;
 
 class QuoteController extends Controller
 {
@@ -112,6 +114,25 @@ class QuoteController extends Controller
         return redirect()
             ->route('products.index')
             ->with('success', 'تم حفظ عرض السعر بنجاح');
+    }
+    public function approve($id)
+    {
+        $quotation = Quotation::find($id);
+        if (!$quotation) {
+            abort(403);
+        }
+        if ($quotation->approved) {
+            return redirect()
+                ->route('quotes.index')
+                ->with('message', 'تم الموافقة على عرض السعر بنجاح');
+        }
+        $quotation->approved = true;
+        $quotation->save();
+        //send email to acc
+        Mail::to($quotation->user->email)->send(new QuotationApproved($quotation));
+        return redirect()
+            ->route('quotes.index')
+            ->with('message', 'تم الموافقة على عرض السعر بنجاح');
     }
     public function destroy($id)
     {

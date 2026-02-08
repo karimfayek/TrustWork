@@ -213,7 +213,7 @@ class ReportController extends Controller
     }
     public function salariesReportAll()
     {
-        $users = Employee::where('status', 1)->get()->load('salary', 'advances', 'activeProjects');
+        $users = Employee::where('status', 1)->where('temporary', 0)->get()->load('salary', 'advances', 'activeProjects');
         foreach ($users as $user) {
             $acceptedAdvances = $user->advances()->where('status', 'accepted')->get()->load('project');
             $user['acceptedAdvances'] = $acceptedAdvances;
@@ -232,6 +232,31 @@ class ReportController extends Controller
 
         // $userIds = $project->users->pluck('id');
         return Inertia::render('Reports/Salaries/SalaryReportAll', [
+            'users' => $users,
+        ]);
+
+    }
+    public function salariesReportTemporary()
+    {
+        $users = Employee::where('status', 1)->where('temporary', 1)->get()->load('salary', 'advances', 'activeProjects');
+        foreach ($users as $user) {
+            $acceptedAdvances = $user->advances()->where('status', 'accepted')->get()->load('project');
+            $user['acceptedAdvances'] = $acceptedAdvances;
+            $user['pendingAdvances'] = $user->advances()->where('status', 'pending')->get()->load('project');
+            $expenses = $user->expenses()->select('amount', 'description', 'spent_at')->get();
+            $user['expenses'] = $expenses;
+            $user['deductions'] = $user->deductions()->select('amount', 'type', 'deducted_at', 'note')->get();
+            $totalAdvance = $acceptedAdvances->sum('amount');
+            $user['totalAdvance'] = $totalAdvance;
+            $totalExpense = $expenses->sum('amount');
+            $user['totalExpense'] = $totalExpense;
+            $user['remaining'] = $totalAdvance - $totalExpense;
+        }
+
+        // $project = Project::with('tasks' , 'tasks.users', 'users')->find($id);
+
+        // $userIds = $project->users->pluck('id');
+        return Inertia::render('Reports/Salaries/SalaryReportTemp', [
             'users' => $users,
         ]);
 

@@ -74,7 +74,7 @@ export default function QuotationsIndex({ quotations }) {
                                             {q.user?.name}
                                         </td>
 
-                                        <td className="px-4 py-3 text-right">
+                                        <td className="pl-4 py-4 space-x-2 rtl:space-x-reverse flex">
                                             <Link
                                                 href={route(
                                                     "quotations.show",
@@ -84,7 +84,17 @@ export default function QuotationsIndex({ quotations }) {
                                             >
                                                 View
                                             </Link>
-                                            <span className="mx-2">|</span>
+                                            <Link
+                                                href={route(
+                                                    "quotations.approve",
+                                                    q.id,
+                                                )}
+                                                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded hover:bg-blue-200"
+                                            >
+                                                {q.approved
+                                                    ? "Approved"
+                                                    : "Approve"}
+                                            </Link>
                                             <button
                                                 onClick={(e) =>
                                                     handleDeleteQuotation(

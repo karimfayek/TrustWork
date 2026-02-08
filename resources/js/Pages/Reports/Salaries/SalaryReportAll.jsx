@@ -251,7 +251,7 @@ export default function EmployeeReport({ users }) {
                             />
                         ))}
                         <tr className="font-bold bg-gray-50">
-                            <td colSpan={10} className="p-2 border text-center">
+                            <td colSpan={12} className="p-2 border text-center">
                                 الإجمالي
                             </td>
                             <td className="p-2 border text-center">

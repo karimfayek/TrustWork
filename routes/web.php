@@ -98,6 +98,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/reports/attendance', [ReportController::class, 'attReport'])->name('reports.attendance');
     Route::get('/reports/salaries', [ReportController::class, 'salariesReport'])->name('reports.salaries');
     Route::get('/reports/salaries/all', [ReportController::class, 'salariesReportAll'])->name('reports.salaries.all');
+    Route::get('/reports/salaries/temporary', [ReportController::class, 'salariesReportTemporary'])->name('reports.salaries.temporary');
     Route::get('/reports/tools', [ReportController::class, 'toolsReport'])->name('reports.tools');
     Route::get('/reports/custodies', [ReportController::class, 'custodiesReport'])->name('reports.custodies');
     //settings
@@ -302,6 +303,8 @@ Route::middleware(['auth', 'role:admin,sales'])->group(function () {
         ->name('quotes.index');
     Route::get('/quotes/{id}', [QuoteController::class, 'show'])
         ->name('quotations.show');
+    Route::get('/quotes/{id}/approve', [QuoteController::class, 'approve'])
+        ->name('quotations.approve');
     Route::delete('/quotes/{id}', [QuoteController::class, 'destroy'])
         ->name('quotations.destroy');
 });

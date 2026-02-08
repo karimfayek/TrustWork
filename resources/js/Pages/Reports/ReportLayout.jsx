@@ -80,6 +80,15 @@ export default function ReportLayout({ children }) {
                         </li>
                         <li>
                             <Link
+                                href="/reports/salaries/temporary"
+                                className="block text-blue-600 hover:underline"
+                            >
+                                {" "}
+                                المرتبات -مجمع - عماله مؤقته
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
                                 href="/reports/attendance"
                                 className="block text-blue-600 hover:underline"
                             >
