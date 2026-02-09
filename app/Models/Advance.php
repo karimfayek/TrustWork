@@ -36,7 +36,7 @@ class Advance extends Model
     }
     public function totalExpenses()
     {
-        return $this->expenses()->sum('amount');
+        return $this->expenses()->where('asa', 'expense')->sum('amount');
     }
     public function getIsOpenedAttribute()
     {

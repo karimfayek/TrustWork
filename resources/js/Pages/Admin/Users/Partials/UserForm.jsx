@@ -2,11 +2,11 @@ import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import PrimaryButton from "@/Components/PrimaryButton";
 import InputError from "@/Components/InputError";
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from "@inertiajs/react";
 import React, { useState } from "react";
 
 export default function UserForm({ user, allRoles }) {
-    const basicSalary = user?.salary?.final_salary * .65 || ''
+    const basicSalary = user?.salary?.final_salary * 0.65 || "";
     const { data, setData, post, processing, errors } = useForm({
         name: user?.name || "",
         role: user?.role || "",
@@ -14,22 +14,25 @@ export default function UserForm({ user, allRoles }) {
         base_salary: user?.salary?.base_salary || "",
         email: user?.email || "",
         password: "",
-        phone: user?.phone || '',
-        status: user?.status ,
-        hire_date: user?.hire_date || '',
-        offdayestype: user?.offdayestype || '',
-        temporary: user?.temporary || false ,
+        phone: user?.phone || "",
+        status: user?.status,
+        hire_date: user?.hire_date || "",
+        offdayestype: user?.offdayestype || "",
+        temporary: user?.temporary || false,
         must_change_password: user.must_change_password,
         roles: user?.roles || [],
     });
 
-    const logedinUser = usePage().props.auth.user
-    console.log(logedinUser, 'logeninuser')
+    const logedinUser = usePage().props.auth.user;
+    console.log(logedinUser, "logeninuser");
     const handleRolesChange = (e) => {
-        const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+        const selected = Array.from(
+            e.target.selectedOptions,
+            (option) => option.value,
+        );
         setData((prevData) => ({
             ...prevData,
-            roles: selected
+            roles: selected,
         }));
     };
     const handleSalaryChange = (final) => {
@@ -48,11 +51,11 @@ export default function UserForm({ user, allRoles }) {
         e.preventDefault();
         post(route("admin.user.update", user.id));
     };
-const [showSalary , setShowSalray] = useState(false)
-const handleShowSalary = (e) => {
-    e.preventDefault()
-    setShowSalray(!showSalary)
-}
+    const [showSalary, setShowSalray] = useState(false);
+    const handleShowSalary = (e) => {
+        e.preventDefault();
+        setShowSalray(!showSalary);
+    };
     return (
         <form onSubmit={handleSubmit} className="space-y-6 mb-8">
             <div>
@@ -85,7 +88,7 @@ const handleShowSalary = (e) => {
                     type="text"
                     value={data.phone}
                     className="mt-1 block w-full"
-                    onChange={(e) => setData('phone', e.target.value)}
+                    onChange={(e) => setData("phone", e.target.value)}
                 />
                 <InputError message={errors.phone} className="mt-2" />
             </div>
@@ -96,27 +99,31 @@ const handleShowSalary = (e) => {
                     type="date"
                     value={data.hire_date}
                     className="mt-1 block w-full"
-                    onChange={(e) => setData('hire_date', e.target.value)}
+                    onChange={(e) => setData("hire_date", e.target.value)}
                 />
                 <InputError message={errors.hire_date} className="mt-2" />
             </div>
             <div>
                 <InputLabel htmlFor="role" value="الدور" />
-                <select multiple value={data.roles} onChange={handleRolesChange}
+                <select
+                    multiple
+                    value={data.roles}
+                    onChange={handleRolesChange}
                     className="w-1/2 border rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block "
                 >
-                    {allRoles && allRoles.map((role) => (
-                        <option key={role.id} value={role.id}>
-                            {role.name}
-                        </option>
-                    ))}
+                    {allRoles &&
+                        allRoles.map((role) => (
+                            <option key={role.id} value={role.id}>
+                                {role.name}
+                            </option>
+                        ))}
                 </select>
 
                 <InputError message={errors.roles} className="mt-2" />
             </div>
-                    <div>
-                        <p>{user.role} </p>
-                    </div>
+            <div>
+                <p>{user.role} </p>
+            </div>
             <div>
                 <InputLabel htmlFor="password" value="الباسورد" />
                 <TextInput
@@ -128,59 +135,101 @@ const handleShowSalary = (e) => {
                 />
                 <InputError message={errors.password} className="mt-2" />
             </div>
-            <button onClick={(e )=> (handleShowSalary(e))} className="underline cursor-pointer">المرتب</button>
-            {[ 'admin'].some(role => logedinUser?.rolesnames?.includes(role))
-                &&
+            <button
+                onClick={(e) => handleShowSalary(e)}
+                className="underline cursor-pointer"
+            >
+                المرتب
+            </button>
+            {["admin"].some((role) =>
+                logedinUser?.rolesnames?.includes(role),
+            ) && (
                 <React.Fragment>
-                    {showSalary && 
-                    <>
-                    <div>
-                            <InputLabel htmlFor="final_salary" value="الراتب النهائى" />
-                            <TextInput
-                                id="final_salary"
-                                type="number"
-                                onWheel={(e) => e.target.blur()}
-                                value={data.final_salary}
-                                className="mt-1 block w-full"
-                                onChange={(e) => handleSalaryChange(e.target.value)} />
-                            <InputError message={errors.final_salary} className="mt-2" />
-                        </div><div>
-                                <InputLabel htmlFor="base_salary" value="الراتب الاساسى" />
+                    {showSalary && (
+                        <>
+                            <div>
+                                <InputLabel
+                                    htmlFor="final_salary"
+                                    value="الراتب النهائى"
+                                />
+                                <TextInput
+                                    id="final_salary"
+                                    type="number"
+                                    onWheel={(e) => e.target.blur()}
+                                    value={data.final_salary}
+                                    className="mt-1 block w-full"
+                                    onChange={(e) =>
+                                        handleSalaryChange(e.target.value)
+                                    }
+                                />
+                                <InputError
+                                    message={errors.final_salary}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <InputLabel
+                                    htmlFor="base_salary"
+                                    value="الراتب الاساسى"
+                                />
                                 <TextInput
                                     id="base_salary"
                                     type="number"
                                     onWheel={(e) => e.target.blur()}
                                     value={data.base_salary}
                                     className="mt-1 block w-full"
-                                    onChange={(e) => setData("base_salary", e.target.value)}
-                                    readOnly />
-                                <InputError message={errors.base_salary} className="mt-2" />
-                            </div><div>
-                                <InputLabel htmlFor="base_salary" value=" المتغير" />
+                                    onChange={(e) =>
+                                        setData("base_salary", e.target.value)
+                                    }
+                                    readOnly
+                                />
+                                <InputError
+                                    message={errors.base_salary}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <InputLabel
+                                    htmlFor="base_salary"
+                                    value=" المتغير"
+                                />
                                 <TextInput
                                     id="base_salary"
                                     type="number"
                                     onWheel={(e) => e.target.blur()}
-                                    value={Number(data.final_salary) - Number(data.base_salary)}
+                                    value={
+                                        Number(data.final_salary) -
+                                        Number(data.base_salary)
+                                    }
                                     className="mt-1 block w-full"
-                                    readOnly />
-                                <InputError message={errors.base_salary} className="mt-2" />
-                            </div></>
-                    }
+                                    readOnly
+                                />
+                                <InputError
+                                    message={errors.base_salary}
+                                    className="mt-2"
+                                />
+                            </div>
+                        </>
+                    )}
                 </React.Fragment>
-            }
+            )}
 
             <div className="mt-4">
                 <label className="flex items-center">
-                    <select value={data.offdayestype}
-                    required
-                        onChange={(e) => setData("offdayestype", e.target.value)}
+                    <select
+                        value={data.offdayestype}
+                        required
+                        onChange={(e) =>
+                            setData("offdayestype", e.target.value)
+                        }
                         className="w-full"
                     >
-                        <option value="" disabled selected>ايام الاجازات</option>
-                        <option value="1" > جمعه</option>
-                        <option value="3" > خميس + جمعه</option>
-                        <option value="2" > جمعه + سبت</option>
+                        <option value="" disabled selected>
+                            ايام الاجازات
+                        </option>
+                        <option value="1"> جمعه</option>
+                        <option value="3"> خميس + جمعه</option>
+                        <option value="2"> جمعه + سبت</option>
                     </select>
                 </label>
             </div>
@@ -189,12 +238,16 @@ const handleShowSalary = (e) => {
                     <input
                         type="checkbox"
                         checked={data.must_change_password}
-                        onChange={(e) => setData("must_change_password", e.target.checked)}
+                        onChange={(e) =>
+                            setData("must_change_password", e.target.checked)
+                        }
                     />
-                    <span className="mr-2 text-sm text-gray-600">تغيير كلمة السر عند أول دخول</span>
+                    <span className="mr-2 text-sm text-gray-600">
+                        تغيير كلمة السر عند أول دخول
+                    </span>
                 </label>
             </div>
-            
+
             <div className="mt-4">
                 <label className="flex items-center">
                     <input
@@ -202,18 +255,20 @@ const handleShowSalary = (e) => {
                         checked={data.temporary || false}
                         onChange={(e) => setData("temporary", e.target.checked)}
                     />
-                    <span className="mr-2 text-sm text-gray-600">موظف مؤقت</span>
+                    <span className="mr-2 text-sm text-gray-600">
+                        موظف مؤقت
+                    </span>
                 </label>
             </div>
 
-              <div className="mt-4">
+            <div className="mt-4">
                 <label className="flex items-center">
                     <input
                         type="checkbox"
                         checked={data.status}
                         onChange={(e) => setData("status", e.target.checked)}
                     />
-                    <span className="mr-2 text-sm text-gray-600">   نشط ؟  </span>
+                    <span className="mr-2 text-sm text-gray-600"> نشط ؟ </span>
                 </label>
             </div>
 

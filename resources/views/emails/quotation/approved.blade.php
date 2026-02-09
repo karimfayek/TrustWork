@@ -18,10 +18,11 @@
         <p>المنتجات :</p>
         <ul>
             @foreach ($quotation->items as $item)
-                <li>{{ $item->product->name }} - {{ $item->quantity }} {{ $item->product->unit }}</li>
+                <li>{{ $item->product->description }} - {{ $item->quantity }} {{ $item->product->part_number }}</li>
             @endforeach
         </ul>
-        <p>نتشرف بثقتكم بنا، ونتمنى لكم رحلة عمل موفقة ومليئة بالنجاحات 🚀.</p>
+        <p>لعرض العرض اضغط على الرابط التالي</p>
+        <a href="{{ route('quotations.show', $quotation->id) }}">عرض</a>
 
         <p style="color:#555;">مع تحيات،<br>فريق شركة تراست</p>
     </div>

@@ -75,30 +75,68 @@ export default function UserLayout({ header, children }) {
                                     logedinUser?.rolesnames?.includes(role),
                                 ) && (
                                     <>
-                                        <NavLink
-                                            href={route("categories.index")}
-                                            active={route().current(
-                                                "categories.index",
-                                            )}
-                                        >
-                                            التصنيفات
-                                        </NavLink>
-                                        <NavLink
-                                            href={route("products.index")}
-                                            active={route().current(
-                                                "products.index",
-                                            )}
-                                        >
-                                            المنتجات
-                                        </NavLink>
-                                        <NavLink
-                                            href={route("quotes.index")}
-                                            active={route().current(
-                                                "quotes.index",
-                                            )}
-                                        >
-                                            العروض
-                                        </NavLink>
+                                        <Dropdown className="relative top-4">
+                                            <Dropdown.Trigger>
+                                                <span className="inline-flex items-center rounded-md cursor-pointer px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
+                                                    المبيعات
+                                                    <svg
+                                                        className="ms-1 h-4 w-4 text-gray-500"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 20 20"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                                                        />
+                                                    </svg>
+                                                </span>
+                                            </Dropdown.Trigger>
+                                            <Dropdown.Content>
+                                                <Dropdown.Link
+                                                    href={route(
+                                                        "categories.index",
+                                                    )}
+                                                    active={route().current(
+                                                        "categories.index",
+                                                    )}
+                                                >
+                                                    التصنيفات
+                                                </Dropdown.Link>
+                                                <Dropdown.Link
+                                                    href={route(
+                                                        "products.index",
+                                                    )}
+                                                    active={route().current(
+                                                        "products.index",
+                                                    )}
+                                                >
+                                                    المنتجات
+                                                </Dropdown.Link>
+                                                <Dropdown.Link
+                                                    href={route("quotes.index")}
+                                                    active={route().current(
+                                                        "quotes.index",
+                                                    )}
+                                                >
+                                                    العروض
+                                                </Dropdown.Link>
+
+                                                <Dropdown.Link
+                                                    href={route(
+                                                        "work-orders.index",
+                                                    )}
+                                                    active={route().current(
+                                                        "work-orders.index",
+                                                    )}
+                                                >
+                                                    طلب أمر شغل
+                                                </Dropdown.Link>
+                                            </Dropdown.Content>
+                                        </Dropdown>
                                     </>
                                 )}
                             </div>
@@ -259,6 +297,24 @@ export default function UserLayout({ header, children }) {
                                 active={route().current("employee.advance")}
                             >
                                 العهد المالية
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                href={route("categories.index")}
+                                active={route().current("categories.index")}
+                            >
+                                التصنيفات
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                href={route("products.index")}
+                                active={route().current("products.index")}
+                            >
+                                المنتجات
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                href={route("quotes.index")}
+                                active={route().current("quotes.index")}
+                            >
+                                العروض
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"

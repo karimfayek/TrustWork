@@ -89,7 +89,11 @@ export default function QuotationsIndex({ quotations }) {
                                                     "quotations.approve",
                                                     q.id,
                                                 )}
-                                                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded hover:bg-blue-200"
+                                                className={`inline-flex items-center px-3 py-1.5 text-xs font-medium ${
+                                                    q.approved
+                                                        ? "text-green-700 bg-green-100"
+                                                        : "text-blue-700 bg-blue-100"
+                                                } rounded hover:bg-blue-200`}
                                             >
                                                 {q.approved
                                                     ? "Approved"

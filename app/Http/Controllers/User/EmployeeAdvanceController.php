@@ -167,7 +167,6 @@ class EmployeeAdvanceController extends Controller
         // dd($request->all());
 
         $user = User::find($request->user_id);
-
         $user->expenses()->create([
             'amount' => $request->amount,
             'description' => 'تسوية',

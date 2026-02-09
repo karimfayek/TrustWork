@@ -340,6 +340,7 @@ class AttendanceController extends Controller
         Attendance::create([
             'user_id' => $user->id,
             'project_id' => $project->id,
+            'created_by' => $user->id,
             'check_in_time' => now(),
             'in_location' => $request->input('location', 'غير محدد'),
             'is_late' => $isLate,

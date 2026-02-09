@@ -43,6 +43,7 @@ use App\Http\Controllers\User\DriverController;
 use App\Http\Controllers\NordenProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 
 
@@ -307,6 +308,11 @@ Route::middleware(['auth', 'role:admin,sales'])->group(function () {
         ->name('quotations.approve');
     Route::delete('/quotes/{id}', [QuoteController::class, 'destroy'])
         ->name('quotations.destroy');
+    Route::get('work-orders', [WorkOrderController::class, 'index'])->name('work-orders.index');
+    Route::get('work-orders/create', [WorkOrderController::class, 'create'])->name('work-orders.create');
+    Route::post('work-orders', [WorkOrderController::class, 'store'])->name('work-orders.store');
+    Route::delete('work-orders/{id}', [WorkOrderController::class, 'destroy'])->name('work-orders.destroy');
+
 });
 //admin,proj
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {

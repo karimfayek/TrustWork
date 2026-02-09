@@ -122,14 +122,24 @@ class QuoteController extends Controller
             abort(403);
         }
         if ($quotation->approved) {
+            $quotation->approved = false;
+            $quotation->save();
             return redirect()
                 ->route('quotes.index')
-                ->with('message', 'تم الموافقة على عرض السعر بنجاح');
+                ->with('message', 'تم إلغاء الموافقة على عرض السعر بنجاح');
         }
         $quotation->approved = true;
         $quotation->save();
         //send email to acc
-        Mail::to($quotation->user->email)->send(new QuotationApproved($quotation));
+        $emails = explode(',', \App\Models\Setting::where('key', 'quote_notify')->value('value'));
+        if (!empty($emails)) {
+            $emailsArray = array_filter(array_map('trim', $emails));
+
+            if (!empty($emailsArray)) {
+                Mail::to($emailsArray)->send(new QuotationApproved($quotation));
+            }
+        }
+
         return redirect()
             ->route('quotes.index')
             ->with('message', 'تم الموافقة على عرض السعر بنجاح');

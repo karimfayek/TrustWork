@@ -151,7 +151,7 @@ class User extends Authenticatable
     }
     public function totalExpenses()
     {
-        return $this->expenses()->sum('amount');
+        return $this->expenses()->where('asa', 'expense')->sum('amount');
     }
     public function totalDeductions()
     {
@@ -164,5 +164,9 @@ class User extends Authenticatable
     public function totalRewards()
     {
         return $this->rewards()->sum('amount');
+    }
+    public function workOrders()
+    {
+        return $this->hasMany(WorkOrder::class);
     }
 }
