@@ -196,6 +196,7 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     Route::get('/admin/advance/list', [EmployeeAdvanceController::class, 'list'])->name('admin.advance.list');
     Route::post('/admin/advance/status', [EmployeeAdvanceController::class, 'statusAdvanceAdmin'])->name('admin.advance.status');
     Route::post('/admin/advance/settlement', [EmployeeAdvanceController::class, 'settlementAdvanceAdmin'])->name('admin.advance.settlement');
+    Route::post('/advance/settlement', [EmployeeAdvanceController::class, 'settlementAdvance'])->name('advance.settlement');
 
     //leaves
 

@@ -315,6 +315,7 @@ class ReportController extends Controller
                     ->whereColumn('expenses.advance_id', 'advances.id');
             }
         )->get();
+        $totalAdvances = \App\Models\Advance::where('status', 'accepted')->sum('amount');
 
         //  dd($openCustodies);
         return Inertia::render('Reports/Financial/EmployeeCustody', [
@@ -322,6 +323,7 @@ class ReportController extends Controller
             'totalExpenses' => $totalExpenses,
             'openCustodiesCount' => $openCustodies->count(),
             'openCustodies' => $openCustodies->load('user', 'project', 'expenses', 'user.advances', 'user.expenses', 'user.deductions'),
+            'totalAdvances' => $totalAdvances,
         ]);
     }
 

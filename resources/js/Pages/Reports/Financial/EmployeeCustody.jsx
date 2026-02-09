@@ -3,20 +3,24 @@ import StatsBar from "./Components/StatsBar";
 import EmployeeCard from "./Components/EmployeeCard";
 import EmployeeDrawer from "./Components/EmployeeDrawer";
 import ReportLayout from "../ReportLayout";
+import EmployeeReportView from "./EmployeeReportView";
 
 export default function EmployeeCustody({
     employees,
     totalExpenses,
     openCustodiesCount,
+    totalAdvances,
 }) {
-    console.log(employees);
+    const [viewMode, setViewMode] = useState("cards");
+    // cards | report
+
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const employeesWithOpenCustodies = employees.filter((emp) =>
         emp.advances.some((adv) => adv.is_opened === true),
     );
-    const employeesWithClosedCustodies = employees.filter((emp) =>
-        emp.advances.every((adv) => adv.is_opened === false),
-    );
+    const employeesWithClosedCustodies = employees
+        .filter((emp) => emp.advances.every((adv) => adv.is_opened === false))
+        .sort((a, b) => b.total_advances - a.total_advances);
     const [searchQuery, setSearchQuery] = useState("");
     const filteredEmployeesWithOpenCustodies =
         employeesWithOpenCustodies.filter((emp) =>
@@ -26,6 +30,9 @@ export default function EmployeeCustody({
         employeesWithClosedCustodies.filter((emp) =>
             emp.name.toLowerCase().includes(searchQuery.toLowerCase()),
         );
+    if (viewMode === "report") {
+        return <EmployeeReportView employees={employees} />;
+    }
     return (
         <ReportLayout>
             <div className="p-6 space-y-6">
@@ -33,7 +40,25 @@ export default function EmployeeCustody({
                     employees={employees}
                     totalExpenses={totalExpenses}
                     openCustodiesCount={openCustodiesCount}
+                    totalAdvances={totalAdvances}
                 />
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setViewMode("cards")}
+                        className={`px-4 py-2 rounded-lg border 
+      ${viewMode === "cards" ? "bg-blue-600 text-white" : "bg-white"}`}
+                    >
+                        Cards
+                    </button>
+
+                    <button
+                        onClick={() => setViewMode("report")}
+                        className={`px-4 py-2 rounded-lg border 
+      ${viewMode === "report" ? "bg-blue-600 text-white" : "bg-white"}`}
+                    >
+                        تقرير
+                    </button>
+                </div>
 
                 {/* Search */}
                 <input

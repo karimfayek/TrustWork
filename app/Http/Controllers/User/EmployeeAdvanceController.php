@@ -17,11 +17,13 @@ class EmployeeAdvanceController extends Controller
     public function list()
     {
         $pendingAdvances = Advance::where('status', 'pending')->with('project', 'user')->get();
+        $advances = Advance::where('status', 'accepted')->with('project', 'user')->get();
         //dd($pendingAdvances);
         $users = User::where('status', 1)->with('advances', 'advances.project')->get();
         $activeProjects = Project::notCompleted()->get();
         return Inertia::render('Employee/Advances/List', [
             'pendingAdvances' => $pendingAdvances,
+            'advances' => $advances,
             'users' => $users,
             'activeProjects' => $activeProjects,
         ]);
@@ -177,6 +179,28 @@ class EmployeeAdvanceController extends Controller
         ]);
         return redirect()->back()->with('success', 'تم تحديث العهدة.');
     }
+    public function settlementAdvance(Request $request)
+    {
+        //dd($request->all());
+        $request->validate([
+            'advance_id' => 'required',
+            'amount' => 'required|numeric|min:1',
+        ]);
+        // dd($request->all());
+
+        $advance = Advance::find($request->advance_id);
+        $advance->expenses()->create([
+            'amount' => $request->amount,
+            'user_id' => $advance->user_id,
+            'description' => 'تسوية',
+            'spent_at' => now(),
+            'advance_id' => $advance->id,
+            'stored_by' => auth()->user()->id,
+            'asa' => 'settle'
+        ]);
+        return redirect()->back()->with('message', 'تم اضافة التسوية بنجاح');
+    }
+
 
     public function deleteAdvance(Request $request)
     {
@@ -194,18 +218,30 @@ class EmployeeAdvanceController extends Controller
     public function storeExpense(Request $request)
     {
         // dd($request->all());
-        $request->validate([
-            'amount' => 'required|numeric|min:1',
-            'description' => 'required|string|max:255',
-            'advance_id' => 'required|exists:advances,id',
-            'file' => 'required|image|max:5048',
-        ]);
+        //if admin dont validate file
+        if (auth()->user()->hasRole('admin') || auth()->user()->hasRole('acc')) {
+            $request->validate([
+                'amount' => 'required|numeric|min:1',
+                'description' => 'required|string|max:255',
+                'advance_id' => 'required|exists:advances,id',
+                'file' => 'nullable|image|max:5048',
+            ]);
+        } else {
+            $request->validate([
+                'amount' => 'required|numeric|min:1',
+                'description' => 'required|string|max:255',
+                'advance_id' => 'required|exists:advances,id',
+            ]);
+        }
         // dd($request->all());
 
         $user = $request->user_id
             ? User::findOrFail($request->user_id) // الإدمن يضيف لشخص معين
             : $request->user(); // الموظف يضيف لنفسه
-        $path = $request->file('file')->store('expenses', 'public');
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('expenses', 'public');
+        }
         //$visit->file_path = $path;
         $user->expenses()->create([
             'amount' => $request->amount,
@@ -216,7 +252,7 @@ class EmployeeAdvanceController extends Controller
             'spent_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'تم تسجيل المصروف.');
+        return redirect()->back()->with('message', 'تم تسجيل المصروف بنجاح');
     }
 
 }

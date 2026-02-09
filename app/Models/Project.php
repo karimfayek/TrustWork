@@ -171,6 +171,12 @@ class Project extends Model
     {
         return $this->total_done >= $this->total_quantity && $this->total_quantity > 0;
     }
+    public function getTotalExpensesAttribute()
+    {
+        return $this->advances
+            ->flatMap(fn($adv) => $adv->expenses->where('asa', 'expense'))
+            ->sum('amount');
+    }
     protected $appends = [
         'total_quantity',
         'total_done',
@@ -180,5 +186,6 @@ class Project extends Model
         'daily_target',
         'daily_done',
         'is_completed',
+        'total_expenses',
     ];
 }

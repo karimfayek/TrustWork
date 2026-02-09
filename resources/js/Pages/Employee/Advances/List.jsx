@@ -1,12 +1,20 @@
 import DeleteButton from "@/Components/DeleteButton";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import AdvancesList from "../../Admin/Users/Partials/AdvancesList";
-import { useState } from "react";
+import React, { useState } from "react";
 import { router, usePage } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
 
 export default function List() {
-    const { pendingAdvances, users, activeProjects } = usePage().props;
+    const { pendingAdvances, users, activeProjects, advances } =
+        usePage().props;
+
+    const [fileError, setFileError] = useState(null);
+    const [isAddingExpense, setIsAddingExpense] = useState(false);
+    const [advanceId, setAdvanceId] = useState(null);
+    const [amount, setAmount] = useState("");
+    const [description, setDescription] = useState("");
+    const [file, setFile] = useState(null);
     const {
         data: advanceData,
         setData: setAdvanceData,
@@ -23,6 +31,44 @@ export default function List() {
     });
     const setUser = (id) => {
         setAdvanceData("user_id", id);
+    };
+    const confirmSettlement = () => {
+        router.post(
+            route("advance.settlement"),
+            {
+                amount: amount,
+                advance_id: advanceId,
+                asa: "settle",
+                file: file,
+                description: description,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setAmount("");
+                },
+            },
+        );
+    };
+    const confirmExpense = () => {
+        router.post(
+            route("employee.expense.store"),
+            {
+                amount: amount,
+                advance_id: advanceId,
+                asa: "expense",
+                file: file,
+                description: description,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setAmount("");
+                    setFile(null);
+                    setDescription("");
+                },
+            },
+        );
     };
     const [pendingAdvancesData, setPendingAdvances] = useState(pendingAdvances);
     const handleDeleteAdvance = (id) => {
@@ -124,100 +170,203 @@ export default function List() {
                 admin
             />
             <div>
-                {/* نموذج العهدة */}
-                <div className="bg-white p-4 rounded shadow max-w-2xl mt-4  border border-gray-200 mx-auto">
-                    <h3 className="font-semibold mb-2">إضافة عهدة جديدة</h3>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            console.log("postadvance");
-                            postAdvance(route("admin.advance.store"), {
-                                preserveScroll: true,
-                                onSuccess: () => resetAdvance(),
-                            });
-                        }}
-                    >
-                        <select
-                            name="user_id"
-                            className="w-full border p-2 mb-2"
-                            onChange={(e) => setUser(e.target.value)}
+                <div className="flex justify-center px-4 gap-4">
+                    {/* نموذج العهدة */}
+                    <div className="bg-white p-4 rounded shadow max-w-2xl mt-4  border border-gray-200 mx-auto">
+                        <h3 className="font-semibold mb-2">إضافة عهدة جديدة</h3>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                console.log("postadvance");
+                                postAdvance(route("admin.advance.store"), {
+                                    preserveScroll: true,
+                                    onSuccess: () => resetAdvance(),
+                                });
+                            }}
                         >
-                            <option value="">اختر الموظف</option>
-                            {users.map((user) => (
-                                <option key={user.id} value={user.id}>
-                                    {user.name}
-                                </option>
-                            ))}
-                        </select>
-                        <input
-                            required
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            placeholder="المبلغ"
-                            value={advanceData.amount}
-                            onChange={(e) =>
-                                setAdvanceData("amount", e.target.value)
-                            }
-                            className="w-full border p-2 mb-2"
-                        />
-                        {advanceErrors.amount && (
-                            <div className="text-red-600">
-                                {advanceErrors.amount}
-                            </div>
-                        )}
-                        <input
-                            required
-                            type="text"
-                            placeholder="الغرض من العهدة"
-                            value={advanceData.note}
-                            onChange={(e) =>
-                                setAdvanceData("note", e.target.value)
-                            }
-                            className="w-full border p-2 mb-2"
-                        />
-                        {advanceErrors.note && (
-                            <div className="text-red-600">
-                                {advanceErrors.note}
-                            </div>
-                        )}
-                        <select
-                            required
-                            value={advanceData.project_id}
-                            onChange={(e) =>
-                                setAdvanceData("project_id", e.target.value)
-                            }
-                            className="w-full border p-2 mb-2"
-                        >
-                            <option value="">للمشروع</option>
-                            {activeProjects.map((project) => (
-                                <option value={project.id} key={project.id}>
-                                    {project.name}
-                                </option>
-                            ))}
-                            <option value="null">اخرى</option>
-                        </select>
+                            <select
+                                name="user_id"
+                                className="w-full border p-2 mb-2"
+                                onChange={(e) => setUser(e.target.value)}
+                            >
+                                <option value="">اختر الموظف</option>
+                                {users.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <input
+                                required
+                                type="number"
+                                onWheel={(e) => e.target.blur()}
+                                placeholder="المبلغ"
+                                value={advanceData.amount}
+                                onChange={(e) =>
+                                    setAdvanceData("amount", e.target.value)
+                                }
+                                className="w-full border p-2 mb-2"
+                            />
+                            {advanceErrors.amount && (
+                                <div className="text-red-600">
+                                    {advanceErrors.amount}
+                                </div>
+                            )}
+                            <input
+                                required
+                                type="text"
+                                placeholder="الغرض من العهدة"
+                                value={advanceData.note}
+                                onChange={(e) =>
+                                    setAdvanceData("note", e.target.value)
+                                }
+                                className="w-full border p-2 mb-2"
+                            />
+                            {advanceErrors.note && (
+                                <div className="text-red-600">
+                                    {advanceErrors.note}
+                                </div>
+                            )}
+                            <select
+                                required
+                                value={advanceData.project_id}
+                                onChange={(e) =>
+                                    setAdvanceData("project_id", e.target.value)
+                                }
+                                className="w-full border p-2 mb-2"
+                            >
+                                <option value="">للمشروع</option>
+                                {activeProjects.map((project) => (
+                                    <option value={project.id} key={project.id}>
+                                        {project.name}
+                                    </option>
+                                ))}
+                                <option value="null">اخرى</option>
+                            </select>
+                            <select
+                                required
+                                className="w-full p-2 border rounded mb-4"
+                                value={advanceData.method}
+                                onChange={(e) =>
+                                    setAdvanceData("method", e.target.value)
+                                }
+                            >
+                                <option value="">-- اختر طريقة --</option>
+                                <option value="cash">كاش</option>
+                                <option value="wallet">محفظة</option>
+                                <option value="insta">انستا باي</option>
+                                <option value="bank">تحويل بنكي</option>
+                            </select>
+                            <button
+                                type="submit"
+                                disabled={processingAdvance}
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                            >
+                                حفظ العهدة
+                            </button>
+                        </form>
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                        <h2 className="text-xl font-bold mb-4">
+                            {"اضافه تسويه"}
+                        </h2>
                         <select
                             required
                             className="w-full p-2 border rounded mb-4"
-                            value={advanceData.method}
-                            onChange={(e) =>
-                                setAdvanceData("method", e.target.value)
-                            }
+                            value={advanceId}
+                            onChange={(e) => setAdvanceId(e.target.value)}
                         >
-                            <option value="">-- اختر طريقة --</option>
-                            <option value="cash">كاش</option>
-                            <option value="wallet">محفظة</option>
-                            <option value="insta">انستا باي</option>
-                            <option value="bank">تحويل بنكي</option>
+                            <option value="">-- اختر العهدة --</option>
+                            {advances?.map((advance) => (
+                                <React.Fragment key={advance.id}>
+                                    {advance.is_opened && (
+                                        <option value={advance.id}>
+                                            {advance.user?.name} -{" "}
+                                            {advance.amount} - {advance.note}
+                                        </option>
+                                    )}
+                                </React.Fragment>
+                            ))}
                         </select>
-                        <button
-                            type="submit"
-                            disabled={processingAdvance}
-                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                        <input
+                            type={"text"}
+                            className="w-full p-2 border rounded mb-4"
+                            value={amount}
+                            min={1}
+                            onChange={(e) => setAmount(e.target.value)}
+                        />
+
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => confirmSettlement()}
+                                className="bg-green-500 text-white px-4 py-2 rounded"
+                            >
+                                تأكيد
+                            </button>
+                        </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                        <h2 className="text-xl font-bold mb-4">
+                            {"اضافه مصروف"}
+                        </h2>
+                        <select
+                            required
+                            className="w-full p-2 border rounded mb-4"
+                            value={advanceId}
+                            onChange={(e) => setAdvanceId(e.target.value)}
                         >
-                            حفظ العهدة
-                        </button>
-                    </form>
+                            <option value="">-- اختر العهدة --</option>
+                            {advances?.map((advance) => (
+                                <React.Fragment key={advance.id}>
+                                    <option value={advance.id}>
+                                        {advance.user?.name} - {advance.amount}{" "}
+                                        - {advance.note}
+                                    </option>
+                                </React.Fragment>
+                            ))}
+                        </select>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            المبلغ
+                        </label>
+                        <input
+                            type={"text"}
+                            className="w-full p-2 border rounded mb-4"
+                            value={amount}
+                            min={1}
+                            onChange={(e) => setAmount(e.target.value)}
+                        />
+
+                        <>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                الايصال
+                            </label>
+                            <input
+                                required
+                                type={"file"}
+                                className="w-full p-2 border rounded mb-4"
+                                onChange={(e) => setFile(e.target.files[0])}
+                            />
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                الوصف *
+                            </label>
+                            <input
+                                required
+                                type={"text"}
+                                className="w-full p-2 border rounded mb-4"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                            />
+                        </>
+
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => confirmExpense()}
+                                className="bg-green-500 text-white px-4 py-2 rounded"
+                            >
+                                تأكيد
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <h2 className="text-2xl font-semibold mb-2 border-t underline">
                     العهد المُستلمة

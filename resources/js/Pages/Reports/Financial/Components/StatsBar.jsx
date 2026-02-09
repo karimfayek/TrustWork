@@ -2,11 +2,13 @@ export default function StatsBar({
     employees,
     totalExpenses,
     openCustodiesCount,
+    totalAdvances,
 }) {
     const stats = [
         { label: "الموظفين", value: employees.length },
         { label: "العهد المفتوحة", value: openCustodiesCount },
-        { label: "الإجمالي", value: totalExpenses },
+        { label: "أجمالى المصاريف", value: totalExpenses },
+        { label: "أجمالى العهد", value: totalAdvances },
     ];
 
     return (

@@ -198,7 +198,7 @@ export default function FinancialReport({ users, projects }) {
                                                         className="p-2 border"
                                                         colSpan={2}
                                                     >
-                                                        {totalExpenses.toLocaleString()}{" "}
+                                                        {project.total_expenses}{" "}
                                                         جنيه
                                                     </td>
                                                 </tr>
