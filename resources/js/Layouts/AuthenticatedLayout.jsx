@@ -39,6 +39,11 @@ export default function AuthenticatedLayout({ header, children }) {
             roles: ["admin", "acc"],
         },
         {
+            label: "ادارة العهد  ",
+            routeName: "acc.reports.custodies",
+            roles: ["admin", "acc"],
+        },
+        {
             label: "السلف ",
             routeName: "admin.loans.index",
             roles: ["admin", "acc"],
@@ -166,6 +171,11 @@ export default function AuthenticatedLayout({ header, children }) {
                 {
                     label: "العهد ",
                     routeName: "admin.advance.list",
+                    roles: ["admin", "acc"],
+                },
+                {
+                    label: "ادارة العهد  ",
+                    routeName: "acc.reports.custodies",
                     roles: ["admin", "acc"],
                 },
                 {

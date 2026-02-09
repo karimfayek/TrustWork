@@ -118,6 +118,8 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     //store
     Route::resource('items', ItemController::class)->except(['show']);
 
+    Route::get('/acc/reports/custodies', [ReportController::class, 'custodiesReport'])->name('acc.reports.custodies');
+
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::get('/items/dashboard', [ItemsDashboardController::class, 'index'])->name('items.dashboard');
     Route::post('/stock/in', [StockMovementController::class, 'storeIn'])->name('stock.in');

@@ -4,6 +4,7 @@ import EmployeeCard from "./Components/EmployeeCard";
 import EmployeeDrawer from "./Components/EmployeeDrawer";
 import ReportLayout from "../ReportLayout";
 import EmployeeReportView from "./EmployeeReportView";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function EmployeeCustody({
     employees,
@@ -34,7 +35,7 @@ export default function EmployeeCustody({
         return <EmployeeReportView employees={employees} />;
     }
     return (
-        <ReportLayout>
+        <AuthenticatedLayout>
             <div className="p-6 space-y-6">
                 <StatsBar
                     employees={employees}
@@ -97,6 +98,6 @@ export default function EmployeeCustody({
                     onClose={() => setSelectedEmployee(null)}
                 />
             </div>
-        </ReportLayout>
+        </AuthenticatedLayout>
     );
 }
