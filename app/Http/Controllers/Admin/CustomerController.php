@@ -7,14 +7,19 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Customer;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 class CustomerController extends Controller
 {
     public function index()
     {
-      $customers = Customer::with(['visits' => function ($q) {
-    $q->whereMonth('created_at', Carbon::now()->month)
-      ->whereYear('created_at', Carbon::now()->year);
-}])->get();
+        $customers = Customer::withCount([
+            'visits as visits_count' => function ($q) {
+                $q->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->select(DB::raw('count(distinct DATE(created_at))'));
+            }
+        ])->get();
+
 
         return Inertia::render('Admin/Customers/List', [
             'customers' => $customers
@@ -22,23 +27,23 @@ class CustomerController extends Controller
     }
     public function create()
     {
-        
+
         return Inertia::render('Admin/Customers/Create');
     }
     public function edit($id)
     {
         // جلب جميع العملاء
         $customer = Customer::find($id);
-        
+
         return Inertia::render('Admin/Customers/Edit', [
             'customer' => $customer,
         ]);
-       // return Inertia::render('Admin/Customers/Edit', compact('customer'));
+        // return Inertia::render('Admin/Customers/Edit', compact('customer'));
     }
     public function store(Request $request)
     {
         //dd($request->all());
-       $validated =  $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'transport_fees' => 'required|numeric|min:0',
             'address' => 'required|string',
@@ -51,10 +56,10 @@ class CustomerController extends Controller
 
         return redirect()->back()->with('success', 'تمت إضافة العميل بنجاح.');
     }
-    public function update(Request $request , $id)
+    public function update(Request $request, $id)
     {
         //dd($request->all());
-       $validated =  $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'transport_fees' => 'required|numeric|min:0',
             'address' => 'required|string',
