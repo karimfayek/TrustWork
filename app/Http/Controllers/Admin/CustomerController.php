@@ -7,19 +7,16 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Customer;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = Customer::withCount([
-            'visits as visits_count' => function ($q) {
-                $q->whereMonth('created_at', now()->month)
-                    ->whereYear('created_at', now()->year)
-                    ->select(DB::raw('count(distinct DATE(created_at))'));
+        $customers = Customer::with([
+            'visits' => function ($q) {
+                $q->whereMonth('created_at', Carbon::now()->month)
+                    ->whereYear('created_at', Carbon::now()->year);
             }
         ])->get();
-
 
         return Inertia::render('Admin/Customers/List', [
             'customers' => $customers
