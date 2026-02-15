@@ -85,8 +85,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::post('/admin/project/delete', [ProjectController::class, 'deleteProject'])->name('admin.project.delete');
 
-    Route::get('/admin/visits', [AdminVisitsController::class, 'index'])->name('admin.visits.index');
-    Route::get('/admin/visit/show/{id}', [AdminVisitsController::class, 'show'])->name('admin.visits.show');
     //reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/employees', [ReportController::class, 'employeeReport'])->name('reports.employees');
@@ -158,6 +156,11 @@ Route::middleware(['auth', 'role:admin,hr'])->group(function () {
     Route::post('/admin/att/delete', [AttendanceController::class, 'delete'])->name('admin.att.delete');
 });
 Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
+    //visits
+    Route::get('/admin/visits', [AdminVisitsController::class, 'index'])->name('admin.visits.index');
+    Route::get('/admin/visit/show/{id}', [AdminVisitsController::class, 'show'])->name('admin.visits.show');
+
+
     //users
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('/user/{userId}', [ProjectController::class, 'show'])->name('admin.user.show');
