@@ -16,7 +16,7 @@ export default function AuthenticatedLayout({ header, children }) {
         {
             label: "الزيارات",
             routeName: "admin.visits.index",
-            roles: ["admin"],
+            roles: ["admin", "acc", "hr"],
         },
         {
             label: "الموظفين",

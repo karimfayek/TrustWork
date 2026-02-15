@@ -220,8 +220,13 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     Route::resource('holidays', AdminHolidayController::class);
     Route::post('holidays/delete/post', [AdminHolidayController::class, 'delete'])->name('holidays.delete');
 });
-//employee,admin,acc
+//employee,admin,acc,hr
+Route::middleware(['auth', 'role:employee,admin,acc,hr'])->group(function () {
+    Route::post('/visits/edit/{id}', [VisitsController::class, 'edit'])->name('visits.edit');
+});
+//employee,admin,acc,managment,hr
 Route::middleware(['auth', 'role:employee,admin,acc,managment,hr'])->group(function () {
+
     //leaves
 
     Route::get('/employee/leaves', [EmployeeLeavesController::class, 'index'])->name('employee.leaves');
@@ -276,7 +281,6 @@ Route::middleware(['auth', 'role:employee,admin'])->group(function () {
     Route::get('/visit/show/{id}', [VisitsController::class, 'show'])->name('visits.show');
     Route::post('/visits', [VisitsController::class, 'store'])->name('visits.store');
     Route::post('/visits/{id}', [VisitsController::class, 'update'])->name('visits.update');
-    Route::post('/visits/edit/{id}', [VisitsController::class, 'edit'])->name('visits.edit');
 
 });
 
