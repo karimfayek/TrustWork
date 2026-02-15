@@ -7,14 +7,16 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Customer;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 class CustomerController extends Controller
 {
     public function index()
     {
         $customers = Customer::with([
             'visits' => function ($q) {
-                $q->whereMonth('created_at', Carbon::now()->month)
-                    ->whereYear('created_at', Carbon::now()->year);
+                $q->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->selectRaw('DISTINCT DATE(created_at), customer_id');
             }
         ])->get();
 

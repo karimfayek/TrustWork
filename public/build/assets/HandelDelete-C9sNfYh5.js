@@ -1,0 +1,1 @@
+import{b as t}from"./app-YoZoMTSg.js";const c=(o,e,r)=>{o.preventDefault(),window.confirm("هل أنت متأكد أنك تريد الحذف  ")&&(console.log("Deleted item with ID:",e),t.post(route(r),{id:e},{preserveScroll:!0}))};export{c as h};
