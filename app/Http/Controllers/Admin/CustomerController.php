@@ -50,6 +50,7 @@ class CustomerController extends Controller
             'info' => 'nullable|string',
             'email' => 'nullable|email',
             'visits_nu' => 'nullable|numeric',
+            'type' => 'nullable|string',
         ]);
         Customer::create($validated);
 
@@ -66,6 +67,7 @@ class CustomerController extends Controller
             'info' => 'nullable|string',
             'email' => 'nullable|email',
             'visits_nu' => 'nullable|numeric',
+            'type' => 'nullable|string',
         ]);
         $customer = Customer::find($id);
         $customer->update($validated);

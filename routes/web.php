@@ -159,7 +159,7 @@ Route::middleware(['auth', 'role:admin,acc,hr'])->group(function () {
     //visits
     Route::get('/admin/visits', [AdminVisitsController::class, 'index'])->name('admin.visits.index');
     Route::get('/admin/visit/show/{id}', [AdminVisitsController::class, 'show'])->name('admin.visits.show');
-
+    Route::post('/admin/visit/details/{id}/{month}/{year}', [AdminVisitsController::class, 'details'])->name('admin.visit.details');
     //users
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::get('/user/{userId}', [ProjectController::class, 'show'])->name('admin.user.show');
