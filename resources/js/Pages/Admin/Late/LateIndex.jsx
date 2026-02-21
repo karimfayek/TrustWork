@@ -93,13 +93,14 @@ export default function LateIndex() {
         axios
             .get(
                 route("admin.lateAttendances.getLateAttendances", {
-                    id: filters.user_id,
+                    id: filters.user_id || 9999,
                     from: filters.from,
                     to: filters.to,
                 }),
             )
             .then((response) => {
                 setLateAttendances(response.data);
+                console.log(response.data);
             });
     };
 
@@ -139,7 +140,7 @@ export default function LateIndex() {
                                     })
                                 }
                             >
-                                <option value="">اختر الموظف</option>
+                                <option value="">الكل</option>
                                 {users.map((users) => (
                                     <option key={users.id} value={users.id}>
                                         {users.name}
@@ -193,6 +194,7 @@ export default function LateIndex() {
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-100 text-gray-700">
                             <tr className="text-right">
+                                <th className="px-6 py-3 ">الموظف</th>
                                 <th className="px-6 py-3 ">التاريخ</th>
                                 <th className="px-6 py-3 ">تسجيل الحضور</th>
                                 <th className="px-6 py-3 ">الانصراف</th>
@@ -202,111 +204,107 @@ export default function LateIndex() {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {lateAttendances &&
-                                Object.entries(lateAttendances).map(
-                                    ([date, attendances]) => (
-                                        <tr
-                                            key={date}
-                                            className="hover:bg-gray-50"
-                                        >
-                                            <td className="px-6 py-4">
-                                                {date}
-                                                {attendances[0].project &&
-                                                    attendances[0].project
-                                                        ?.name}
-                                                {attendances[0].visit &&
-                                                    attendances[0].visit
-                                                        ?.customer?.name}
-                                                {attendances[0].type ===
-                                                    "internal" && "داخل الشركة"}
-                                                {attendances[0].type ===
-                                                    "external" &&
-                                                    attendances[0].customer}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {
-                                                    attendances[0].check_in_time?.split(
-                                                        " ",
-                                                    )[1]
-                                                }
-                                                {attendances[0].in_location !==
-                                                    "غير محدد" &&
-                                                    attendances[0]
-                                                        .in_location !==
-                                                        null && (
-                                                        <a
-                                                            href={
-                                                                "https://www.google.com/maps?q=" +
-                                                                attendances?.in_location
-                                                            }
-                                                            target="_blank"
-                                                            className="text-blue-600 underline"
-                                                        >
-                                                            لوكيشن
-                                                        </a>
-                                                    )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {
-                                                    attendances[0].check_out_time?.split(
-                                                        " ",
-                                                    )[1]
-                                                }
-                                                {attendances[0].out_location !==
-                                                    "غير محدد" &&
-                                                    attendances[0]
-                                                        .out_location !==
-                                                        null && (
-                                                        <a
-                                                            href={
-                                                                "https://www.google.com/maps?q=" +
-                                                                attendances?.out_location
-                                                            }
-                                                            target="_blank"
-                                                            className="text-blue-600 underline"
-                                                        >
-                                                            لوكيشن
-                                                        </a>
-                                                    )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {
-                                                    deducts[
-                                                        attendances[0]
-                                                            .late_deduct_type
-                                                    ]
-                                                }
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {attendances[0]
-                                                    .late_deduct_type ==
-                                                null ? (
-                                                    <button
-                                                        onClick={() =>
-                                                            openModal(
-                                                                attendances[0],
-                                                            )
+                                lateAttendances.map((attendance) => (
+                                    <tr
+                                        key={attendance.id}
+                                        className="hover:bg-gray-50"
+                                    >
+                                        <td className="px-6 py-4">
+                                            {attendance.user?.name}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {
+                                                attendance.check_in_time.split(
+                                                    " ",
+                                                )[0]
+                                            }
+                                            {attendance.project &&
+                                                attendance.project?.name}
+                                            {attendance.visit &&
+                                                attendance.visit?.customer
+                                                    ?.name}
+                                            {attendance.type === "internal" &&
+                                                "داخل الشركة"}
+                                            {attendance.type === "external" &&
+                                                attendance.customer}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {
+                                                attendance.check_in_time?.split(
+                                                    " ",
+                                                )[1]
+                                            }
+                                            {attendance.in_location !==
+                                                "غير محدد" &&
+                                                attendance.in_location !==
+                                                    null && (
+                                                    <a
+                                                        href={
+                                                            "https://www.google.com/maps?q=" +
+                                                            attendance?.in_location
                                                         }
+                                                        target="_blank"
                                                         className="text-blue-600 underline"
                                                     >
-                                                        خصم
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={() =>
-                                                            cancelDeduct(
-                                                                attendances[0]
-                                                                    .id,
-                                                            )
-                                                        }
-                                                        className="text-green-600 underline"
-                                                    >
-                                                        الغاء الخصم
-                                                    </button>
+                                                        لوكيشن
+                                                    </a>
                                                 )}
-                                            </td>
-                                        </tr>
-                                    ),
-                                )}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {
+                                                attendance.check_out_time?.split(
+                                                    " ",
+                                                )[1]
+                                            }
+                                            {attendance.out_location !==
+                                                "غير محدد" &&
+                                                attendance.out_location !==
+                                                    null && (
+                                                    <a
+                                                        href={
+                                                            "https://www.google.com/maps?q=" +
+                                                            attendance?.out_location
+                                                        }
+                                                        target="_blank"
+                                                        className="text-blue-600 underline"
+                                                    >
+                                                        لوكيشن
+                                                    </a>
+                                                )}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {
+                                                deducts[
+                                                    attendance.late_deduct_type
+                                                ]
+                                            }
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {attendance.late_deduct_type ==
+                                            null ? (
+                                                <button
+                                                    onClick={() =>
+                                                        openModal(attendance)
+                                                    }
+                                                    className="text-blue-600 underline"
+                                                >
+                                                    خصم
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() =>
+                                                        cancelDeduct(
+                                                            attendance.id,
+                                                        )
+                                                    }
+                                                    className="text-green-600 underline"
+                                                >
+                                                    الغاء الخصم
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                     {showModal && (

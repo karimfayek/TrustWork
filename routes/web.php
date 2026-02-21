@@ -317,6 +317,10 @@ Route::middleware(['auth', 'role:admin,sales'])->group(function () {
         ->name('quotations.approve');
     Route::delete('/quotes/{id}', [QuoteController::class, 'destroy'])
         ->name('quotations.destroy');
+
+});
+
+Route::middleware(['auth', 'role:admin,sales,sherok@trustits.net'])->group(function () {
     Route::get('work-orders', [WorkOrderController::class, 'index'])->name('work-orders.index');
     Route::get('work-orders/create', [WorkOrderController::class, 'create'])->name('work-orders.create');
     Route::post('work-orders', [WorkOrderController::class, 'store'])->name('work-orders.store');

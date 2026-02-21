@@ -388,6 +388,16 @@ export default function AuthenticatedLayout({ header, children }) {
                                             {link.label}
                                         </NavLink>
                                     ))}
+                                {user.email === "sherok@trustits.net" && (
+                                    <NavLink
+                                        href={route("work-orders.index")}
+                                        active={route().current(
+                                            "work-orders.index",
+                                        )}
+                                    >
+                                        امر شغل
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 

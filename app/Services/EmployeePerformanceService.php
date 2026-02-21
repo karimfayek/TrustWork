@@ -129,70 +129,86 @@ class EmployeePerformanceService
 
     public function getAttendanceData($userId, $start, $today)
     {
-        $user = User::find($userId);
-        $holidayDates = \App\Models\Holiday::whereBetween('date', [$start->toDateString(), $today->toDateString()])
+        $users = $userId != 9999
+            ? User::where('id', $userId)->get()
+            : User::all();
+
+        $holidayDates = \App\Models\Holiday::whereBetween('date', [
+            $start->toDateString(),
+            $today->toDateString()
+        ])
             ->pluck('date')
             ->map(fn($d) => Carbon::parse($d)->toDateString())
             ->toArray();
 
-        $offDays = [];
+        $result = [];
 
-        if ($user->offdayestype == '1') {
-            $offDays = ['Friday'];
-        } elseif ($user->offdayestype == '2') {
-            $offDays = ['Friday', 'Saturday'];
-        } elseif ($user->offdayestype == '3') {
-            $offDays = ['Friday', 'Thursday'];
+        foreach ($users as $user) {
+
+            $offDays = [];
+
+            if ($user->offdayestype == '1') {
+                $offDays = ['Friday'];
+            } elseif ($user->offdayestype == '2') {
+                $offDays = ['Friday', 'Saturday'];
+            } elseif ($user->offdayestype == '3') {
+                $offDays = ['Friday', 'Thursday'];
+            }
+
+            $attendanceDays = Attendance::where('user_id', $user->id)
+                ->whereBetween('check_in_time', [
+                    $start->toDateString(),
+                    $today->toDateString() . ' 23:59:59'
+                ])
+                ->get()
+                ->groupBy(
+                    fn($attendance) =>
+                    Carbon::parse($attendance->check_in_time)->toDateString()
+                )
+                ->filter(function ($attendancesOnDay) use ($offDays, $holidayDates) {
+                    $date = Carbon::parse($attendancesOnDay->first()->check_in_time)->toDateString();
+                    $dayName = Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
+
+                    return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
+                })
+                ->count();
+
+            $lateAttendancesQ = Attendance::with(['user', 'project', 'visit.customer'])
+                ->where('user_id', $user->id)
+                ->whereBetween('check_in_time', [
+                    $start->toDateString(),
+                    $today->toDateString() . ' 23:59:59'
+                ])
+                ->where('is_late', 1)
+                ->get()
+                ->groupBy(
+                    fn($attendance) =>
+                    Carbon::parse($attendance->check_in_time)->toDateString()
+                )
+                ->filter(function ($attendancesOnDay) use ($offDays, $holidayDates) {
+                    $date = Carbon::parse($attendancesOnDay->first()->check_in_time)->toDateString();
+                    $dayName = Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
+
+                    return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
+                });
+
+            $visits = Visit::where('user_id', $user->id)
+                ->whereBetween('created_at', [$start, $today])
+                ->get();
+
+            $result[] = [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'present_days' => $attendanceDays,
+                'late_days' => $lateAttendancesQ->count(),
+                'leaves' => $user->leaves()->where('status', 'approved')->count(),
+                'percentage' => ($attendanceDays) / max(1, $this->countWorkingDays($user->offdayestype, $start, $today)) * 100,
+                'visits' => $visits,
+                'lateAttendancesGet' => $lateAttendancesQ,
+            ];
         }
-
-        $attendanceDays = Attendance::where('user_id', $userId)
-            ->whereDate('check_in_time', '>=', $start)
-            ->whereDate('check_in_time', '<=', $today)
-            ->get()
-            ->groupBy(function ($attendance) {
-                return \Carbon\Carbon::parse($attendance->check_in_time)->toDateString(); // Group by date
-            })
-            ->filter(function ($attendancesOnDay) use ($offDays, $holidayDates) {
-                $date = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->toDateString();
-                $dayName = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
-
-                // ✅ استبعاد إذا كان يوم عطلة أسبوعية أو إجازة رسمية
-                return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
-            })
-            ->count();
-        $leaves = $user->leaves()->where('status', 'approved')->count();
-        //dd($start->toDateString(), $today->toDateString());
-        $lateAttendancesQ = Attendance::with(['project', 'visit.customer'])->where('user_id', $userId)
-            ->whereBetween('check_in_time', [$start->toDateString(), $today->toDateString() . ' 23:59:59'])
-            ->where('is_late', 1)
-            ->get()
-            ->groupBy(function ($attendance) {
-                return \Carbon\Carbon::parse($attendance->check_in_time)->toDateString(); // Group by date
-            })
-            ->filter(function ($attendancesOnDay) use ($offDays, $holidayDates) {
-                $date = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->toDateString();
-                $dayName = \Carbon\Carbon::parse($attendancesOnDay->first()->check_in_time)->format('l');
-
-                // ✅ استبعاد إذا كان يوم عطلة أسبوعية أو إجازة رسمية
-                return !in_array($dayName, $offDays) && !in_array($date, $holidayDates);
-            });
-        //dd($lateAttendancesQ);
-        $lateAttendances = $lateAttendancesQ->count();
-
-
-        $visits = Visit::where('user_id', $userId)
-            ->whereBetween('created_at', [$start, $today])
-            ->get();
-
-        // dd($visits);
-        return [
-            'present_days' => $attendanceDays,
-            'late_days' => $lateAttendances,
-            'leaves' => $leaves,
-            'percentage' => ($attendanceDays) / max(1, $this->countWorkingDays($user->offdayestype, $start, $today)) * 100,
-            'visits' => $visits,
-            'lateAttendancesGet' => $lateAttendancesQ,
-        ];
+        //dd($userId);
+        return $userId != 9999 ? $result[0] : $result;
     }
 
     private function getTaskData(User $user, $start, $end)

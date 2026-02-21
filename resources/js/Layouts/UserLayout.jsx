@@ -57,6 +57,16 @@ export default function UserLayout({ header, children }) {
                                         </NavLink>
                                     </>
                                 )}
+                                {user.email === "sherok@trustits.net" && (
+                                    <NavLink
+                                        href={route("work-orders.index")}
+                                        active={route().current(
+                                            "work-orders.index",
+                                        )}
+                                    >
+                                        امر شغل
+                                    </NavLink>
+                                )}
                                 <NavLink
                                     href={route("employee.att.index")}
                                     active={route().current(

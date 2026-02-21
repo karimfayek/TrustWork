@@ -31,8 +31,15 @@ class LateController extends Controller
         $service = new EmployeePerformanceService();
         $data = $service->getAttendanceData($userId, $from, $to);
         //return lateattendancesget rounded to 2 decimal places
-        return response()->json($data['lateAttendancesGet']);
+        //dd($data);
+        $lateAttendances = collect($data)
+            ->pluck('lateAttendancesGet')
+            ->flatten()
+            ->values();
+
+        return response()->json($lateAttendances);
     }
+
     public function cancelDeduct(Request $request, $id)
     {
         $attendance = Attendance::findOrFail($id);

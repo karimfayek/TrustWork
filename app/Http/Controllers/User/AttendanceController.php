@@ -183,6 +183,7 @@ class AttendanceController extends Controller
                             'check_in' => $att->check_in_time,
                             'check_out' => $att->check_out_time,
                             'user_name' => $att->user->name,
+                            'by' => $att->by->name,
                         ]);
                     }
                 }
@@ -270,6 +271,7 @@ class AttendanceController extends Controller
                                 'check_in' => $att->check_in_time,
                                 'check_out' => $att->check_out_time,
                                 'user_name' => $att->user->name,
+                                'by' => $att->by->name,
                             ]);
                         }
                     }

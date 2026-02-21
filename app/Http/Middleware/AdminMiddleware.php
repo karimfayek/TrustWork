@@ -21,12 +21,31 @@ class AdminMiddleware
         }
 
         $user = auth()->user();
+        $allowedRoles = [];
+        $allowedEmails = [];
+
+        foreach ($roles as $value) {
+            if (str_contains($value, '@')) {
+                $allowedEmails[] = $value;
+            } else {
+                $allowedRoles[] = $value;
+            }
+        }
+
+        if (
+            ($allowedRoles && $user->hasAnyRole($allowedRoles)) ||
+            in_array($user->email, $allowedEmails)
+        ) {
+            return $next($request);
+        }
+
         /* 
          if ($user && in_array($user->role, $roles)) {
              return $next($request);
 
-         } */
-        if ($user && $user->hasAnyRole($roles)) {
+         } 
+
+        if ($user && $user->hasAnyRole($roles) ) {
             return $next($request);
         }
         /*  $redirectTo = match ($user->role) {
