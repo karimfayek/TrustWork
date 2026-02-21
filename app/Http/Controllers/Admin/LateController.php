@@ -33,8 +33,9 @@ class LateController extends Controller
         //return lateattendancesget rounded to 2 decimal places
         //dd($data);
         $lateAttendances = collect($data)
-            ->pluck('lateAttendancesGet')
-            ->flatten()
+            ->flatMap(function ($item) {
+                return $item['lateAttendancesGet'];
+            })
             ->values();
 
         return response()->json($lateAttendances);

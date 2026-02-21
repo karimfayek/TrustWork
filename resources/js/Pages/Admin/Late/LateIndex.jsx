@@ -194,37 +194,37 @@ export default function LateIndex() {
                             {lateAttendances &&
                                 lateAttendances.map((attendance) => (
                                     <tr
-                                        key={attendance.id}
+                                        key={attendance[0].id}
                                         className="hover:bg-gray-50"
                                     >
                                         <td className="px-6 py-4">
-                                            {attendance.user?.name}
+                                            {attendance[0].user?.name}
                                         </td>
                                         <td className="px-6 py-4">
                                             {
-                                                attendance.check_in_time.split(
+                                                attendance[0].check_in_time?.split(
                                                     " ",
                                                 )[0]
                                             }
-                                            {attendance.project &&
-                                                attendance.project?.name}
-                                            {attendance.visit &&
-                                                attendance.visit?.customer
+                                            {attendance[0].project &&
+                                                attendance[0].project?.name}
+                                            {attendance[0].visit &&
+                                                attendance[0].visit?.customer
                                                     ?.name}
-                                            {attendance.type === "internal" &&
-                                                "داخل الشركة"}
+                                            {attendance[0].type ===
+                                                "internal" && "داخل الشركة"}
                                             {attendance.type === "external" &&
                                                 attendance.customer}
                                         </td>
                                         <td className="px-6 py-4">
                                             {
-                                                attendance.check_in_time?.split(
+                                                attendance[0].check_in_time?.split(
                                                     " ",
                                                 )[1]
                                             }
-                                            {attendance.in_location !==
+                                            {attendance[0].in_location !==
                                                 "غير محدد" &&
-                                                attendance.in_location !==
+                                                attendance[0].in_location !==
                                                     null && (
                                                     <a
                                                         href={
@@ -240,18 +240,19 @@ export default function LateIndex() {
                                         </td>
                                         <td className="px-6 py-4">
                                             {
-                                                attendance.check_out_time?.split(
+                                                attendance[0].check_out_time?.split(
                                                     " ",
                                                 )[1]
                                             }
-                                            {attendance.out_location !==
+                                            {attendance[0].out_location !==
                                                 "غير محدد" &&
-                                                attendance.out_location !==
+                                                attendance[0].out_location !==
                                                     null && (
                                                     <a
                                                         href={
                                                             "https://www.google.com/maps?q=" +
-                                                            attendance?.out_location
+                                                            attendance[0]
+                                                                ?.out_location
                                                         }
                                                         target="_blank"
                                                         className="text-blue-600 underline"
@@ -263,16 +264,17 @@ export default function LateIndex() {
                                         <td className="px-6 py-4">
                                             {
                                                 deducts[
-                                                    attendance.late_deduct_type
+                                                    attendance[0]
+                                                        .late_deduct_type
                                                 ]
                                             }
                                         </td>
                                         <td className="px-6 py-4">
-                                            {attendance.late_deduct_type ==
+                                            {attendance[0].late_deduct_type ==
                                             null ? (
                                                 <button
                                                     onClick={() =>
-                                                        openModal(attendance)
+                                                        openModal(attendance[0])
                                                     }
                                                     className="text-blue-600 underline"
                                                 >
@@ -282,7 +284,7 @@ export default function LateIndex() {
                                                 <button
                                                     onClick={() =>
                                                         cancelDeduct(
-                                                            attendance.id,
+                                                            attendance[0].id,
                                                         )
                                                     }
                                                     className="text-green-600 underline"

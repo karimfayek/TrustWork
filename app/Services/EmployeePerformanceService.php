@@ -208,7 +208,7 @@ class EmployeePerformanceService
             ];
         }
         //dd($userId);
-        return $userId != 9999 ? $result[0] : $result;
+        return $result;
     }
 
     private function getTaskData(User $user, $start, $end)
