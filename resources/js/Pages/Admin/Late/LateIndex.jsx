@@ -26,19 +26,13 @@ export default function LateIndex() {
                 console.log(error);
             })
             .finally(() => {
-                setLateAttendances((prev) => {
-                    const newData = { ...prev };
-
-                    Object.keys(newData).forEach((date) => {
-                        newData[date] = newData[date].map((att) =>
-                            att.id === id
-                                ? { ...att, late_deduct_type: null }
-                                : att,
-                        );
-                    });
-
-                    return newData;
-                });
+                setLateAttendances((prev) =>
+                    prev.map((att) =>
+                        att.id === id
+                            ? { ...att, late_deduct_type: null }
+                            : att,
+                    ),
+                );
             });
     };
     const openModal = (row) => {
@@ -72,19 +66,13 @@ export default function LateIndex() {
                 console.log(error);
             })
             .finally(() => {
-                setLateAttendances((prev) => {
-                    const newData = { ...prev };
-
-                    Object.keys(newData).forEach((date) => {
-                        newData[date] = newData[date].map((att) =>
-                            att.id === selectedRow.id
-                                ? { ...att, late_deduct_type: discountType }
-                                : att,
-                        );
-                    });
-
-                    return newData;
-                });
+                setLateAttendances((prev) =>
+                    prev.map((att) =>
+                        att.id === selectedRow.id
+                            ? { ...att, late_deduct_type: discountType }
+                            : att,
+                    ),
+                );
             });
         closeModal();
     };
