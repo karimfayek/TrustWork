@@ -313,6 +313,10 @@ Route::middleware(['auth', 'role:admin,sales'])->group(function () {
         ->name('quotes.index');
     Route::get('/quotes/{id}', [QuoteController::class, 'show'])
         ->name('quotations.show');
+    Route::get('/quotes/{id}/edit', [QuoteController::class, 'edit'])
+        ->name('quotations.edit');
+    Route::post('/quotes/{id}/update', [QuoteController::class, 'update'])
+        ->name('quotes.update');
     Route::get('/quotes/{id}/approve', [QuoteController::class, 'approve'])
         ->name('quotations.approve');
     Route::delete('/quotes/{id}', [QuoteController::class, 'destroy'])

@@ -74,11 +74,13 @@ export default function QuotationShow({ quotation }) {
                                 </td>
 
                                 <td className="px-3 py-2 text-right">
-                                    {Number(item.unit_price).toLocaleString()}
+                                    {Number(item.unit_price).toLocaleString()}{" "}
+                                    {quotation.currency}
                                 </td>
 
                                 <td className="px-3 py-2 text-right font-semibold">
-                                    {Number(item.total).toLocaleString()}
+                                    {Number(item.total).toLocaleString()}{" "}
+                                    {quotation.currency}
                                 </td>
                             </tr>
                         ))}

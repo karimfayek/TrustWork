@@ -27,10 +27,12 @@ export default function LateIndex() {
             })
             .finally(() => {
                 setLateAttendances((prev) =>
-                    prev.map((att) =>
-                        att.id === id
-                            ? { ...att, late_deduct_type: null }
-                            : att,
+                    prev.map((group) =>
+                        group.map((att) =>
+                            att.id === id
+                                ? { ...att, late_deduct_type: null }
+                                : att,
+                        ),
                     ),
                 );
             });
@@ -67,12 +69,15 @@ export default function LateIndex() {
             })
             .finally(() => {
                 setLateAttendances((prev) =>
-                    prev.map((att) =>
-                        att.id === selectedRow.id
-                            ? { ...att, late_deduct_type: discountType }
-                            : att,
+                    prev.map((group) =>
+                        group.map((att) =>
+                            att.id === selectedRow.id
+                                ? { ...att, late_deduct_type: discountType }
+                                : att,
+                        ),
                     ),
                 );
+                console.log("lateAttendances", lateAttendances);
             });
         closeModal();
     };

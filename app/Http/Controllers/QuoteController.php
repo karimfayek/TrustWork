@@ -52,6 +52,43 @@ class QuoteController extends Controller
 
         return redirect()->route('quotes.preview');
     }
+    public function edit($id)
+    {
+        $quotation = Quotation::with('items', 'items.product', 'user')->find($id);
+        if (!$quotation) {
+            abort(403);
+        }
+        return inertia('Admin/Quotations/Edit', [
+            'quotation' => $quotation
+        ]);
+    }
+    public function update(Request $request, $id)
+    {
+        $quotation = Quotation::find($id);
+        if (!$quotation) {
+            abort(403);
+        }
+        // dd($request->all());
+        DB::transaction(function () use ($request, $quotation) {
+            $quotation->update([
+                'quotation_date' => $request->quotation_date,
+                'company_name' => $request->company_name,
+                'currency' => $request->currency,
+                'body' => $request->body,
+                'total' => collect($request->items)->sum('total'),
+                'notes' => $request->notes,
+                'user_id' => auth()->user()->id,
+            ]);
+            //dd($request->all());
+            $quotation->items()->delete();
+            foreach ($request->items as $item) {
+                $quotation->items()->create($item);
+            }
+        });
+        return redirect()
+            ->route('quotes.index')
+            ->with('message', 'تم تحديث عرض السعر بنجاح');
+    }
 
     public function preview()
     {

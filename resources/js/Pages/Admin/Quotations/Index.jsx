@@ -99,6 +99,15 @@ export default function QuotationsIndex({ quotations }) {
                                                     ? "Approved"
                                                     : "Approve"}
                                             </Link>
+                                            <Link
+                                                href={route(
+                                                    "quotations.edit",
+                                                    q.id,
+                                                )}
+                                                className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded hover:bg-blue-200"
+                                            >
+                                                Edit
+                                            </Link>
                                             <button
                                                 onClick={(e) =>
                                                     handleDeleteQuotation(
