@@ -195,7 +195,7 @@ export default function ProductsIndex({
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            {product.price}
+                                            {product.price} {product.currency}
                                         </td>
 
                                         {["admin"].some((role) =>
@@ -204,7 +204,8 @@ export default function ProductsIndex({
                                             ),
                                         ) && (
                                             <td className="px-6 py-4">
-                                                {product.cost_price}
+                                                {product.cost_price}{" "}
+                                                {product.currency}
                                             </td>
                                         )}
 
