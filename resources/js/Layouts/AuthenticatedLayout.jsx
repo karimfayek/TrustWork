@@ -132,6 +132,11 @@ export default function AuthenticatedLayout({ header, children }) {
                     routeName: "tasks.index",
                     roles: ["admin", "proj"],
                 },
+                {
+                    label: "طلب امر شغل",
+                    routeName: "work-orders.index",
+                    roles: ["admin", "sales"],
+                },
             ],
         },
         {
