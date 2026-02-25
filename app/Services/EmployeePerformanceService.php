@@ -21,35 +21,36 @@ class EmployeePerformanceService
         $workingDays = $this->countWorkingDays($user->offdayestype, $startDate, $endDate);
         // $workingDaysUntilToday = $this->countWorkingDaysUntilToday($user->offdayestype,$startDate, $endDate, $month);
         $attendance = $this->getAttendanceData($userId, $startDate, $endDate);
+        // dd($attendance);
         $taskData = $this->getTaskData($user, $startDate, $endDate);
-        $penaltyScores = $this->calculateScores($user, $taskData['completedTasksPercentage'], $workingDays, $attendance['late_days'], $attendance['present_days']);
+        $penaltyScores = $this->calculateScores($user, $taskData['completedTasksPercentage'], $workingDays, $attendance[0]['late_days'], $attendance[0]['present_days']);
         $tools = $this->getToolAssignments($user, $startDate, $endDate);
         $financials = $this->getFinancials($user, $startDate, $endDate);
-        $transportFees = $this->calculateTransportFees($attendance['visits']);
+        $transportFees = $this->calculateTransportFees($attendance[0]['visits']);
         $rewards = $this->getRewards($userId, $startDate, $endDate);
         $loans = $this->getLoans($userId, $startDate, $endDate);
 
         // dd( $startDate->daysInMonth);
         return [
-            'attendance_percentage' => round($attendance['percentage'], 2),
+            'attendance_percentage' => round($attendance[0]['percentage'], 2),
             'deductions' => $financials['deductions'],
             'lateDeductionsTotal' => $financials['lateDeductionsTotal'],
             'basics' => $financials['basics'],
             'rewards' => $rewards,
             'loans' => $loans,
-            'visits' => $attendance['visits'],
+            'visits' => $attendance[0]['visits'],
             'totalAdvance' => $financials['advances'],
             'totalExpense' => $financials['expenses'],
             'remaining' => $financials['remaining'],
             'transportaionFees' => $transportFees,
             'total_days' => $workingDays,
-            'late_days' => $attendance['late_days'],
-            'att_days' => $attendance['present_days'],
+            'late_days' => $attendance[0]['late_days'],
+            'att_days' => $attendance[0]['present_days'],
             'month_days' => $startDate->daysInMonth,
             'alltasks' => $taskData['totalTasks'],
             'tasksCompleted' => $taskData['completedCount'],
             'completedTasksPercentage' => $taskData['completedTasksPercentage'],
-            'absenceDays' => $user->temporary ? 0 : max(0, $workingDays - $attendance['present_days'] - $attendance['leaves']),
+            'absenceDays' => $user->temporary ? 0 : max(0, $workingDays - $attendance[0]['present_days'] - $attendance[0]['leaves']),
             'taskScore' => $penaltyScores['taskScore'],
             'lateScore' => $penaltyScores['lateScore'],
             'lateFees' => $penaltyScores['lateFees'],
