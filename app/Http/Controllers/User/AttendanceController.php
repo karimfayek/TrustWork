@@ -43,7 +43,7 @@ class AttendanceController extends Controller
             ])
                 ->select('check_in_time', 'check_out_time', 'id', 'type', 'visit_id', 'project_id', 'customer', 'user_id', 'out_location', 'created_by')
                 ->latest()
-                ->limit(100)
+                ->limit(200)
                 ->get();
 
         } else {
