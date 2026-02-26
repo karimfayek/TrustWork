@@ -41,9 +41,23 @@ class AttendanceController extends Controller
                 'visit.customer:id,name',
                 'by:id,name',
             ])
-                ->select('check_in_time', 'check_out_time', 'id', 'type', 'visit_id', 'project_id', 'customer', 'user_id', 'out_location', 'created_by')
+                ->select(
+                    'check_in_time',
+                    'check_out_time',
+                    'id',
+                    'type',
+                    'visit_id',
+                    'project_id',
+                    'customer',
+                    'user_id',
+                    'out_location',
+                    'created_by'
+                )
+                ->whereBetween('created_at', [
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()
+                ])
                 ->latest()
-                ->limit(200)
                 ->get();
 
         } else {
