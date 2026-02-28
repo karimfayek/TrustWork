@@ -165,7 +165,7 @@ export default function Index({ workOrders, employees }) {
                                                             }
                                                             className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
                                                         >
-                                                            تعيين
+                                                            إسناد
                                                         </button>
                                                     </>
                                                 )}
