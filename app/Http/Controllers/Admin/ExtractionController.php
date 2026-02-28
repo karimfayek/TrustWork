@@ -59,14 +59,15 @@ class ExtractionController extends Controller
     public function getPrevQTYs(Project $project, $type)
     {
         // dd($project);
-        if ($type == 'delevery' || $type == 'mir' || $type == 'qs' || $type == 'ir') {
+        if ($type == 'delevery' || $type == 'mir' || $type == 'qs' || $type == 'ir' || $type == 'report' || $type == 'site_receipt') {
 
             $previousExtractionIds = Extraction::where('project_id', $project->id)
                 ->where('type', '=', $type)
                 ->pluck('id');
         } else {
             $previousExtractionIds = Extraction::where('project_id', $project->id)->where('supply', 0)
-                ->where('type', '!=', 'mir')->where('type', '!=', 'ir')->where('type', '!=', 'qs')->where('type', '!=', 'delevery')
+                ->where('type', '!=', 'mir')->where('type', '!=', 'ir')->where('type', '!=', 'qs')
+                ->where('type', '!=', 'delevery')->where('type', '!=', 'report')->where('type', '!=', 'site_receipt')
                 ->pluck('id');
         }
         // dd($previousExtractionIds);
@@ -99,7 +100,7 @@ class ExtractionController extends Controller
     {
         //dd($request->all());
         $validated = $request->validate([
-            'type' => 'required|in:partial,final,delevery,mir,ir,qs,report',
+            'type' => 'required|in:partial,final,delevery,mir,ir,qs,report,site_receipt',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
             'netTotal' => 'required|numeric',
@@ -129,8 +130,8 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->total,
-            'net_total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->netTotal,
+            'total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' || $request->type == 'site_receipt' ? 0 : $request->total,
+            'net_total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' || $request->type == 'site_receipt' ? 0 : $request->netTotal,
             'partial_number' => $request->num,
         ]);
         foreach ($validated['items'] as $itemData) {
@@ -143,7 +144,7 @@ class ExtractionController extends Controller
     {
         //dd($request->all());
         $validated = $request->validate([
-            'type' => 'required|in:partial,final,delevery,mir,ir,qs,report',
+            'type' => 'required|in:partial,final,delevery,mir,ir,qs,report,site_receipt',
             'date' => 'required|date',
             'customer_name' => 'nullable|string',
             'netTotal' => 'required|numeric',
@@ -174,9 +175,9 @@ class ExtractionController extends Controller
             'project_code' => $request->project_code,
             'notes' => $request->notes,
             'deductions_json' => $request->deductions,
-            'total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->total,
+            'total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' || $request->type == 'site_receipt' ? 0 : $request->total,
 
-            'net_total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' ? 0 : $request->netTotal,
+            'net_total' => $request->type == 'mir' || $request->type == 'ir' || $request->type == 'qs' || $request->type == 'delevery' || $request->type == 'report' || $request->type == 'site_receipt' ? 0 : $request->netTotal,
 
         ]);
         $sentTaskIds = collect($validated['items'])->pluck('task_id')->toArray();

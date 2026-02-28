@@ -12,11 +12,18 @@ class WorkOrder extends Model
         'client_address',
         'description',
         'user_id',
+        'status',
     ];
 
-    public function user()
+    public function creator()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function employees()
+    {
+        return $this->belongsToMany(User::class, 'work_order_user')
+            ->withTimestamps();
     }
 }
 

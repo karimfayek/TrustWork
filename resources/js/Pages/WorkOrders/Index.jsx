@@ -3,9 +3,53 @@ import { useForm } from "@inertiajs/react";
 import { useState } from "react";
 import UserLayout from "@/Layouts/UserLayout";
 import { Link } from "@inertiajs/react";
-
-export default function Index({ workOrders }) {
+import { usePage } from "@inertiajs/react";
+import AssignModal from "./AssignModal";
+import DetailsModal from "./DetailsModal";
+export default function Index({ workOrders, employees }) {
+    const logedinUser = usePage().props.auth.user;
     const [open, setOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [detailsOrder, setDetailsOrder] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const {
+        data: assignData,
+        setData: setAssignData,
+        post: assignPost,
+        processing: assignProcessing,
+    } = useForm({
+        employees: [],
+    });
+
+    function openAssignModal(order) {
+        setSelectedOrder(order);
+        setShowModal(true);
+    }
+    function handleDetailsShow(order) {
+        setDetailsOrder(order);
+        setShowDetailsModal(true);
+    }
+
+    function toggleEmployee(id) {
+        if (assignData.employees.includes(id)) {
+            setAssignData(
+                "employees",
+                assignData.employees.filter((e) => e !== id),
+            );
+        } else {
+            setAssignData("employees", [...assignData.employees, id]);
+        }
+    }
+
+    function assignSubmit() {
+        assignPost(route("work-orders.assign", selectedOrder.id), {
+            onSuccess: () => {
+                setShowModal(false);
+                setAssignData("employees", []);
+            },
+        });
+    }
 
     const { data, setData, post, processing, reset, errors } = useForm({
         client_name: "",
@@ -46,9 +90,9 @@ export default function Index({ workOrders }) {
                                 <th className="p-2 text-right">العميل</th>
                                 <th className="p-2 text-right">الهاتف</th>
                                 <th className="p-2 text-right">العنوان</th>
-                                <th className="p-2 text-right">التفاصيل</th>
                                 <th className="p-2 text-right">التاريخ</th>
-                                <th className="p-2 text-right">الموظف</th>
+                                <th className="p-2 text-right">طلب</th>
+                                <th className="p-2 text-right">الحالة</th>
                                 <th className="p-2 text-right">الإجراءات</th>
                             </tr>
                         </thead>
@@ -62,13 +106,27 @@ export default function Index({ workOrders }) {
                                     <td className="p-2">
                                         {order.client_address}
                                     </td>
-                                    <td className="p-2">{order.description}</td>
+
                                     <td className="p-2">
                                         {new Date(
                                             order.created_at,
                                         ).toLocaleDateString()}
                                     </td>
-                                    <td className="p-2">{order.user?.name}</td>
+                                    <td className="p-2">
+                                        {order.creator?.name}
+                                    </td>
+                                    <td className="p-2">
+                                        <span
+                                            className={`
+    px-3 py-1 rounded text-white
+    ${order.status === "pending" && "bg-yellow-500"}
+    ${order.status === "assigned" && "bg-blue-500"}
+    ${order.status === "completed" && "bg-green-600"}
+`}
+                                        >
+                                            {order.status}
+                                        </span>
+                                    </td>
                                     <td className="p-2">
                                         <Link
                                             href={route(
@@ -80,6 +138,47 @@ export default function Index({ workOrders }) {
                                         >
                                             مسح
                                         </Link>
+                                        {["operator", "admin"].some((role) =>
+                                            logedinUser?.rolesnames?.includes(
+                                                role,
+                                            ),
+                                        ) && (
+                                            <>
+                                                {order.status !==
+                                                    "completed" && (
+                                                    <>
+                                                        <Link
+                                                            href={route(
+                                                                "work-orders.complete",
+                                                                order.id,
+                                                            )}
+                                                            method="post"
+                                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                                        >
+                                                            تم الانتهاء
+                                                        </Link>
+                                                        <button
+                                                            onClick={() =>
+                                                                openAssignModal(
+                                                                    order,
+                                                                )
+                                                            }
+                                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
+                                                        >
+                                                            تعيين
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
+                                        <button
+                                            onClick={() =>
+                                                handleDetailsShow(order)
+                                            }
+                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
+                                        >
+                                            تفاصيل
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -183,6 +282,19 @@ export default function Index({ workOrders }) {
                     </div>
                 )}
             </div>
+            <AssignModal
+                showModal={showModal}
+                setShowModal={setShowModal}
+                employees={employees}
+                toggleEmployee={toggleEmployee}
+                submit={assignSubmit}
+                processing={processing}
+            />
+            <DetailsModal
+                showModal={showDetailsModal}
+                setShowModal={setShowDetailsModal}
+                order={detailsOrder}
+            />
         </UserLayout>
     );
 }

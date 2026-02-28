@@ -324,12 +324,16 @@ Route::middleware(['auth', 'role:admin,sales'])->group(function () {
 
 });
 
-Route::middleware(['auth', 'role:admin,sales,sherok@trustits.net'])->group(function () {
+Route::middleware(['auth', 'role:admin,sales,workorder'])->group(function () {
     Route::get('work-orders', [WorkOrderController::class, 'index'])->name('work-orders.index');
     Route::get('work-orders/create', [WorkOrderController::class, 'create'])->name('work-orders.create');
     Route::post('work-orders', [WorkOrderController::class, 'store'])->name('work-orders.store');
     Route::delete('work-orders/{id}', [WorkOrderController::class, 'destroy'])->name('work-orders.destroy');
 
+});
+Route::middleware(['auth', 'role:admin,operator'])->group(function () {
+    Route::post('work-orders/{id}/assign', [WorkOrderController::class, 'assign'])->name('work-orders.assign');
+    Route::post('work-orders/{id}/complete', [WorkOrderController::class, 'complete'])->name('work-orders.complete');
 });
 //admin,proj
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {

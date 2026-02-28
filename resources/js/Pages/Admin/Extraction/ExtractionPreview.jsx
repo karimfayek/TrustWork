@@ -27,7 +27,7 @@ export default function ExtractionPreview({
         const element = pdfRef.current;
         const elementWidth = element.offsetWidth;
         const elementHeight = element.offsetHeight;
-        // 🟥 الخطوة 1: أخفي العناصر اللي فيها `print:hidden`
+
         const hiddenElements = element.querySelectorAll(".print\\:hidden"); // Tailwind يهرب النقطتين
         hiddenElements.forEach((el) => {
             el.classList.add("hidden");
@@ -47,13 +47,11 @@ export default function ExtractionPreview({
             },
         };
 
-        // 🟩 الخطوة 2: أنشئ الـ PDF
         html2pdf()
             .set(opt)
             .from(element)
             .save()
             .then(() => {
-                // 🟦 الخطوة 3: رجع العناصر المخفية بعد الانتهاء
                 hiddenElements.forEach((el) => {
                     el.classList.remove("hidden");
                 });
@@ -102,6 +100,7 @@ export default function ExtractionPreview({
         supply: " جارى تشوينات",
         delevery: "  اذن تسليم",
         report: "  محضر تسليم",
+        site_receipt: "  محضر استلام موقع",
         ir: " IR",
         mir: " MIR",
         qs: " QS",
@@ -130,6 +129,7 @@ export default function ExtractionPreview({
                     delevery !== "qs" &&
                     delevery !== "ir" &&
                     delevery !== "mir" &&
+                    delevery !== "site_receipt" &&
                     delevery !== "report" && (
                         <p>
                             <strong> مستخلص:</strong> {extractionTypes[type]}{" "}
@@ -142,6 +142,11 @@ export default function ExtractionPreview({
                     </p>
                 )}
                 {delevery === "report" && (
+                    <p className="text-center text-xl">
+                        <strong> محضر تسليم</strong>{" "}
+                    </p>
+                )}
+                {delevery === "site_receipt" && (
                     <p className="text-center text-xl">
                         <strong> محضر استلام موقع </strong>{" "}
                     </p>
@@ -223,6 +228,7 @@ export default function ExtractionPreview({
 
                                     {delevery !== "delevery" &&
                                         delevery !== "report" &&
+                                        delevery !== "site_receipt" &&
                                         delevery !== "qs" &&
                                         delevery !== "ir" &&
                                         delevery !== "mir" && (
@@ -262,6 +268,7 @@ export default function ExtractionPreview({
                                 </tr>
                                 {delevery !== "delevery" &&
                                     delevery !== "report" &&
+                                    delevery !== "site_receipt" &&
                                     delevery !== "qs" &&
                                     delevery !== "ir" &&
                                     delevery !== "mir" && (
@@ -310,6 +317,7 @@ export default function ExtractionPreview({
                                         </td>
                                         {(delevery === "delevery" ||
                                             delevery === "report" ||
+                                            delevery === "site_receipt" ||
                                             delevery === "mir") && (
                                             <td className="p-2 border text-center">
                                                 {task.current_done}
@@ -317,6 +325,7 @@ export default function ExtractionPreview({
                                         )}
                                         {delevery !== "delevery" &&
                                             delevery !== "report" &&
+                                            delevery !== "site_receipt" &&
                                             delevery !== "qs" &&
                                             delevery !== "ir" &&
                                             delevery !== "mir" && (
@@ -357,6 +366,7 @@ export default function ExtractionPreview({
                                 ))}
                                 {delevery !== "delevery" &&
                                     delevery !== "report" &&
+                                    delevery !== "site_receipt" &&
                                     delevery !== "qs" &&
                                     delevery !== "ir" &&
                                     delevery !== "mir" && (
@@ -634,16 +644,24 @@ export default function ExtractionPreview({
                         notes={notes}
                     />
                 )}
-                {(delevery === "delevery" || delevery === "report") && (
+                {(delevery === "delevery" ||
+                    delevery === "report" ||
+                    delevery === "site_receipt") && (
                     <div className="mt-10">
+                        {delevery === "site_receipt" && (
+                            <p className="tet-center">
+                                تم استلام الموقع استلامًا ابتدائيًا مع وجود بعض
+                                الملاحظات البسيطة التي لا تعوق بدء الأعمال، على
+                                أن يتم تلافيها أثناء التنفيذ
+                            </p>
+                        )}
                         {/*  <p className="tet-center">
                             تم تسليم واستلام البضاعه وفقا لما هو موضح عالية
                             بالمواصافت والكميات المذكورة
                         </p> */}
                         <p className="tet-center">
-                            تم استلام الموقع استلامًا ابتدائيًا مع وجود بعض
-                            الملاحظات البسيطة التي لا تعوق بدء الأعمال، على أن
-                            يتم تلافيها أثناء التنفيذ
+                            تم تسليم واستلام البضاعه وفقا لما هو موضح عالية
+                            بالمواصافت والكميات المذكورة
                         </p>
                         <div className="flex flex-row justify-between">
                             <div className="mt-9">

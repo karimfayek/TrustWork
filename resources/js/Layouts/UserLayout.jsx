@@ -57,7 +57,9 @@ export default function UserLayout({ header, children }) {
                                         </NavLink>
                                     </>
                                 )}
-                                {user.email === "sherok@trustits.net" && (
+                                {["admin", "workorder"].some((role) =>
+                                    logedinUser?.rolesnames?.includes(role),
+                                ) && (
                                     <NavLink
                                         href={route("work-orders.index")}
                                         active={route().current(
@@ -308,24 +310,46 @@ export default function UserLayout({ header, children }) {
                             >
                                 العهد المالية
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                href={route("categories.index")}
-                                active={route().current("categories.index")}
-                            >
-                                التصنيفات
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                href={route("products.index")}
-                                active={route().current("products.index")}
-                            >
-                                المنتجات
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                href={route("quotes.index")}
-                                active={route().current("quotes.index")}
-                            >
-                                العروض
-                            </ResponsiveNavLink>
+                            {["admin", "sales"].some((role) =>
+                                logedinUser?.rolesnames?.includes(role),
+                            ) && (
+                                <>
+                                    <ResponsiveNavLink
+                                        href={route("categories.index")}
+                                        active={route().current(
+                                            "categories.index",
+                                        )}
+                                    >
+                                        التصنيفات
+                                    </ResponsiveNavLink>
+                                    <ResponsiveNavLink
+                                        href={route("products.index")}
+                                        active={route().current(
+                                            "products.index",
+                                        )}
+                                    >
+                                        المنتجات
+                                    </ResponsiveNavLink>
+                                    <ResponsiveNavLink
+                                        href={route("quotes.index")}
+                                        active={route().current("quotes.index")}
+                                    >
+                                        العروض
+                                    </ResponsiveNavLink>
+                                </>
+                            )}
+                            {["admin", "workorder"].some((role) =>
+                                logedinUser?.rolesnames?.includes(role),
+                            ) && (
+                                <ResponsiveNavLink
+                                    href={route("work-orders.index")}
+                                    active={route().current(
+                                        "work-orders.index",
+                                    )}
+                                >
+                                    التصنيفات
+                                </ResponsiveNavLink>
+                            )}
                             <ResponsiveNavLink
                                 method="post"
                                 href={route("logout")}

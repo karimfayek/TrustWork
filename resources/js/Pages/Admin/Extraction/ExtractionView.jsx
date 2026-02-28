@@ -117,6 +117,11 @@ export default function ExtractionPreview({ project, extraction }) {
                     )}
                     {type === "report" && (
                         <p className="text-center text-xl">
+                            <strong> محضر تسليم </strong>{" "}
+                        </p>
+                    )}
+                    {type === "site_receipt" && (
+                        <p className="text-center text-xl">
                             <strong> محضر استلام موقع </strong>{" "}
                         </p>
                     )}
@@ -145,11 +150,13 @@ export default function ExtractionPreview({ project, extraction }) {
                                 </th>
                                 {(type === "delevery" ||
                                     type === "report" ||
+                                    type === "site_receipt" ||
                                     type === "mir") && (
                                     <>
                                         <th className="p-2 border" colSpan="3">
                                             {(type === "delevery" ||
-                                                type === "report") && (
+                                                type === "report" ||
+                                                type === "site_receipt") && (
                                                 <>كميه التسليم</>
                                             )}
                                             {type === "mir" && <>كميه الفحص</>}
@@ -158,6 +165,7 @@ export default function ExtractionPreview({ project, extraction }) {
                                 )}
                                 {type !== "delevery" &&
                                     type !== "report" &&
+                                    type !== "site_receipt" &&
                                     type !== "qs" &&
                                     type !== "ir" &&
                                     type !== "mir" && (
@@ -197,6 +205,7 @@ export default function ExtractionPreview({ project, extraction }) {
                             </tr>
                             {type !== "delevery" &&
                                 type !== "report" &&
+                                type !== "site_receipt" &&
                                 type !== "qs" &&
                                 type !== "ir" &&
                                 type !== "mir" && (
@@ -233,6 +242,7 @@ export default function ExtractionPreview({ project, extraction }) {
                                     </td>
                                     {(type === "delevery" ||
                                         type === "report" ||
+                                        type === "site_receipt" ||
                                         type === "mir") && (
                                         <td className="p-2 border text-center">
                                             {task.current_done}
@@ -240,6 +250,7 @@ export default function ExtractionPreview({ project, extraction }) {
                                     )}
                                     {type !== "delevery" &&
                                         type !== "report" &&
+                                        type !== "site_receipt" &&
                                         type !== "qs" &&
                                         type !== "ir" &&
                                         type !== "mir" && (
@@ -276,6 +287,7 @@ export default function ExtractionPreview({ project, extraction }) {
                             ))}
                             {type !== "delevery" &&
                                 type !== "report" &&
+                                type !== "site_receipt" &&
                                 type !== "qs" &&
                                 type !== "ir" &&
                                 type !== "mir" && (
@@ -528,13 +540,23 @@ export default function ExtractionPreview({ project, extraction }) {
                             </tr>
                         </tbody>
                     </table>
-                    {(type === "delevery" || type === "report") && (
+                    {(type === "delevery" ||
+                        type === "report" ||
+                        type === "site_receipt") && (
                         <div className="mt-10">
-                            <p className="tet-center">
-                                تم استلام الموقع استلامًا ابتدائيًا مع وجود بعض
-                                الملاحظات البسيطة التي لا تعوق بدء الأعمال، على
-                                أن يتم تلافيها أثناء التنفيذ
-                            </p>
+                            {type === "site_receipt" && (
+                                <p className="tet-center">
+                                    تم استلام الموقع استلامًا ابتدائيًا مع وجود
+                                    بعض الملاحظات البسيطة التي لا تعوق بدء
+                                    الأعمال، على أن يتم تلافيها أثناء التنفيذ
+                                </p>
+                            )}
+                            {type === "report" && (
+                                <p className="tet-center">
+                                    تم تسليم واستلام البضاعه وفقا لما هو موضح
+                                    عالية بالمواصافت والكميات المذكورة
+                                </p>
+                            )}
                             <div className="flex flex-row justify-between">
                                 <div className="mt-9">
                                     <p>التسليم (شركة تراست)</p>

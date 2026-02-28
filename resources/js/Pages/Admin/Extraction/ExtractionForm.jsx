@@ -78,7 +78,6 @@ export default function ExtractionForm({
 
     const progressPercentage = form.deductions?.progress_percentage;
 
-    console.log(progressPercentage, "progress pres");
     const isFirstRender = useRef(true);
     useEffect(() => {
         if (isFirstRender.current) {
@@ -108,7 +107,7 @@ export default function ExtractionForm({
                         current_done: Number(current_done.toFixed(2)),
                         total_done: Number(total_done.toFixed(2)),
                         progress_percentage: Number(
-                            item.progress_percentage || 0
+                            item.progress_percentage || 0,
                         ),
                         total: Total,
                     };
@@ -130,7 +129,7 @@ export default function ExtractionForm({
                     //const Total = Number( item.total).toFixed(2)
                     const Total = Number(
                         ((total_done * item.unit_price) / 100) *
-                            progress_percentage
+                            progress_percentage,
                     ).toFixed(2);
 
                     return {
@@ -168,7 +167,8 @@ export default function ExtractionForm({
                 const progress_percentage =
                     form.deductions?.progress_percentage || 0;
                 const Total = Number(
-                    ((total_done * task.unit_price) / 100) * progress_percentage
+                    ((total_done * task.unit_price) / 100) *
+                        progress_percentage,
                 ).toFixed(2);
 
                 return {
@@ -187,7 +187,6 @@ export default function ExtractionForm({
             });
 
             setItems(initialItemss);
-            console.log(initialItemss, "inita");
         }
     }, [
         project.tasks,
@@ -213,7 +212,7 @@ export default function ExtractionForm({
                                 .querySelector('meta[name="csrf-token"]')
                                 .getAttribute("content"),
                         },
-                    }
+                    },
                 )
                 .then((data) => {
                     setPreviousQuantities(data.data);
@@ -286,7 +285,7 @@ export default function ExtractionForm({
         items,
         form.deductions,
         form.isnotinclusive,
-        form.supply
+        form.supply,
     );
 
     const handleSave = (e) => {
@@ -312,12 +311,12 @@ export default function ExtractionForm({
         if (edit) {
             router.post(
                 route("project.extractions.update", extractionId),
-                payload
+                payload,
             );
         } else {
             router.post(
                 route("project.extractions.store", project.id),
-                payload
+                payload,
             );
         }
     };
@@ -361,6 +360,10 @@ export default function ExtractionForm({
                         >
                             <option value=""> اختر </option>
                             <option value="delevery"> أذن تسليم</option>
+                            <option value="site_receipt">
+                                {" "}
+                                محضر استلام موقع
+                            </option>
                             <option value="report"> محضر تسليم</option>
 
                             <option value="mir"> MIR</option>
@@ -505,7 +508,7 @@ export default function ExtractionForm({
                                 onChange={(e) =>
                                     handleDeductionChange(
                                         e,
-                                        "progress_percentage"
+                                        "progress_percentage",
                                     )
                                 }
                             />
