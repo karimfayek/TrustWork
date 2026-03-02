@@ -167,7 +167,7 @@ class User extends Authenticatable
     }
     public function workOrders()
     {
-        return $this->belongsToMany(WorkOrder::class)
+        return $this->belongsToMany(WorkOrder::class, 'work_order_user', 'user_id', 'work_order_id')
             ->withTimestamps();
     }
 }
