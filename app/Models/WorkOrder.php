@@ -13,6 +13,11 @@ class WorkOrder extends Model
         'description',
         'user_id',
         'status',
+        'priority',
+        'assign_date',
+        'completion_date',
+        'file',
+        'customer_id',
     ];
 
     public function creator()
@@ -24,6 +29,10 @@ class WorkOrder extends Model
     {
         return $this->belongsToMany(User::class, 'work_order_user')
             ->withTimestamps();
+    }
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 }
 

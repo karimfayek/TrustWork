@@ -1,18 +1,31 @@
 // resources/js/Pages/WorkOrders/Index.jsx
 import { useForm } from "@inertiajs/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { router } from "@inertiajs/react";
 import UserLayout from "@/Layouts/UserLayout";
 import { Link } from "@inertiajs/react";
 import { usePage } from "@inertiajs/react";
 import AssignModal from "./AssignModal";
 import DetailsModal from "./DetailsModal";
-export default function Index({ workOrders, employees }) {
+import CompleteModal from "./CompleteModal";
+import AssignDateModal from "./AssignDateModal";
+export default function Index({ workOrders, employees, customers }) {
     const logedinUser = usePage().props.auth.user;
     const [open, setOpen] = useState(false);
+    const [copyCustomers, setCopyCustomers] = useState(customers);
+    const [assignDateModal, setAssignDateModal] = useState(false);
+    const [assignDate, setAssignDate] = useState(
+        new Date().toISOString().split("T")[0],
+    );
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [detailsOrder, setDetailsOrder] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [completeModal, setCompleteModal] = useState(false);
+    const [completeFile, setCompleteFile] = useState(null);
+    const [completeOrderData, setCompleteOrderData] = useState(
+        new Date().toISOString().split("T")[0],
+    );
     const {
         data: assignData,
         setData: setAssignData,
@@ -20,11 +33,20 @@ export default function Index({ workOrders, employees }) {
         processing: assignProcessing,
     } = useForm({
         employees: [],
+        assign_date: "",
     });
-
+    const priority = {
+        1: "عاجل",
+        2: "متوسط",
+        3: "منخفض",
+    };
     function openAssignModal(order) {
         setSelectedOrder(order);
         setShowModal(true);
+    }
+    function openAssignDateModal(order) {
+        setSelectedOrder(order);
+        setAssignDateModal(true);
     }
     function handleDetailsShow(order) {
         setDetailsOrder(order);
@@ -50,12 +72,29 @@ export default function Index({ workOrders, employees }) {
             },
         });
     }
-
+    function assignDateSubmit() {
+        router.post(
+            route("work-orders.assign-date", selectedOrder.id),
+            {
+                assign_date: assignDate,
+            },
+            {
+                onSuccess: () => {
+                    setAssignDateModal(false);
+                    setAssignDate("");
+                },
+            },
+        );
+    }
     const { data, setData, post, processing, reset, errors } = useForm({
         client_name: "",
         client_phone: "",
         client_address: "",
         description: "",
+        priority: "3",
+        file: "",
+        customer_id: "",
+        assign_date: "",
     });
 
     function submit(e) {
@@ -67,7 +106,32 @@ export default function Index({ workOrders, employees }) {
             },
         });
     }
-
+    function completeOrder(id) {
+        setCompleteModal(true);
+        setSelectedOrder(id);
+    }
+    function completeSubmit() {
+        const formData = new FormData();
+        formData.append("file", completeFile);
+        formData.append("date", completeOrderData);
+        router.post(
+            route("work-orders.complete", selectedOrder),
+            { completeFile, completeOrderData },
+            {
+                onSuccess: () => {
+                    setCompleteModal(false);
+                },
+            },
+        );
+    }
+    useEffect(() => {
+        if (data.customer_id) {
+            const customer = customers.find((c) => c.id == data.customer_id);
+            setData("client_name", customer.name);
+            setData("client_phone", customer.phone);
+            setData("client_address", customer.address);
+        }
+    }, [data.customer_id]);
     return (
         <UserLayout>
             <div className="p-6">
@@ -90,9 +154,14 @@ export default function Index({ workOrders, employees }) {
                                 <th className="p-2 text-right">العميل</th>
                                 <th className="p-2 text-right">الهاتف</th>
                                 <th className="p-2 text-right">العنوان</th>
-                                <th className="p-2 text-right">التاريخ</th>
+                                <th className="p-2 text-right">تاريخ الطلب</th>
+                                <th className="p-2 text-right">
+                                    تاريخ التنفيذ
+                                </th>
                                 <th className="p-2 text-right">طلب</th>
                                 <th className="p-2 text-right">الحالة</th>
+                                <th className="p-2 text-right">الأولوية</th>
+                                <th className="p-2 text-right">تم تعيينه</th>
                                 <th className="p-2 text-right">الإجراءات</th>
                             </tr>
                         </thead>
@@ -113,6 +182,13 @@ export default function Index({ workOrders, employees }) {
                                         ).toLocaleDateString()}
                                     </td>
                                     <td className="p-2">
+                                        {order.assign_date
+                                            ? new Date(
+                                                  order.assign_date,
+                                              ).toLocaleDateString()
+                                            : "لم يتم التعيين"}
+                                    </td>
+                                    <td className="p-2">
                                         {order.creator?.name}
                                     </td>
                                     <td className="p-2">
@@ -128,16 +204,31 @@ export default function Index({ workOrders, employees }) {
                                         </span>
                                     </td>
                                     <td className="p-2">
-                                        <Link
-                                            href={route(
-                                                "work-orders.destroy",
-                                                order.id,
-                                            )}
-                                            method="delete"
-                                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                        <span
+                                            className={`
+    px-3 py-1 rounded text-white
+    ${order.priority === 1 && "bg-red-500"}
+    ${order.priority === 2 && "bg-yellow-500"}
+    ${order.priority === 3 && "bg-green-600"}
+`}
                                         >
-                                            مسح
-                                        </Link>
+                                            {priority[order.priority]}
+                                        </span>
+                                    </td>
+                                    <td className="p-2">
+                                        {order.employees
+                                            .map((emp) => emp.name)
+                                            .join(", ")}
+                                    </td>
+                                    <td className="flex gap-1 p-2">
+                                        <button
+                                            onClick={() =>
+                                                handleDetailsShow(order)
+                                            }
+                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
+                                        >
+                                            تفاصيل
+                                        </button>
                                         {["operator", "admin"].some((role) =>
                                             logedinUser?.rolesnames?.includes(
                                                 role,
@@ -147,16 +238,16 @@ export default function Index({ workOrders, employees }) {
                                                 {order.status !==
                                                     "completed" && (
                                                     <>
-                                                        <Link
-                                                            href={route(
-                                                                "work-orders.complete",
-                                                                order.id,
-                                                            )}
-                                                            method="post"
-                                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                                        <button
+                                                            onClick={() =>
+                                                                openAssignDateModal(
+                                                                    order,
+                                                                )
+                                                            }
+                                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
                                                         >
-                                                            تم الانتهاء
-                                                        </Link>
+                                                            تاريخ التنفيذ
+                                                        </button>
                                                         <button
                                                             onClick={() =>
                                                                 openAssignModal(
@@ -167,18 +258,31 @@ export default function Index({ workOrders, employees }) {
                                                         >
                                                             إسناد
                                                         </button>
+                                                        <button
+                                                            onClick={() =>
+                                                                completeOrder(
+                                                                    order.id,
+                                                                )
+                                                            }
+                                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                                        >
+                                                            تم الانتهاء
+                                                        </button>
                                                     </>
                                                 )}
                                             </>
                                         )}
-                                        <button
-                                            onClick={() =>
-                                                handleDetailsShow(order)
-                                            }
-                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
+
+                                        <Link
+                                            href={route(
+                                                "work-orders.destroy",
+                                                order.id,
+                                            )}
+                                            method="delete"
+                                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                                         >
-                                            تفاصيل
-                                        </button>
+                                            مسح
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}
@@ -200,12 +304,41 @@ export default function Index({ workOrders, employees }) {
                 {/* Modal */}
                 {open && (
                     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                        <div className="bg-white w-full max-w-lg rounded shadow p-6">
+                        <div className="bg-white w-full max-w-lg rounded shadow p-6 overflow-y-auto max-h-[90vh]">
                             <h2 className="text-lg font-bold mb-4">
                                 طلب أمر شغل
                             </h2>
 
                             <form onSubmit={submit} className="space-y-3">
+                                <label
+                                    className="block mt-2 text-sm text-blue-800"
+                                    htmlFor="customer_id"
+                                >
+                                    العميل
+                                </label>
+                                <select
+                                    className="w-full border rounded p-2"
+                                    value={data.customer_id}
+                                    onChange={(e) =>
+                                        setData("customer_id", e.target.value)
+                                    }
+                                >
+                                    <option value="">اختر العميل</option>
+                                    {copyCustomers.map((customer) => (
+                                        <option
+                                            key={customer.id}
+                                            value={customer.id}
+                                        >
+                                            {customer.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <label
+                                    className="block mt-2 text-sm text-blue-800"
+                                    htmlFor="client_name"
+                                >
+                                    اسم العميل
+                                </label>
                                 <input
                                     className="w-full border rounded p-2"
                                     placeholder="اسم العميل"
@@ -214,11 +347,34 @@ export default function Index({ workOrders, employees }) {
                                         setData("client_name", e.target.value)
                                     }
                                 />
+                                <label
+                                    className="block mt-2 text-sm text-blue-800"
+                                    htmlFor="priority"
+                                >
+                                    الأولوية
+                                </label>
+                                <select
+                                    className="w-full border rounded p-2"
+                                    value={data.priority}
+                                    onChange={(e) =>
+                                        setData("priority", e.target.value)
+                                    }
+                                >
+                                    <option value="1">عاجل</option>
+                                    <option value="2">متوسط</option>
+                                    <option value="3">عادي</option>
+                                </select>
                                 {errors.client_name && (
                                     <p className="text-red-500">
                                         {errors.client_name}
                                     </p>
                                 )}
+                                <label
+                                    className="block mt-2 text-sm text-blue-800"
+                                    htmlFor="client_phone"
+                                >
+                                    رقم الهاتف
+                                </label>
                                 <input
                                     className="w-full border rounded p-2"
                                     placeholder="رقم الهاتف"
@@ -232,6 +388,12 @@ export default function Index({ workOrders, employees }) {
                                         {errors.client_phone}
                                     </p>
                                 )}
+                                <label
+                                    className="block mt-2 text-sm text-blue-800"
+                                    htmlFor="client_address"
+                                >
+                                    العنوان
+                                </label>
                                 <input
                                     className="w-full border rounded p-2"
                                     placeholder="العنوان"
@@ -248,6 +410,12 @@ export default function Index({ workOrders, employees }) {
                                         {errors.client_address}
                                     </p>
                                 )}
+                                <label
+                                    className="block mt-2 text-sm text-blue-800"
+                                    htmlFor="description"
+                                >
+                                    الوصف
+                                </label>
                                 <textarea
                                     className="w-full border rounded p-2"
                                     rows="3"
@@ -287,6 +455,8 @@ export default function Index({ workOrders, employees }) {
                 setShowModal={setShowModal}
                 employees={employees}
                 toggleEmployee={toggleEmployee}
+                assignData={assignData}
+                setAssignData={setAssignData}
                 submit={assignSubmit}
                 processing={processing}
             />
@@ -294,6 +464,23 @@ export default function Index({ workOrders, employees }) {
                 showModal={showDetailsModal}
                 setShowModal={setShowDetailsModal}
                 order={detailsOrder}
+            />
+            <CompleteModal
+                showModal={completeModal}
+                setShowModal={setCompleteModal}
+                order={selectedOrder}
+                submit={completeSubmit}
+                setCompleteOrderData={setCompleteOrderData}
+                processing={processing}
+                completeOrderData={completeOrderData}
+                setCompleteFile={setCompleteFile}
+            />
+            <AssignDateModal
+                showModal={assignDateModal}
+                setShowModal={setAssignDateModal}
+                assignDate={assignDate}
+                setAssignDate={setAssignDate}
+                assignDateSubmit={assignDateSubmit}
             />
         </UserLayout>
     );

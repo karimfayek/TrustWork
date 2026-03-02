@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use App\Models\User;
-
+use App\Models\Customer;
 class WorkOrderController extends Controller
 {
     public function index()
@@ -21,7 +21,8 @@ class WorkOrderController extends Controller
         }
         return Inertia::render('WorkOrders/Index', [
             'workOrders' => $workOrders,
-            'employees' => User::where('status', '1')->get()
+            'employees' => User::where('status', '1')->get(),
+            'customers' => Customer::all(),
         ]);
     }
     public function create()
@@ -33,10 +34,12 @@ class WorkOrderController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'customer_id' => 'nullable|exists:customers,id',
             'client_name' => 'required|string|max:255',
             'client_phone' => 'required|string|max:50',
             'client_address' => 'required|string|max:255',
             'description' => 'required|string',
+            'priority' => 'required|in:1,2,3',
         ]);
         $data['user_id'] = auth()->user()->id;
         $workOrder = WorkOrder::create($data);
@@ -52,6 +55,17 @@ class WorkOrderController extends Controller
         return redirect()
             ->back()
             ->with('message', 'تم إرسال طلب أمر الشغل بنجاح');
+    }
+    public function assignDate(Request $request, $id)
+    {
+        $workOrder = WorkOrder::findOrFail($id);
+        $request->validate([
+            'assign_date' => 'required|date',
+        ]);
+        $workOrder->update([
+            'assign_date' => $request->assign_date,
+        ]);
+        return back()->with('message', 'تم تعيين تاريخ التنفيذ بنجاح');
     }
     public function destroy($id)
     {
@@ -72,22 +86,39 @@ class WorkOrderController extends Controller
         $workOrder = WorkOrder::findOrFail($id);
         $request->validate([
             'employees' => 'required|array',
-            'employees.*' => 'exists:users,id'
+            'employees.*' => 'exists:users,id',
+            'assign_date' => 'required|date',
         ]);
 
         $workOrder->employees()->sync($request->employees);
 
         $workOrder->update([
-            'status' => 'assigned'
+            'status' => 'assigned',
+            'assign_date' => $request->assign_date,
         ]);
 
         return back()->with('message', 'تم تعيين طلب أمر الشغل بنجاح');
     }
-    public function complete($id)
+    public function complete(Request $request, $id)
     {
+        $data = $request->validate([
+            'completeFile' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+            'completeOrderData' => 'required|date',
+        ]);
+        $fileName = null;
+        //store the file at private storage
+        if ($request->hasFile('completeFile')) {
+            $path = $request->file('completeFile')->store('workorders', 'private');
+        }
         $workOrder = WorkOrder::findOrFail($id);
+        $file = storage_path('app/private/' . $workOrder->file);
+        if (file_exists($file)) {
+            @unlink($file);
+        }
         $workOrder->update([
-            'status' => 'completed'
+            'status' => 'completed',
+            'completion_date' => $request->completeOrderData,
+            'file' => $path,
         ]);
         return back()->with('message', 'تم إكمال طلب أمر الشغل بنجاح');
     }

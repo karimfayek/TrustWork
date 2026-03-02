@@ -42,6 +42,28 @@ export default function DetailsModal({
                                     order.created_at,
                                 ).toLocaleDateString()}
                             </p>
+                            <p>
+                                <strong>تاريخ الانتهاء:</strong>{" "}
+                                {order.completion_date
+                                    ? new Date(
+                                          order.completion_date,
+                                      ).toLocaleDateString()
+                                    : "لا يوجد"}
+                            </p>
+                            <p>
+                                <strong>الملف:</strong>{" "}
+                                {order.file ? (
+                                    <a
+                                        href={`/private-storage/${order.file}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        تحميل
+                                    </a>
+                                ) : (
+                                    "لا يوجد ملف"
+                                )}
+                            </p>
                         </div>
 
                         <div className="flex justify-end gap-2 mt-4">

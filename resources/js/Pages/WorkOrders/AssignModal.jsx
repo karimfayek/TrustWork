@@ -3,6 +3,8 @@ import React from "react";
 export default function AssignModal({
     showModal = false,
     setShowModal,
+    assignData,
+    setAssignData,
     employees,
     toggleEmployee,
     submit,
@@ -32,7 +34,18 @@ export default function AssignModal({
                                 </label>
                             ))}
                         </div>
-
+                        <div className="flex flex-col">
+                            <label htmlFor="date">تاريخ التنفيذ</label>
+                            <input
+                                type="date"
+                                name="date"
+                                id="date"
+                                value={assignData?.assign_date}
+                                onChange={(e) =>
+                                    setAssignData("assign_date", e.target.value)
+                                }
+                            />
+                        </div>
                         <div className="flex justify-end gap-2 mt-4">
                             <button
                                 onClick={() => setShowModal(false)}

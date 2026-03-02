@@ -334,6 +334,7 @@ Route::middleware(['auth', 'role:admin,sales,workorder'])->group(function () {
 Route::middleware(['auth', 'role:admin,operator'])->group(function () {
     Route::post('work-orders/{id}/assign', [WorkOrderController::class, 'assign'])->name('work-orders.assign');
     Route::post('work-orders/{id}/complete', [WorkOrderController::class, 'complete'])->name('work-orders.complete');
+    Route::post('work-orders/{id}/assign-date', [WorkOrderController::class, 'assignDate'])->name('work-orders.assign-date');
 });
 //admin,proj
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {

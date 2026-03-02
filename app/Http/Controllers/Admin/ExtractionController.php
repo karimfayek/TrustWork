@@ -299,6 +299,12 @@ class ExtractionController extends Controller
 
     public function showPrivateFile($filename)
     {
+        if ($filename == null) {
+            abort(404);
+        }
+        if (!auth()->check()) {
+            abort(403);
+        }
         $path = storage_path('app/private/' . $filename);
         //dd($path);
         if (!file_exists($path)) {

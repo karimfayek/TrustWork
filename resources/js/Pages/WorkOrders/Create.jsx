@@ -6,6 +6,7 @@ export default function Create() {
         client_phone: "",
         client_address: "",
         description: "",
+        priority: "3",
     });
 
     function submit(e) {
@@ -27,6 +28,19 @@ export default function Create() {
                     />
                     {errors.client_name && (
                         <p className="text-red-500">{errors.client_name}</p>
+                    )}
+
+                    <select
+                        className="w-full border rounded p-2"
+                        value={data.priority}
+                        onChange={(e) => setData("priority", e.target.value)}
+                    >
+                        <option value="1">عاجل</option>
+                        <option value="2">متوسط</option>
+                        <option value="3">عادي</option>
+                    </select>
+                    {errors.priority && (
+                        <p className="text-red-500">{errors.priority}</p>
                     )}
 
                     <input
