@@ -132,6 +132,56 @@ export default function Index({ workOrders, employees, customers }) {
             setData("client_address", customer.address);
         }
     }, [data.customer_id]);
+    const [sortConfig, setSortConfig] = useState({
+        key: "",
+        direction: "desc",
+    });
+    function handleSort(key) {
+        let direction = "desc";
+
+        if (sortConfig.key === key && sortConfig.direction === "desc") {
+            direction = "asc";
+        }
+
+        setSortConfig({ key, direction });
+    }
+    const sortedOrders = [...workOrders].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        let aValue;
+        let bValue;
+
+        // 🔹 حالة employees
+        if (sortConfig.key === "employees") {
+            aValue = a.employees.map((emp) => emp.name).join(", ");
+            bValue = b.employees.map((emp) => emp.name).join(", ");
+        }
+        // 🔹 التواريخ
+        else if (
+            sortConfig.key === "created_at" ||
+            sortConfig.key === "assign_date"
+        ) {
+            aValue = new Date(a[sortConfig.key] || 0);
+            bValue = new Date(b[sortConfig.key] || 0);
+        }
+        // 🔹 باقي القيم
+        else {
+            aValue = a[sortConfig.key] ?? "";
+            bValue = b[sortConfig.key] ?? "";
+        }
+
+        // أرقام
+        if (typeof aValue === "number" && typeof bValue === "number") {
+            return sortConfig.direction === "asc"
+                ? aValue - bValue
+                : bValue - aValue;
+        }
+
+        // نصوص
+        return sortConfig.direction === "asc"
+            ? String(aValue).localeCompare(String(bValue), "ar")
+            : String(bValue).localeCompare(String(aValue), "ar");
+    });
     return (
         <UserLayout>
             <div className="p-6">
@@ -151,22 +201,101 @@ export default function Index({ workOrders, employees, customers }) {
                     <table className="w-full text-sm">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="p-2 text-right">العميل</th>
-                                <th className="p-2 text-right">الهاتف</th>
-                                <th className="p-2 text-right">العنوان</th>
-                                <th className="p-2 text-right">تاريخ الطلب</th>
-                                <th className="p-2 text-right">
-                                    تاريخ التنفيذ
+                                <th
+                                    onClick={() => handleSort("client_name")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    العميل
+                                    {sortConfig.key === "client_name" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
                                 </th>
-                                <th className="p-2 text-right">طلب</th>
-                                <th className="p-2 text-right">الحالة</th>
-                                <th className="p-2 text-right">الأولوية</th>
-                                <th className="p-2 text-right">تم تعيينه</th>
+                                <th
+                                    onClick={() => handleSort("client_phone")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    الهاتف
+                                    {sortConfig.key === "client_phone" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
+                                <th
+                                    onClick={() => handleSort("client_address")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    العنوان
+                                    {sortConfig.key === "client_address" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
+                                <th
+                                    onClick={() => handleSort("created_at")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    تاريخ الطلب
+                                    {sortConfig.key === "created_at" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
+                                <th
+                                    onClick={() => handleSort("assign_date")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    تاريخ التنفيذ
+                                    {sortConfig.key === "assign_date" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
+                                <th
+                                    onClick={() => handleSort("creator_id")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    طلب
+                                    {sortConfig.key === "creator_id" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
+                                <th
+                                    onClick={() => handleSort("status")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    الحالة
+                                    {sortConfig.key === "status" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
+                                <th
+                                    onClick={() => handleSort("priority")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    الأولوية
+                                    {sortConfig.key === "priority" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
+                                <th
+                                    onClick={() => handleSort("employees")}
+                                    className="p-2 text-right cursor-pointer"
+                                >
+                                    تم تعيينه
+                                    {sortConfig.key === "employees" &&
+                                        (sortConfig.direction === "asc"
+                                            ? " ↑"
+                                            : " ↓")}
+                                </th>
                                 <th className="p-2 text-right">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {workOrders.map((order) => (
+                            {sortedOrders.map((order) => (
                                 <tr key={order.id} className="border-t">
                                     <td className="p-2">{order.client_name}</td>
                                     <td className="p-2">
