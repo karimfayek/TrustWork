@@ -9,6 +9,7 @@ import AssignModal from "./AssignModal";
 import DetailsModal from "./DetailsModal";
 import CompleteModal from "./CompleteModal";
 import AssignDateModal from "./AssignDateModal";
+import EditModal from "./EditModal";
 export default function Index({ workOrders, employees, customers }) {
     const logedinUser = usePage().props.auth.user;
     const [open, setOpen] = useState(false);
@@ -182,6 +183,47 @@ export default function Index({ workOrders, employees, customers }) {
             ? String(aValue).localeCompare(String(bValue), "ar")
             : String(bValue).localeCompare(String(aValue), "ar");
     });
+    const [editModal, setEditModal] = useState(false);
+    const handleEdit = (id) => {
+        const order = workOrders.find((order) => order.id === id);
+
+        if (!order) return;
+
+        setSelectedOrder(id);
+
+        setEditData({
+            client_name: order.client_name || "",
+            client_phone: order.client_phone || "",
+            client_address: order.client_address || "",
+            description: order.description || "",
+            priority: order.priority || "",
+        });
+
+        setEditModal(true);
+    };
+    const {
+        data: editData,
+        setData: setEditData,
+        post: editPost,
+        processing: editProcessing,
+        reset: editReset,
+        errors: editErrors,
+    } = useForm({
+        client_name: "",
+        client_phone: "",
+        client_address: "",
+        description: "",
+        priority: "3",
+    });
+    function editSubmit() {
+        console.log(selectedOrder);
+        editPost(route("work-orders.update", selectedOrder), {
+            onSuccess: () => {
+                setEditModal(false);
+                editReset();
+            },
+        });
+    }
     return (
         <UserLayout>
             <div className="p-6">
@@ -296,7 +338,11 @@ export default function Index({ workOrders, employees, customers }) {
                         </thead>
                         <tbody>
                             {sortedOrders.map((order) => (
-                                <tr key={order.id} className="border-t">
+                                <tr
+                                    key={order.id}
+                                    className={`border-t cursor-pointer hover:bg-gray-100 ${order.status === "completed" && "bg-green-700 text-white hover:bg-green-800"} ${order.assign_date < new Date().toISOString().split("T")[0] && order.status !== "completed" && "bg-red-700 text-white hover:bg-red-800"} ${order.assign_date === null && order.status !== "completed" && "bg-yellow-700 text-white hover:bg-yellow-800"}`}
+                                    onClick={() => handleEdit(order.id)}
+                                >
                                     <td className="p-2">{order.client_name}</td>
                                     <td className="p-2">
                                         {order.client_phone}
@@ -351,9 +397,10 @@ export default function Index({ workOrders, employees, customers }) {
                                     </td>
                                     <td className="flex gap-1 p-2">
                                         <button
-                                            onClick={() =>
-                                                handleDetailsShow(order)
-                                            }
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDetailsShow(order);
+                                            }}
                                             className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
                                         >
                                             تفاصيل
@@ -368,31 +415,34 @@ export default function Index({ workOrders, employees, customers }) {
                                                     "completed" && (
                                                     <>
                                                         <button
-                                                            onClick={() =>
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
                                                                 openAssignDateModal(
                                                                     order,
-                                                                )
-                                                            }
+                                                                );
+                                                            }}
                                                             className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
                                                         >
                                                             تاريخ التنفيذ
                                                         </button>
                                                         <button
-                                                            onClick={() =>
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
                                                                 openAssignModal(
                                                                     order,
-                                                                )
-                                                            }
+                                                                );
+                                                            }}
                                                             className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
                                                         >
                                                             إسناد
                                                         </button>
                                                         <button
-                                                            onClick={() =>
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
                                                                 completeOrder(
                                                                     order.id,
-                                                                )
-                                                            }
+                                                                );
+                                                            }}
                                                             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                                                         >
                                                             تم الانتهاء
@@ -610,6 +660,15 @@ export default function Index({ workOrders, employees, customers }) {
                 assignDate={assignDate}
                 setAssignDate={setAssignDate}
                 assignDateSubmit={assignDateSubmit}
+            />
+            <EditModal
+                showModal={editModal}
+                editData={editData}
+                setEditData={setEditData}
+                setShowModal={setEditModal}
+                submit={editSubmit}
+                processing={processing}
+                editErrors={editErrors}
             />
         </UserLayout>
     );

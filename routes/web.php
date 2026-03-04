@@ -252,6 +252,9 @@ Route::middleware(['auth', 'role:employee,admin,acc,proj,tech,managment,hr'])->g
     Route::post('/attendance/manualcheck/', [AttendanceController::class, 'manualCheckIn'])->name('check.manual');
     Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->name('password.change');
     Route::post('/change-password/first', [ChangePasswordController::class, 'update'])->name('password.update.first');
+    Route::get('/employee/work-orders', [WorkOrderController::class, 'indexEmployee'])->name('employee.work-orders.index');
+
+    Route::post('work-orders/{id}/complete', [WorkOrderController::class, 'complete'])->name('work-orders.complete');
 
 });
 Route::middleware(['auth', 'role:admin,acc,proj,hr'])->group(function () {
@@ -333,8 +336,9 @@ Route::middleware(['auth', 'role:admin,sales,workorder'])->group(function () {
 });
 Route::middleware(['auth', 'role:admin,operator'])->group(function () {
     Route::post('work-orders/{id}/assign', [WorkOrderController::class, 'assign'])->name('work-orders.assign');
-    Route::post('work-orders/{id}/complete', [WorkOrderController::class, 'complete'])->name('work-orders.complete');
     Route::post('work-orders/{id}/assign-date', [WorkOrderController::class, 'assignDate'])->name('work-orders.assign-date');
+    //update work order
+    Route::post('work-orders/{id}/update', [WorkOrderController::class, 'update'])->name('work-orders.update');
 });
 //admin,proj
 Route::middleware(['auth', 'role:admin,proj'])->group(function () {

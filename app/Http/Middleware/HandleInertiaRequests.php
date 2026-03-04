@@ -31,21 +31,25 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user() ? $request->user() : null;
         //$user ? $user['rolesnames'] = $user->roles()->pluck('name') : null;
-        if($user){
+        if ($user) {
             $user->load('rewards');
-            
+
         }
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $user ? array_merge(
-                $user->toArray(), 
-                ['rolesnames' => $user->roles()->pluck('name')]
-            ) : null,
+                'user' => $user
+                    ? array_merge(
+                        $user->load('pendingWorkOrders')->toArray(),
+                        [
+                            'rolesnames' => $user->roles()->pluck('name'),
+                        ]
+                    )
+                    : null,
             ],
-            'flash' =>[
+            'flash' => [
                 'message' => $request->session()->get('message'),
-                'type' => $request->session()->get('type' , 'success'),
+                'type' => $request->session()->get('type', 'success'),
             ]
         ];
     }

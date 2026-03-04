@@ -170,4 +170,20 @@ class User extends Authenticatable
         return $this->belongsToMany(WorkOrder::class, 'work_order_user', 'user_id', 'work_order_id')
             ->withTimestamps();
     }
+    public function requestedWorkOrders()
+    {
+        return $this->hasMany(WorkOrder::class, 'user_id');
+    }
+    //pending workorders
+    public function pendingWorkOrders()
+    {
+        return $this->belongsToMany(WorkOrder::class, 'work_order_user', 'user_id', 'work_order_id')
+            ->whereNull('completion_date');
+    }
+    //completed workorders
+    public function completedWorkOrders()
+    {
+        return $this->hasMany(WorkOrder::class, 'user_id')->whereNotNull('completion_date');
+    }
+
 }

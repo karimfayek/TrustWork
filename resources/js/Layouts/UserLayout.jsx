@@ -66,9 +66,17 @@ export default function UserLayout({ header, children }) {
                                             "work-orders.index",
                                         )}
                                     >
-                                        امر شغل
+                                        طلب امر شغل
                                     </NavLink>
                                 )}
+                                <NavLink
+                                    href={route("employee.work-orders.index")}
+                                    active={route().current(
+                                        "employee.work-orders.index",
+                                    )}
+                                >
+                                    اوامر الشغل
+                                </NavLink>
                                 <NavLink
                                     href={route("employee.att.index")}
                                     active={route().current(
@@ -146,6 +154,16 @@ export default function UserLayout({ header, children }) {
                                                     )}
                                                 >
                                                     طلب أمر شغل
+                                                </Dropdown.Link>
+                                                <Dropdown.Link
+                                                    href={route(
+                                                        "employee.work-orders.index",
+                                                    )}
+                                                    active={route().current(
+                                                        "employee.work-orders.index",
+                                                    )}
+                                                >
+                                                    اوامر شغل
                                                 </Dropdown.Link>
                                             </Dropdown.Content>
                                         </Dropdown>

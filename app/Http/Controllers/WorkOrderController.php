@@ -17,12 +17,22 @@ class WorkOrderController extends Controller
         if ($user->hasRole('admin') || $user->hasRole('operator')) {
             $workOrders = WorkOrder::with('creator', 'employees')->latest()->get();
         } else {
-            $workOrders = $user->workOrders()->with('creator', 'employees')->latest()->get();
+            // dd($user->requestedWorkOrders);
+            $workOrders = $user->requestedWorkOrders()->with('creator', 'employees')->latest()->get();
         }
         return Inertia::render('WorkOrders/Index', [
             'workOrders' => $workOrders,
             'employees' => User::where('status', '1')->get(),
             'customers' => Customer::all(),
+        ]);
+    }
+    public function indexEmployee()
+    {
+        $user = auth()->user();
+        $workOrders = $user->workOrders()->with('creator', 'employees')->latest()->get();
+
+        return Inertia::render('WorkOrders/EmployeeIndex', [
+            'workOrders' => $workOrders,
         ]);
     }
     public function create()
@@ -99,18 +109,42 @@ class WorkOrderController extends Controller
 
         return back()->with('message', 'تم تعيين طلب أمر الشغل بنجاح');
     }
+    public function update(Request $request, $id)
+    {
+        $workOrder = WorkOrder::findOrFail($id);
+        $request->validate([
+            'client_name' => 'required|string|max:255',
+            'client_phone' => 'required|string|max:50',
+            'client_address' => 'required|string|max:255',
+            'description' => 'required|string',
+            'priority' => 'required|in:1,2,3',
+        ]);
+        $workOrder->update([
+            'client_name' => $request->client_name,
+            'client_phone' => $request->client_phone,
+            'client_address' => $request->client_address,
+            'description' => $request->description,
+            'priority' => $request->priority,
+        ]);
+        return back()->with('message', 'تم تحديث طلب أمر الشغل بنجاح');
+    }
     public function complete(Request $request, $id)
     {
+        $user = auth()->user();
+
         $data = $request->validate([
             'completeFile' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
             'completeOrderData' => 'required|date',
         ]);
-        $fileName = null;
+        $path = null;
         //store the file at private storage
         if ($request->hasFile('completeFile')) {
             $path = $request->file('completeFile')->store('workorders', 'private');
         }
         $workOrder = WorkOrder::findOrFail($id);
+        if (!$user->hasRole('admin') && !$user->hasRole('operator') && !$user->workOrders->contains($workOrder->id)) {
+            return back()->with('error', 'لا يمكن إكمال طلب أمر الشغل');
+        }
         $file = storage_path('app/private/' . $workOrder->file);
         if (file_exists($file)) {
             @unlink($file);
