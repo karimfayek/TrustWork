@@ -340,7 +340,7 @@ export default function Index({ workOrders, employees, customers }) {
                             {sortedOrders.map((order) => (
                                 <tr
                                     key={order.id}
-                                    className={`border-t cursor-pointer hover:bg-gray-100 ${order.status === "completed" && "bg-green-700 text-white hover:bg-green-800"} ${order.assign_date < new Date().toISOString().split("T")[0] && order.status !== "completed" && "bg-red-700 text-white hover:bg-red-800"} ${order.assign_date === null && order.status !== "completed" && "bg-yellow-700 text-white hover:bg-yellow-800"}`}
+                                    className={`border-t cursor-pointer hover:bg-gray-100 ${order.status === "completed" && "bg-green-100 text-black hover:bg-green-200"} ${order.assign_date < new Date().toISOString().split("T")[0] && order.status !== "completed" && "bg-red-100 text-black hover:bg-red-200"} ${order.assign_date === null && order.status !== "completed" && "bg-yellow-100 text-black hover:bg-yellow-200"}`}
                                     onClick={() => handleEdit(order.id)}
                                 >
                                     <td className="p-2">{order.client_name}</td>
