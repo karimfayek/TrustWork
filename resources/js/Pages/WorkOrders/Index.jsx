@@ -146,7 +146,11 @@ export default function Index({ workOrders, employees, customers }) {
 
         setSortConfig({ key, direction });
     }
-    const sortedOrders = [...workOrders].sort((a, b) => {
+    const [showCompleted, setShowCompleted] = useState(false);
+    const pendingOrders = workOrders.filter(
+        (order) => order.status !== "completed" || showCompleted,
+    );
+    const sortedOrders = [...pendingOrders].sort((a, b) => {
         if (!sortConfig.key) return 0;
 
         let aValue;
@@ -230,6 +234,16 @@ export default function Index({ workOrders, employees, customers }) {
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-xl font-bold">طلبات أوامر الشغل</h1>
+                    <div>
+                        <button
+                            onClick={() => setShowCompleted(!showCompleted)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded"
+                        >
+                            {showCompleted
+                                ? "إخفاء الأوامر المكتملة"
+                                : "إظهار الأوامر المكتملة"}
+                        </button>
+                    </div>
                     <button
                         onClick={() => setOpen(true)}
                         className="bg-blue-600 text-white px-4 py-2 rounded"
