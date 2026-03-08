@@ -255,7 +255,7 @@ export default function Index({ workOrders, employees, customers }) {
                 {/* Table */}
                 <div className="bg-white rounded shadow overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-100">
+                        <thead className="bg-white">
                             <tr>
                                 <th
                                     onClick={() => handleSort("client_name")}
@@ -409,13 +409,13 @@ export default function Index({ workOrders, employees, customers }) {
                                             .map((emp) => emp.name)
                                             .join(", ")}
                                     </td>
-                                    <td className="flex gap-1 p-2">
+                                    <td className="flex gap-1 mt-2">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDetailsShow(order);
                                             }}
-                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
+                                            className="mb-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                         >
                                             تفاصيل
                                         </button>
@@ -435,7 +435,7 @@ export default function Index({ workOrders, employees, customers }) {
                                                                     order,
                                                                 );
                                                             }}
-                                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
+                                                            className="mb-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                         >
                                                             تاريخ التنفيذ
                                                         </button>
@@ -446,7 +446,7 @@ export default function Index({ workOrders, employees, customers }) {
                                                                     order,
                                                                 );
                                                             }}
-                                                            className="bg-blue-600 hover:bg-blue-700 mx-2 px-4 py-2 rounded text-white"
+                                                            className="mb-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                         >
                                                             إسناد
                                                         </button>
@@ -457,7 +457,7 @@ export default function Index({ workOrders, employees, customers }) {
                                                                     order.id,
                                                                 );
                                                             }}
-                                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                                            className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                         >
                                                             تم الانتهاء
                                                         </button>
@@ -472,7 +472,7 @@ export default function Index({ workOrders, employees, customers }) {
                                                 order.id,
                                             )}
                                             method="delete"
-                                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                            className="mb-2 inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                         >
                                             مسح
                                         </Link>
