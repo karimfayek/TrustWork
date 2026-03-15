@@ -23,7 +23,11 @@ class AttendanceController extends Controller
         $customers = \App\Models\Customer::all();
         $projects = Project::all();
         $userId = auth()->user()->id;
-        $atts = Attendance::where('user_id', $userId)->get()->load('project', 'visit', 'visit.customer');
+        $atts = Attendance::where('user_id', $userId)
+            ->whereMonth('check_in_time', Carbon::now()->month)
+            ->whereYear('check_in_time', Carbon::now()->year)
+            ->with('project', 'visit', 'visit.customer')
+            ->get();
         return Inertia::render('Employee/Att/Index', [
             'customers' => $customers,
             'projects' => $projects,

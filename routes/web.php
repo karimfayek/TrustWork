@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\StockMovementController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\ItemsDashboardController;
 use App\Http\Controllers\Admin\LateController;
+use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\User\EmployeeAdvanceController;
 use App\Http\Controllers\User\IssueController;
 use App\Http\Controllers\User\TaskProgressController;
@@ -151,6 +152,24 @@ Route::middleware(['auth', 'role:admin,acc'])->group(function () {
     Route::post('/extraction/file/upload/{id}', [ExtractionController::class, 'UploadFIle'])->name('extraction.file.upload');
     Route::post('/extraction/set/collected/{id}', [ExtractionController::class, 'SetCollected'])->name('extraction.collected.set');
     Route::post('/extraction/delevery/{project}/{type}', [ExtractionController::class, 'getPrevQTYs'])->name('extraction.delevery.getPrevQTYs');
+
+    Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+    Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+    Route::get('/expenses/{id}', [ExpenseController::class, 'show'])->name('expenses.show');
+    Route::get('/expenses/{id}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
+    Route::post('/expenses/{id}', [ExpenseController::class, 'update'])->name('expenses.update');
+    Route::post('/expenses/{id}/delete', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+    //expense categories
+    Route::get('/expense-categories', [ExpenseController::class, 'CategoryIndex'])->name('expense-categories.index');
+    Route::get('/expense-categories/create', [ExpenseController::class, 'CategoryCreate'])->name('expense-categories.create');
+    Route::post('/expense-categories', [ExpenseController::class, 'CategoryStore'])->name('expense-categories.store');
+    Route::get('/expense-categories/{id}', [ExpenseController::class, 'CategoryShow'])->name('expense-categories.show');
+    Route::get('/expense-categories/{id}/edit', [ExpenseController::class, 'CategoryEdit'])->name('expense-categories.edit');
+    Route::post('/expense-categories/{id}/update', [ExpenseController::class, 'CategoryUpdate'])->name('expense-categories.update');
+    Route::post('/expense-categories/{id}/delete', [ExpenseController::class, 'CategoryDestroy'])->name('expense-categories.destroy');
+    Route::get('/expenses/file/{id}', [ExpenseController::class, 'viewFile'])
+        ->name('expenses.file');
 });
 Route::middleware(['auth', 'role:admin,hr'])->group(function () {
     Route::post('/admin/att/delete', [AttendanceController::class, 'delete'])->name('admin.att.delete');

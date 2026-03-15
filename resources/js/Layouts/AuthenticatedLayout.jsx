@@ -269,6 +269,26 @@ export default function AuthenticatedLayout({ header, children }) {
                 },
             ],
         },
+        {
+            label: "المصروفات",
+            items: [
+                {
+                    label: "التصنيفات",
+                    routeName: "expense-categories.index",
+                    roles: ["admin", "acc"],
+                },
+                {
+                    label: "المصروفات",
+                    routeName: "expenses.index",
+                    roles: ["admin", "acc"],
+                },
+                {
+                    label: "اضافه مصروف",
+                    routeName: "expenses.create",
+                    roles: ["admin", "acc"],
+                },
+            ],
+        },
     ];
 
     // روابط فردية خارج المجموعات
@@ -324,7 +344,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </Link>
                             </div>
 
-                            <div className="hidden sm:flex items-center justify-center gap-8 ms-10">
+                            <div className="hidden sm:flex items-center justify-center gap-2 ms-10">
                                 {/* عرض القوائم المنسدلة للمجموعات */}
                                 {groupedNavLinks.map((group) => {
                                     // تحقق من وجود صلاحية لأي عنصر في المجموعة

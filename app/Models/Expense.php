@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     protected $fillable = [
-        'amount', 'user_id' , 'description','spent_at','location','asa','file_path', 'advance_id', 'stored_by'
+        'amount',
+        'user_id',
+        'description',
+        'spent_at',
+        'location',
+        'asa',
+        'file_path',
+        'advance_id',
+        'stored_by'
     ];
 
     public function user()
@@ -17,7 +25,7 @@ class Expense extends Model
 
     public function by()
     {
-        return $this->belongsTo(User::class , 'stored_by');
+        return $this->belongsTo(User::class, 'stored_by');
     }
     public function advance()
     {

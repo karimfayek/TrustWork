@@ -6,10 +6,10 @@ import Pagination from "../../Components/Pagination";
 export default function Dashboard({ projects }) {
     const logedinUser = usePage().props.auth.user;
     const { posts, filters } = usePage().props;
-    console.log(projects, "projects");
 
     const [search, setSearch] = useState(filters.search || "");
     const page = search !== "" ? 1 : projects.current_page;
+
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
             router.get(
@@ -21,7 +21,7 @@ export default function Dashboard({ projects }) {
                 {
                     preserveState: true,
                     replace: true,
-                }
+                },
             );
         }, 900);
 
@@ -31,7 +31,7 @@ export default function Dashboard({ projects }) {
         e.preventDefault();
 
         const confirmed = window.confirm(
-            "هل أنت متأكد أنك تريد حذف هذا المشروع؟"
+            "هل أنت متأكد أنك تريد حذف هذا المشروع؟",
         );
 
         if (!confirmed) return; // المستخدم رفض
@@ -106,14 +106,14 @@ export default function Dashboard({ projects }) {
                                     <td className="px-6 py-4 space-x-2 rtl:space-x-reverse">
                                         {["proj", "admin"].some((role) =>
                                             logedinUser?.rolesnames?.includes(
-                                                role
-                                            )
+                                                role,
+                                            ),
                                         ) && (
                                             <>
                                                 <Link
                                                     href={route(
                                                         "projects.assignTasks",
-                                                        project.id
+                                                        project.id,
                                                     )}
                                                     className="mb-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                 >
@@ -122,7 +122,7 @@ export default function Dashboard({ projects }) {
                                                 <Link
                                                     href={route(
                                                         "project.show",
-                                                        project.id
+                                                        project.id,
                                                     )}
                                                     className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                 >
@@ -133,13 +133,13 @@ export default function Dashboard({ projects }) {
                                         {["proj", "admin", "tech"].some(
                                             (role) =>
                                                 logedinUser?.rolesnames?.includes(
-                                                    role
-                                                )
+                                                    role,
+                                                ),
                                         ) && (
                                             <Link
                                                 href={route(
                                                     "admin.projects.edit",
-                                                    project.id
+                                                    project.id,
                                                 )}
                                                 className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                             >
@@ -149,14 +149,14 @@ export default function Dashboard({ projects }) {
 
                                         {["acc", "admin"].some((role) =>
                                             logedinUser?.rolesnames?.includes(
-                                                role
-                                            )
+                                                role,
+                                            ),
                                         ) && (
                                             <>
                                                 <Link
                                                     href={route(
                                                         "project.extractions.list",
-                                                        project.id
+                                                        project.id,
                                                     )}
                                                     className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                 >
@@ -167,7 +167,7 @@ export default function Dashboard({ projects }) {
                                                     <Link
                                                         href={route(
                                                             "acc.pricing",
-                                                            project.id
+                                                            project.id,
                                                         )}
                                                         className="mb-2 inline-block bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-xs font-medium"
                                                     >
@@ -178,15 +178,15 @@ export default function Dashboard({ projects }) {
                                         )}
                                         {["admin"].some((role) =>
                                             logedinUser?.rolesnames?.includes(
-                                                role
-                                            )
+                                                role,
+                                            ),
                                         ) && (
                                             <>
                                                 <button
                                                     onClick={(e) =>
                                                         handleDeleteProject(
                                                             e,
-                                                            project.id
+                                                            project.id,
                                                         )
                                                     }
                                                     className="inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-xs font-medium"

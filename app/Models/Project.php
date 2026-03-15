@@ -177,6 +177,10 @@ class Project extends Model
             ->flatMap(fn($adv) => $adv->expenses->where('asa', 'expense'))
             ->sum('amount');
     }
+    public function companyExpenses()
+    {
+        return $this->hasMany(CompanyExpense::class);
+    }
     protected $appends = [
         'total_quantity',
         'total_done',
